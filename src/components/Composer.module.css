@@ -109,31 +109,64 @@
   margin-left: auto;
 }
 
-.hint {
+/**
+ * Two lines under the frame: what the keyboard does, and what the answers are
+ * worth. Both are about the control rather than part of it, which is why they
+ * sit outside its border.
+ */
+.footnote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  /* The smallest step on the scale: both lines are read once and then ignored,
+     and neither may compete with the field above them. */
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  /* The marker is drawn below instead: a real list marker cannot be laid out
+     horizontally without fighting the flex box. */
+  list-style: none;
+}
+
+.keys li {
   display: flex;
   align-items: center;
-  /* Air rather than a separator: both hints contain a dash, and without real
-     distance between them they read as one sentence. */
-  gap: var(--space-4);
-  /* The picker gives up width first. Its name is truncated with an ellipsis and
-     stays legible; this line is short, fixed, and disappears entirely if it is
-     allowed to shrink. */
-  flex: 0 0 auto;
-  font-size: 11px;
-  color: var(--color-text-muted);
+  gap: var(--space-2);
   white-space: nowrap;
 }
 
+/* An empty box rather than a "•" character: generated text gets announced, and
+   the <ul> already tells a screen reader that these are list items. */
+.keys li::before {
+  content: '';
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.caveat {
+  margin: 0;
+}
+
 /**
- * Dropped as soon as the row runs short, and the only hint that ever is.
- *
  * Shift+Enter is a desktop gesture — a touch keyboard has no Shift to hold, so
- * on the screens where room runs out the hint is not merely redundant, it names
- * a key that is not there. "Enter — отправить" is the opposite: it is the one
- * thing a person has to be told, and it stays at every width.
+ * on the screens where the line runs short this item names a key that is not
+ * there. The other two stay at every width.
  */
 @media (max-width: 860px) {
-  .hintExtra {
+  .keyExtra {
     display: none;
   }
 }

@@ -99,22 +99,6 @@ export function Composer({
             ))}
           </select>
 
-          {/* Left of the row, beside the picker, rather than crowded against the
-              button on the right — that is the corner that runs out of room
-              first, and this is the line that must survive it. */}
-          <span className={styles.hint}>
-            {isStreaming ? (
-              // While an answer is arriving, Enter does nothing and a line
-              // break is beside the point. Stopping is the only key that acts.
-              'Esc — остановить'
-            ) : (
-              <>
-                Enter — отправить
-                <span className={styles.hintExtra}>Shift + Enter — перенос строки</span>
-              </>
-            )}
-          </span>
-
           {isStreaming ? (
             <button
               type="button"
@@ -135,6 +119,21 @@ export function Composer({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Under the frame rather than inside it: a key map and a caveat are about
+          the control, not part of it, and the row inside was the first place to
+          run out of room. */}
+      <div className={styles.footnote}>
+        <ul className={styles.keys}>
+          <li>Esc — остановить</li>
+          <li>Enter — отправить</li>
+          {/* A touch keyboard has no Shift to hold, so on the screens where the
+              line runs short this one names a key that is not there. */}
+          <li className={styles.keyExtra}>Shift + Enter — перенос строки</li>
+        </ul>
+
+        <p className={styles.caveat}>ИИ может ошибаться — перепроверяйте важные ответы.</p>
       </div>
     </form>
   )
