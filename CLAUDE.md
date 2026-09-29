@@ -67,9 +67,11 @@ Not style preferences — each of these breaks the assignment when violated.
    not in API responses, not in logs, not in error messages. The assignment is checked with the
    Network tab: the browser only ever talks to its own origin.
 2. **`.env` is never committed.** The repository holds only `.env.example` with placeholders.
-3. **`outline: none` without a matching `:focus-visible` is forbidden.** The assignment asks to
-   remove the browser focus ring and, in the same document, requires full keyboard use. We satisfy
-   the intent: the default ring goes, every interactive element gets its own visible ring.
+3. **`outline: none` is never allowed on its own.** Anything that suppresses the browser ring
+   declares its replacement in the same stylesheet — either the system's `:focus-visible` ring or,
+   for the composer alone, the accent border its frame takes while focus is inside it. Naked
+   `outline: none` is forbidden. The assignment asks to remove the browser focus ring and, in the
+   same document, requires full keyboard use; both are satisfiable at once, and that is what we do.
    See [ADR 0007](docs/adr/0007-custom-focus-ring.md).
 4. **The mock and the real adapter sit behind one contract**, described in `docs/plan.md`.
    Change the contract and you change both implementations and the document, in one commit.

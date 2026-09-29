@@ -22,8 +22,13 @@
   border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
 }
 
-/* :focus-within and not :focus-visible — the ring belongs to the frame, but
-   the focus lives on the textarea inside it. */
+/**
+ * The frame's accent border is the focus indicator for the field inside it —
+ * the replacement that pays for the `outline: none` further down, and what
+ * clause 3 of CLAUDE.md requires. Not `:focus-visible`: a text field should
+ * read as active when it is clicked as well as when it is tabbed into, and the
+ * indicator has to appear whichever of the frame's two controls holds focus.
+ */
 .frame:focus-within {
   border-color: var(--color-accent);
 }
@@ -56,6 +61,8 @@
   color: var(--color-text-muted);
 }
 
+/* Paid for by `.frame:focus-within` above: the indicator moves to the frame
+   rather than disappearing. Never remove one without the other. */
 .input:focus {
   outline: none;
 }

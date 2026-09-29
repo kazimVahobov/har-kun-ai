@@ -43,9 +43,19 @@ mouse path; the keyboard path is not broken.
 This is not a workaround — it is how Nocturne is built in the first place: the system explicitly
 requires not leaving the browser's blue ring and defines its own. So nothing here is invented.
 
-Special cases: the input highlights its border instead of taking a ring
-(`.input:focus-visible { border-color: var(--color-accent); outline-offset: 0 }`) — the field is
-already framed, and a second ring outside it would be noise.
+Special cases: a framed field highlights its border instead of taking a ring — the frame is
+already there, and a second ring outside it would be noise.
+
+- Nocturne's own `.input`: `:focus-visible { border-color: var(--color-accent); outline-offset: 0 }`.
+- The composer is one control made of two elements — a `textarea` and the model picker inside a
+  shared frame. The ring therefore belongs to the frame rather than to whichever of them holds
+  focus, so the textarea suppresses its own outline and `.frame:focus-within` takes the accent
+  border. This is the replacement that clause 3 of `CLAUDE.md` demands; the picker additionally
+  keeps the system ring, because it is a separate tab stop and has to be findable as one.
+
+  `:focus-within` and not `:has(:focus-visible)` deliberately: unlike a button, a text field
+  should look active when it is clicked as well as when it is tabbed into. The tidy look the
+  assignment asks for is not at stake — a border changing colour is not the browser's blue ring.
 
 This goes into the README as its own paragraph: what was done differently, and why.
 
