@@ -76,7 +76,7 @@ event: error
 data: {"code":"upstream_error","message":"Модель оборвала генерацию"}
 
 event: done
-data: {"reason":"stop","model":"mock/lorem","chars":812}
+data: {"reason":"stop","model":"mock/lorem:free","chars":812}
 ```
 
 - `delta` — an increment, not the accumulated text: the client joins it itself.
@@ -262,7 +262,7 @@ as a result.
 
 ## Phase 4 — README and submission
 
-Branch `docs/readme`.
+Branch `chore/docs`.
 
 Running locally in five minutes · key decisions and why · the pushback · the AI log assembled from
 `docs/progress/` · what would come next given another day.

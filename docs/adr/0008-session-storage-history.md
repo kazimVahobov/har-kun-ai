@@ -22,8 +22,10 @@ Three options, each with its own price:
 
 ## Decision
 
-`sessionStorage`, key `har-kun-ai:chat`, written with a debounce (around 300 ms) so the history is
-not serialised on every streamed token.
+`sessionStorage`, key `har-kun-ai:v1`, written with a debounce (around 300 ms) so the history is
+not serialised on every streamed token. The key carries a version rather than a subject: the
+stored shape is validated on read, and a bump is how an incompatible change is retired without
+leaving the previous tab's data to be misread.
 
 The reasoning: a chat with a model is contextual. Almost all of a conversation's value is
 concentrated inside the session, while the person is working through a problem. A week later it is

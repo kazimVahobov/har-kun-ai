@@ -32,7 +32,7 @@ assembled from here.
 | File | Task |
 |---|---|
 | [0001-docs-setup.md](0001-docs-setup.md) | Agent instructions, work plan, report structure |
-| [0002-design-system-and-adr.md](0002-design-system-and-adr.md) | Nocturne design system, `.gitignore`, ADRs |
+| [0002-design-system-and-adr.md](0002-design-system-and-adr.md) | Nocturne design system and ADRs |
 | [0003-ui-structure.md](0003-ui-structure.md) | Screen structure, sidebar, background generation |
 | [0004-sidebar-scope-check.md](0004-sidebar-scope-check.md) | Checking the sidebar against the assignment, moving it last |
 | [0005-scaffold.md](0005-scaffold.md) | Scaffold: Vite + React + TS, Express, `/api/health` |
