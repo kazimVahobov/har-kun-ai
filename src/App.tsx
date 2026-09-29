@@ -48,7 +48,9 @@ export function App() {
       logRef={logRef}
       log={
         hasMessages ? (
-          <MessageList messages={chat.messages} />
+          // Retry lives on the message that failed, not in the footer: the
+          // error belongs to its cause.
+          <MessageList messages={chat.messages} onRetry={canRetry ? retry : undefined} />
         ) : (
           // An example fills the field and moves focus there, but never sends:
           // the user has to be able to change their mind or add to it.
@@ -75,12 +77,6 @@ export function App() {
       footer={
         <>
           <StatusLine isStreaming={isStreaming} text={statusText(isStreaming, lastMessage)} />
-
-          {canRetry && (
-            <button type="button" className="btn btn-ghost" onClick={retry}>
-              Повторить
-            </button>
-          )}
 
           <Composer
             value={draft}

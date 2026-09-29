@@ -86,8 +86,15 @@ kbd {
  * label: it disappears the moment there is text, and a screen reader is left
  * with an unnamed field.
  */
+/**
+ * Deliberately not `position: absolute`, which is the usual recipe. Without a
+ * positioned ancestor an absolute element is laid out against the page, so one
+ * of these inside a scrolled container escapes it and lands wherever its static
+ * position fell — hundreds of pixels down the document, giving the window a
+ * scrollbar of its own. Staying in flow at 1x1 with a negative margin cannot do
+ * that.
+ */
 .visually-hidden {
-  position: absolute;
   width: 1px;
   height: 1px;
   margin: -1px;

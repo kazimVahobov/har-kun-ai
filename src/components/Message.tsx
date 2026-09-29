@@ -1,40 +1,63 @@
 import { useEffect, useState } from 'react'
 import type { Message } from '../lib/types.js'
-import { CheckIcon, CopyIcon } from './icons/index.js'
+import { ErrorNotice } from './ErrorNotice.js'
+import { CheckIcon, CopyIcon, RetryIcon } from './icons/index.js'
 import styles from './Message.module.css'
 
-export function MessageList({ messages }: { messages: Message[] }) {
+export function MessageList({
+  messages,
+  onRetry,
+}: {
+  messages: Message[]
+  onRetry?: () => void
+}) {
+  const lastIndex = messages.length - 1
+
   return (
     <ol className={styles.list}>
-      {messages.map((message) => (
+      {messages.map((message, index) => (
         <li
           key={message.id}
           className={`${styles.item} ${message.role === 'user' ? styles.itemUser : ''}`}
         >
-          <MessageView message={message} />
+          <MessageView
+            message={message}
+            // Retrying anything but the last answer would rewrite history the
+            // conversation has already built on.
+            onRetry={index === lastIndex ? onRetry : undefined}
+          />
         </li>
       ))}
     </ol>
   )
 }
 
-function MessageView({ message }: { message: Message }) {
+function MessageView({ message, onRetry }: { message: Message; onRetry?: () => void }) {
   const isUser = message.role === 'user'
+  const isStreaming = message.status === 'streaming'
 
   return (
-    <article
-      className={isUser ? styles.user : styles.model}
-      aria-busy={message.status === 'streaming'}
-    >
+    <article className={isUser ? styles.user : styles.model} aria-busy={isStreaming}>
       {/* The author is carried visually by fill and position, which a screen
           reader cannot see — so it is named here instead. */}
       <h3 className="visually-hidden">{isUser ? 'Вы' : 'Модель'}</h3>
 
       <div className={styles.content}>{message.content}</div>
 
-      {!isUser && message.status !== 'streaming' && message.content !== '' && (
+      {/* The received text stays above, untouched: a partial answer is a valid
+          result, not something to replace with an error. */}
+      {message.error !== undefined && <ErrorNotice error={message.error} onRetry={onRetry} />}
+
+      {!isUser && !isStreaming && (
         <div className={styles.actions}>
-          <CopyButton text={message.content} />
+          {message.content !== '' && <CopyButton text={message.content} />}
+
+          {message.status === 'stopped' && onRetry !== undefined && (
+            <button type="button" className="btn btn-ghost" onClick={onRetry}>
+              <RetryIcon />
+              Повторить
+            </button>
+          )}
         </div>
       )}
     </article>

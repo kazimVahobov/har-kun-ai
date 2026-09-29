@@ -6,7 +6,7 @@ import {
   createInitialState,
   isStreaming as chatIsStreaming,
 } from '../lib/chatReducer.js'
-import { runChatStream } from '../lib/chatStream.js'
+import { CHAT_ENDPOINT, runChatStream } from '../lib/chatStream.js'
 import { createStateSaver, loadState } from '../lib/storage.js'
 import { createStreamRegistry } from '../lib/streams.js'
 import type { Chat, ChatState, Message } from '../lib/types.js'
@@ -98,8 +98,12 @@ export function useChat(): UseChat {
       const controller = streams.register(chatId)
 
       void runChatStream({
-        request: requestedModel === '' ? { messages: history } : { messages: history, model: requestedModel },
+        request:
+          requestedModel === ''
+            ? { messages: history }
+            : { messages: history, model: requestedModel },
         signal: controller.signal,
+        endpoint: chatEndpoint(),
         handlers: {
           onDelta: (text) => dispatch({ type: 'stream/delta', chatId, messageId, text }),
           onDone: () => {
@@ -191,4 +195,17 @@ function asHistory(messages: Message[]): ChatMessage[] {
 
 function newId(): string {
   return crypto.randomUUID()
+}
+
+/**
+ * A development affordance: `?simulate=` on the page is forwarded to the API,
+ * so the mock's failure modes — 429, a mid-stream error, a dropped connection —
+ * can be exercised through the interface rather than only with curl. The server
+ * ignores the parameter outside development, so this is inert in production.
+ */
+function chatEndpoint(): string {
+  const simulate = new URLSearchParams(window.location.search).get('simulate')
+  if (simulate === null) return CHAT_ENDPOINT
+
+  return `${CHAT_ENDPOINT}?simulate=${encodeURIComponent(simulate)}`
 }
