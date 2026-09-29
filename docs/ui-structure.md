@@ -121,8 +121,11 @@ the block costs no layout shift.
 Inside an answer, markdown renders with a reduced heading scale (h1→20px, h2→17px, h3→16px, then
 15px): the system's 42px is absurd in a chat reply. Code blocks scroll inside themselves.
 
-Under a finished answer sits a row of actions, appearing on hover and on focus: copy, and for the
-last message in the conversation, retry.
+Under a finished answer sits a row of actions, aligned to its right edge and always visible: copy,
+and for the last message in the conversation, retry. It used to fade in on hover, which meant a
+complete answer looked exactly like one still being written unless you pointed at it — and nothing
+hovers on a touchscreen. The copy icon trails its label, since the row is flush right and the glyph
+belongs on the edge.
 
 **Autoscroll** sticks to the bottom until the user scrolls up themselves. After that it switches
 off — otherwise you cannot reread the start of an answer while it is being generated — and a

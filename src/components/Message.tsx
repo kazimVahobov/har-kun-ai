@@ -61,14 +61,15 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
 
       {!isUser && !isStreaming && (
         <div className={styles.actions}>
-          {message.content !== '' && <CopyButton text={message.content} />}
-
+          {/* Retry first, so copy stays closest to the edge the eye returns to. */}
           {message.status === 'stopped' && onRetry !== undefined && (
             <button type="button" className="btn btn-ghost" onClick={onRetry}>
               <RetryIcon />
               Повторить
             </button>
           )}
+
+          {message.content !== '' && <CopyButton text={message.content} />}
         </div>
       )}
     </article>
@@ -100,8 +101,10 @@ function CopyButton({ text }: { text: string }) {
       onClick={copy}
       aria-label={copied ? 'Скопировано' : 'Копировать ответ'}
     >
-      {copied ? <CheckIcon /> : <CopyIcon />}
+      {/* The icon trails the label: the row is flush right, so the glyph lands on
+          the edge and the words read inward. */}
       {copied ? 'Скопировано' : 'Копировать'}
+      {copied ? <CheckIcon /> : <CopyIcon />}
     </button>
   )
 }

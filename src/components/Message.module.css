@@ -108,28 +108,18 @@
 }
 
 /**
- * Present for keyboard users, out of the way for everyone else: the row is
- * always in the DOM and in the tab order, and becomes visible on hover or as
- * soon as anything inside it takes focus.
+ * Always visible on a finished answer, aligned to its right edge.
+ *
+ * It used to fade in on hover, which meant a complete answer looked exactly
+ * like one still being written unless you happened to point at it — and on a
+ * touchscreen nothing hovers at all. It also left a reserved empty band at the
+ * bottom of the block, which the border made conspicuous.
  */
 .actions {
   display: flex;
+  justify-content: flex-end;
   gap: var(--space-2);
   margin-top: var(--space-2);
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease);
-}
-
-.model:hover .actions,
-.actions:focus-within {
-  opacity: 1;
-}
-
-@media (hover: none) {
-  /* Nothing hovers on a touchscreen. */
-  .actions {
-    opacity: 1;
-  }
 }
 
 @media (max-width: 640px) {
