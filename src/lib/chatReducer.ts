@@ -8,6 +8,15 @@ import type { Chat, ChatState, Message } from './types.js'
  * Otherwise the reducer cannot be checked without faking time — and it has to
  * be checked, because the assignment's central invariant lives here: **the
  * chunk already received is never lost**, however generation ends.
+ *
+ * Part of this has no interface yet, on purpose. `chat/created`,
+ * `chat/selected`, `chat/deleted` and `chatsByRecency` belong to the chat
+ * sidebar, which goes beyond the assignment and was deliberately deferred
+ * ([ADR 0012](../../docs/adr/0012-chat-sidebar-scope.md)); the state is
+ * multi-chat from the start so that arriving later is a matter of rendering
+ * rather than rearchitecting. They are covered by tests and reachable from
+ * nothing — that is a known cost, not an oversight. Anything here that is
+ * neither used nor part of that deferral is dead and should go.
  */
 
 export const TITLE_LIMIT = 40
@@ -134,10 +143,6 @@ export function activeChat(state: ChatState): Chat | undefined {
   return state.chats.find((chat) => chat.id === state.activeChatId)
 }
 
-export function findChat(state: ChatState, chatId: string): Chat | undefined {
-  return state.chats.find((chat) => chat.id === chatId)
-}
-
 export function isStreaming(chat: Chat): boolean {
   return chat.messages.some((message) => message.status === 'streaming')
 }
@@ -145,10 +150,6 @@ export function isStreaming(chat: Chat): boolean {
 /** For the sidebar: freshest first. */
 export function chatsByRecency(state: ChatState): Chat[] {
   return [...state.chats].sort((a, b) => b.updatedAt - a.updatedAt)
-}
-
-export function streamingMessage(chat: Chat): Message | undefined {
-  return chat.messages.find((message) => message.status === 'streaming')
 }
 
 // ── Internals ────────────────────────────────────────────────────────────────

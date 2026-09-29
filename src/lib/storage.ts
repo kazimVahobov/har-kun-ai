@@ -123,20 +123,11 @@ export function saveState(storage: StorageLike, state: ChatState): void {
   }
 }
 
-export function clearState(storage: StorageLike): void {
-  try {
-    storage.removeItem(STORAGE_KEY)
-  } catch {
-    // Nothing to do: the caller cannot act on this either.
-  }
-}
-
 export interface StateSaver {
   /** Debounced. Safe to call on every state change, including per token. */
   schedule(state: ChatState): void
   /** Writes a pending state immediately — on a terminal event and on `pagehide`. */
   flush(): void
-  cancel(): void
 }
 
 export function createStateSaver(
@@ -168,13 +159,6 @@ export function createStateSaver(
         timer = undefined
       }
       write()
-    },
-    cancel() {
-      if (timer !== undefined) {
-        clearTimeout(timer)
-        timer = undefined
-      }
-      pending = undefined
     },
   }
 }
