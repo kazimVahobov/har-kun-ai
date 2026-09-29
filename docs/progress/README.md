@@ -43,3 +43,4 @@ assembled from here.
 | [0010-chat-streaming.md](0010-chat-streaming.md) | Storage, stream runner, useChat hook and a bare page |
 | [0011-styled-ui.md](0011-styled-ui.md) | The styled UI: tokens, shell, messages, markdown, error states |
 | [0012-identity-pass.md](0012-identity-pass.md) | Giving the interface a voice: type, the day, the pen-mark |
+| [0013-ui-refinement.md](0013-ui-refinement.md) | Composition, the contents rail, and the defects a real screen surfaced |
