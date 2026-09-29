@@ -97,6 +97,17 @@
   }
 }
 
+/**
+ * Stands in for an answer that never started. Italic and muted so it reads as a
+ * note about the block rather than as something the model said — the one place
+ * in a conversation where the text is ours and not an answer.
+ */
+.blank {
+  margin: 0;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
 .content {
   white-space: pre-wrap;
   /* A long link or an unbroken token must not push the page sideways. */
