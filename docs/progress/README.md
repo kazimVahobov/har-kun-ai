@@ -32,3 +32,4 @@
 |---|---|
 | [0001-docs-setup.md](0001-docs-setup.md) | Инструкции агентам, план работ, структура отчётов |
 | [0002-design-system-and-adr.md](0002-design-system-and-adr.md) | Дизайн-система Nocturne, `.gitignore`, ADR |
+| [0003-ui-structure.md](0003-ui-structure.md) | Структура интерфейса, сайдбар, фоновая генерация |
