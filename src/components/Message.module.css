@@ -33,9 +33,48 @@
 }
 
 .model {
+  position: relative;
   width: 100%;
-  border-inline-start: 2px solid var(--color-accent);
   padding-inline-start: var(--space-4);
+}
+
+/* The mark is a layer rather than a border, so it can carry a gradient while
+   the answer is still being written. */
+.model::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 2px;
+  background: var(--color-accent);
+}
+
+/**
+ * While the answer streams, the mark reads like a pen: bright at the bottom
+ * where text is appearing, fading upward over what is already written. It puts
+ * the eye where the words are arriving, and it is the same accent doing what
+ * this system allows it to do — a line and a light, never a fill.
+ */
+.model[aria-busy='true']::before {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-accent) 20%, transparent),
+    var(--color-accent) 88%
+  );
+  box-shadow: 0 8px 16px -4px color-mix(in srgb, var(--color-accent) 75%, transparent);
+  animation: breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .model[aria-busy='true']::before {
+    animation: none;
+  }
 }
 
 .content {
