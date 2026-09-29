@@ -1,0 +1,85 @@
+/**
+ * The frame. Only the log scrolls; the navbar and the composer stay put.
+ *
+ * `100dvh` rather than `100vh`: the dynamic unit accounts for a collapsed
+ * mobile browser bar, while the static one leaves the composer underneath it.
+ * The `100vh` line before it is the fallback for browsers without `dvh`.
+ */
+
+.shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+}
+
+.main {
+  display: grid;
+  /* minmax(0, 1fr) and not 1fr: a grid track sized to its content refuses to
+     shrink, and the log would push the composer off the screen. */
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.log {
+  overflow-y: auto;
+  /* A scroll that reaches the end of the log should not start scrolling the
+     page behind it. */
+  overscroll-behavior: contain;
+}
+
+/**
+ * Left-aligned, asymmetric: the system's direction is content hugging the left
+ * edge with whitespace on the right, and it is the reason to use a system with
+ * an opinion rather than centring everything by default.
+ */
+.container {
+  width: min(760px, 100%);
+  padding-inline: var(--space-6);
+}
+
+.logInner {
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.footer {
+  padding-block-start: var(--space-2);
+  /* The home indicator on a phone sits where the composer would otherwise be. */
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+}
+
+/**
+ * Visible only when focused. Without it, reaching the composer in a long
+ * conversation means tabbing past every answer's action row.
+ */
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: 2;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  font-size: 14px;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-inline: var(--space-8);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-inline: calc(var(--space-8) * 2);
+  }
+}

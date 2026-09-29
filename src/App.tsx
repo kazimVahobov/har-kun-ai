@@ -1,23 +1,19 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useState } from 'react'
+import { ChatShell } from './components/ChatShell.js'
+import { Composer } from './components/Composer.js'
 import { useChat } from './hooks/useChat.js'
 import type { Message } from './lib/types.js'
 
-/**
- * The bare chat: correct semantics and behaviour, no styling at all. Nocturne's
- * tokens are a separate step, and mixing them in here would hide whether the
- * markup stands up on its own.
- */
 export function App() {
   const { chat, models, model, isStreaming, send, stop, retry, setModel } = useChat()
   const [draft, setDraft] = useState('')
-  const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Esc stops generation, from anywhere on the page. It lives here rather than
+  // Esc stops generation from anywhere on the page. It lives here rather than
   // in the hook because once the sidebar exists, Esc has to close that first.
   useEffect(() => {
     if (!isStreaming) return
 
-    const onKeyDown = (event: globalThis.KeyboardEvent): void => {
+    const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') stop()
     }
 
@@ -25,19 +21,8 @@ export function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isStreaming, stop])
 
-  const submit = (event: FormEvent): void => {
-    event.preventDefault()
-    if (isStreaming) return
-
-    send(draft)
-    setDraft('')
-  }
-
-  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (event.key !== 'Enter' || event.shiftKey) return
-    event.preventDefault()
-    if (isStreaming) return
-
+  const submit = (): void => {
+    if (isStreaming || draft.trim() === '') return
     send(draft)
     setDraft('')
   }
@@ -48,95 +33,60 @@ export function App() {
     (lastMessage.status === 'error' || lastMessage.status === 'stopped')
 
   return (
-    <>
-      <header>
-        <h1>har kun ai</h1>
-      </header>
-
-      <main>
-        {chat.messages.length === 0 ? (
+    <ChatShell
+      log={
+        chat.messages.length === 0 ? (
           <section aria-labelledby="empty-title">
-            <h2 id="empty-title">Спросите что-нибудь</h2>
-            <p>«har kun» по-узбекски — «каждый день». Модель отвечает потоком, ответ можно прервать.</p>
+            <h3 id="empty-title">Спросите что-нибудь</h3>
+            <p className="text-muted">
+              «har kun» по-узбекски — «каждый день». Модель отвечает потоком, ответ можно прервать.
+            </p>
           </section>
         ) : (
           <ol>
             {chat.messages.map((message) => (
               <li key={message.id}>
-                <MessageView message={message} />
+                <PlainMessage message={message} />
               </li>
             ))}
           </ol>
-        )}
+        )
+      }
+      footer={
+        <>
+          <p role="status" aria-live="polite" className="text-muted">
+            {statusText(isStreaming, lastMessage)}
+          </p>
 
-        <p role="status" aria-live="polite">
-          {statusText(isStreaming, lastMessage)}
-        </p>
+          {canRetry && (
+            <button type="button" className="btn btn-ghost" onClick={retry}>
+              Повторить
+            </button>
+          )}
 
-        {canRetry && (
-          <button type="button" onClick={retry}>
-            Повторить
-          </button>
-        )}
-      </main>
-
-      <form onSubmit={submit}>
-        <label htmlFor="composer">Сообщение</label>
-        <textarea
-          id="composer"
-          ref={inputRef}
-          rows={3}
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder="Enter — отправить, Shift+Enter — перенос строки"
-        />
-
-        <label htmlFor="model">Модель</label>
-        <select
-          id="model"
-          value={model}
-          onChange={(event) => setModel(event.target.value)}
-          disabled={models.length === 0}
-        >
-          {models.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.name}
-            </option>
-          ))}
-        </select>
-
-        {isStreaming ? (
-          <button type="button" onClick={stop}>
-            Стоп
-          </button>
-        ) : (
-          <button type="submit" disabled={draft.trim() === ''}>
-            Отправить
-          </button>
-        )}
-      </form>
-    </>
+          <Composer
+            value={draft}
+            onChange={setDraft}
+            onSubmit={submit}
+            onStop={stop}
+            isStreaming={isStreaming}
+            models={models}
+            model={model}
+            onModelChange={setModel}
+          />
+        </>
+      }
+    />
   )
 }
 
-function MessageView({ message }: { message: Message }) {
-  const author = message.role === 'user' ? 'Вы' : 'Модель'
-
+/** Placeholder rendering — messages get their own component in the next step. */
+function PlainMessage({ message }: { message: Message }) {
   return (
     <article aria-busy={message.status === 'streaming'}>
-      <h3>{author}</h3>
-      {/* Plain text for now: markdown rendering comes with the styled UI. */}
+      <h4>{message.role === 'user' ? 'Вы' : 'Модель'}</h4>
       <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
-
-      {message.status === 'stopped' && <p>Генерация остановлена.</p>}
-
-      {message.error !== undefined && (
-        <p>
-          {message.error.message}
-          {message.error.retryAfter !== undefined && ` Повторите через ${message.error.retryAfter} с.`}
-        </p>
-      )}
+      {message.error !== undefined && <p>{message.error.message}</p>}
     </article>
   )
 }

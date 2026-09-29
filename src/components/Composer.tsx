@@ -1,0 +1,116 @@
+import { useLayoutEffect, useRef, type FormEvent, type KeyboardEvent } from 'react'
+import type { ModelInfo } from '../../shared/contract.js'
+import { ArrowUpIcon, StopIcon } from './icons/index.js'
+import styles from './Composer.module.css'
+
+export interface ComposerProps {
+  value: string
+  onChange(value: string): void
+  onSubmit(): void
+  onStop(): void
+  isStreaming: boolean
+  models: ModelInfo[]
+  model: string
+  onModelChange(model: string): void
+}
+
+export function Composer({
+  value,
+  onChange,
+  onSubmit,
+  onStop,
+  isStreaming,
+  models,
+  model,
+  onModelChange,
+}: ComposerProps) {
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Grow with the content up to the max-height the stylesheet sets, then let
+  // the field scroll. Done on layout so the height never renders one frame late.
+  useLayoutEffect(() => {
+    const input = inputRef.current
+    if (input === null) return
+
+    input.style.height = 'auto'
+    input.style.height = `${input.scrollHeight}px`
+  }, [value])
+
+  const submit = (event: FormEvent): void => {
+    event.preventDefault()
+    onSubmit()
+  }
+
+  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
+    // Enter sends, Shift+Enter breaks a line. The composer is a textarea
+    // precisely so the second one is possible.
+    if (event.key !== 'Enter' || event.shiftKey) return
+    event.preventDefault()
+    onSubmit()
+  }
+
+  return (
+    <form onSubmit={submit}>
+      <div className={styles.frame}>
+        <label className="visually-hidden" htmlFor="composer">
+          Сообщение модели
+        </label>
+        <textarea
+          id="composer"
+          ref={inputRef}
+          className={styles.input}
+          rows={1}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder="Спросите что-нибудь"
+        />
+
+        <div className={styles.row}>
+          <label className="visually-hidden" htmlFor="model">
+            Модель
+          </label>
+          <select
+            id="model"
+            className={styles.model}
+            value={model}
+            onChange={(event) => onModelChange(event.target.value)}
+            disabled={models.length === 0}
+          >
+            {models.map((entry) => (
+              <option key={entry.id} value={entry.id}>
+                {entry.name}
+              </option>
+            ))}
+          </select>
+
+          <div className={styles.actions}>
+            <span className={styles.hint}>
+              {isStreaming ? 'Esc — остановить' : 'Enter — отправить'}
+            </span>
+
+            {isStreaming ? (
+              <button
+                type="button"
+                className="btn btn-secondary btn-icon"
+                onClick={onStop}
+                aria-label="Остановить генерацию"
+              >
+                <StopIcon />
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className="btn btn-primary btn-icon"
+                disabled={value.trim() === ''}
+                aria-label="Отправить сообщение"
+              >
+                <ArrowUpIcon />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </form>
+  )
+}
