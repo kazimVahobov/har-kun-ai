@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChatShell } from './components/ChatShell.js'
 import { Composer } from './components/Composer.js'
+import { EmptyState } from './components/EmptyState.js'
 import { MessageList } from './components/Message.js'
 import { useChat } from './hooks/useChat.js'
 import type { Message } from './lib/types.js'
@@ -8,6 +9,7 @@ import type { Message } from './lib/types.js'
 export function App() {
   const { chat, models, model, isStreaming, send, stop, retry, setModel } = useChat()
   const [draft, setDraft] = useState('')
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // Esc stops generation from anywhere on the page. It lives here rather than
   // in the hook because once the sidebar exists, Esc has to close that first.
@@ -37,12 +39,14 @@ export function App() {
     <ChatShell
       log={
         chat.messages.length === 0 ? (
-          <section aria-labelledby="empty-title">
-            <h3 id="empty-title">Спросите что-нибудь</h3>
-            <p className="text-muted">
-              «har kun» по-узбекски — «каждый день». Модель отвечает потоком, ответ можно прервать.
-            </p>
-          </section>
+          // An example fills the field and moves focus there, but never sends:
+          // the user has to be able to change their mind or add to it.
+          <EmptyState
+            onPick={(text) => {
+              setDraft(text)
+              inputRef.current?.focus()
+            }}
+          />
         ) : (
           <MessageList messages={chat.messages} />
         )
@@ -68,6 +72,7 @@ export function App() {
             models={models}
             model={model}
             onModelChange={setModel}
+            inputRef={inputRef}
           />
         </>
       }

@@ -1,4 +1,10 @@
-import { useLayoutEffect, useRef, type FormEvent, type KeyboardEvent } from 'react'
+import {
+  useLayoutEffect,
+  useRef,
+  type FormEvent,
+  type KeyboardEvent,
+  type RefObject,
+} from 'react'
 import type { ModelInfo } from '../../shared/contract.js'
 import { ArrowUpIcon, StopIcon } from './icons/index.js'
 import styles from './Composer.module.css'
@@ -12,6 +18,8 @@ export interface ComposerProps {
   models: ModelInfo[]
   model: string
   onModelChange(model: string): void
+  /** Lets the empty state's examples put focus here after filling the field. */
+  inputRef?: RefObject<HTMLTextAreaElement | null>
 }
 
 export function Composer({
@@ -23,13 +31,15 @@ export function Composer({
   models,
   model,
   onModelChange,
+  inputRef,
 }: ComposerProps) {
-  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const localRef = useRef<HTMLTextAreaElement>(null)
+  const ref = inputRef ?? localRef
 
   // Grow with the content up to the max-height the stylesheet sets, then let
   // the field scroll. Done on layout so the height never renders one frame late.
   useLayoutEffect(() => {
-    const input = inputRef.current
+    const input = ref.current
     if (input === null) return
 
     input.style.height = 'auto'
@@ -57,7 +67,7 @@ export function Composer({
         </label>
         <textarea
           id="composer"
-          ref={inputRef}
+          ref={ref}
           className={styles.input}
           rows={1}
           value={value}
