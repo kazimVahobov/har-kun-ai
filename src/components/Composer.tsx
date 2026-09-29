@@ -99,40 +99,41 @@ export function Composer({
             ))}
           </select>
 
-          <div className={styles.actions}>
-            <span className={styles.hint}>
-              {isStreaming ? (
-                // While an answer is arriving, Enter does nothing and a line
-                // break is beside the point. Stopping is the only key that acts.
-                'Esc — остановить'
-              ) : (
-                <>
-                  Enter — отправить
-                  <span className={styles.hintExtra}>Shift + Enter — перенос строки</span>
-                </>
-              )}
-            </span>
-
+          {/* Left of the row, beside the picker, rather than crowded against the
+              button on the right — that is the corner that runs out of room
+              first, and this is the line that must survive it. */}
+          <span className={styles.hint}>
             {isStreaming ? (
-              <button
-                type="button"
-                className="btn btn-secondary btn-icon"
-                onClick={onStop}
-                aria-label="Остановить генерацию"
-              >
-                <StopIcon />
-              </button>
+              // While an answer is arriving, Enter does nothing and a line
+              // break is beside the point. Stopping is the only key that acts.
+              'Esc — остановить'
             ) : (
-              <button
-                type="submit"
-                className="btn btn-primary btn-icon"
-                disabled={value.trim() === ''}
-                aria-label="Отправить сообщение"
-              >
-                <ArrowUpIcon />
-              </button>
+              <>
+                Enter — отправить
+                <span className={styles.hintExtra}>Shift + Enter — перенос строки</span>
+              </>
             )}
-          </div>
+          </span>
+
+          {isStreaming ? (
+            <button
+              type="button"
+              className={`btn btn-secondary btn-icon ${styles.send}`}
+              onClick={onStop}
+              aria-label="Остановить генерацию"
+            >
+              <StopIcon />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className={`btn btn-primary btn-icon ${styles.send}`}
+              disabled={value.trim() === ''}
+              aria-label="Отправить сообщение"
+            >
+              <ArrowUpIcon />
+            </button>
+          )}
         </div>
       </div>
     </form>

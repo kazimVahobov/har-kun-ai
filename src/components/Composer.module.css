@@ -63,7 +63,7 @@
 .row {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
 /* Ghost styling on a native select: the element keeps its keyboard handling,
@@ -105,13 +105,8 @@
   color: var(--color-text);
 }
 
-.actions {
+.send {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  /* At least the distance the hints keep from each other, or the button reads
-     as attached to the last word instead of standing apart from it. */
-  gap: var(--space-4);
 }
 
 .hint {
@@ -120,25 +115,30 @@
   /* Air rather than a separator: both hints contain a dash, and without real
      distance between them they read as one sentence. */
   gap: var(--space-4);
+  /* The picker gives up width first. Its name is truncated with an ellipsis and
+     stays legible; this line is short, fixed, and disappears entirely if it is
+     allowed to shrink. */
+  flex: 0 0 auto;
   font-size: 11px;
   color: var(--color-text-muted);
   white-space: nowrap;
 }
 
+/**
+ * Dropped as soon as the row runs short, and the only hint that ever is.
+ *
+ * Shift+Enter is a desktop gesture — a touch keyboard has no Shift to hold, so
+ * on the screens where room runs out the hint is not merely redundant, it names
+ * a key that is not there. "Enter — отправить" is the opposite: it is the one
+ * thing a person has to be told, and it stays at every width.
+ */
 @media (max-width: 860px) {
-  /* The first thing dropped when the row runs short. How to send is what you
-     need to be told; a line break is what you find out by trying. */
   .hintExtra {
     display: none;
   }
 }
 
 @media (max-width: 480px) {
-  /* Too tight to keep the hint next to the controls. */
-  .hint {
-    display: none;
-  }
-
   .model {
     max-width: 50%;
   }
