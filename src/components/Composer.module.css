@@ -7,7 +7,10 @@
 .frame {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  /* The field and the picker are two separate controls, and at --space-2 they
+     read as one crowded stack — the placeholder sat directly on top of the
+     model name. */
+  gap: var(--space-4);
   padding: var(--space-3);
   background: var(--color-surface);
   border: 1px solid var(--color-divider);
@@ -40,6 +43,11 @@
      texts start on the same vertical without dragging the picker's box out
      past the frame's padding. */
   padding: 0 0 0 calc(var(--space-2) + 1px);
+  /* Two lines at rest. The height is set inline as the content grows, and
+     min-height clamps that from below — an empty composer was a single line
+     pinned to the top of the frame, which made the whole control look like a
+     search box rather than somewhere to write. */
+  min-height: 2lh;
   max-height: 9lh;
   overflow-y: auto;
 }
