@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Message } from '../lib/types.js'
 import { ErrorNotice } from './ErrorNotice.js'
+import { Markdown } from './Markdown.js'
 import { CheckIcon, CopyIcon, RetryIcon } from './icons/index.js'
 import styles from './Message.module.css'
 
@@ -42,7 +43,13 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
           reader cannot see — so it is named here instead. */}
       <h3 className="visually-hidden">{isUser ? 'Вы' : 'Модель'}</h3>
 
-      <div className={styles.content}>{message.content}</div>
+      {/* Only the model's answer is markdown. What the user typed comes back
+          exactly as written rather than being reinterpreted as syntax. */}
+      {isUser ? (
+        <div className={styles.content}>{message.content}</div>
+      ) : (
+        <Markdown text={message.content} />
+      )}
 
       {/* The received text stays above, untouched: a partial answer is a valid
           result, not something to replace with an error. */}

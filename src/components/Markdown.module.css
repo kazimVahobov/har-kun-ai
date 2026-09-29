@@ -1,0 +1,141 @@
+/**
+ * Markdown inside a chat reply.
+ *
+ * The system's heading scale starts at 42px, which is absurd for something the
+ * model said in passing. The scale is capped here, locally — the tokens
+ * themselves are untouched, and headings keep their 500 weight.
+ */
+
+.root > :first-child {
+  margin-top: 0;
+}
+
+.root > :last-child {
+  margin-bottom: 0;
+}
+
+.root h1,
+.root h2,
+.root h3,
+.root h4,
+.root h5,
+.root h6 {
+  margin: var(--space-6) 0 var(--space-2);
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+.root h1 {
+  font-size: 20px;
+}
+.root h2 {
+  font-size: 17px;
+}
+.root h3 {
+  font-size: 16px;
+}
+.root h4,
+.root h5,
+.root h6 {
+  font-size: 15px;
+}
+
+.root ul,
+.root ol {
+  margin: 0 0 var(--space-3);
+  padding-inline-start: var(--space-8);
+}
+
+.root li {
+  margin-bottom: var(--space-1);
+}
+
+.root li > ul,
+.root li > ol {
+  margin-top: var(--space-1);
+}
+
+.root blockquote {
+  margin: 0 0 var(--space-3);
+  padding-inline-start: var(--space-4);
+  /* A solid accent mark, like the answer's own: short marks stay solid in this
+     system, while freestanding rules fade. */
+  border-inline-start: 2px solid var(--color-divider);
+  color: var(--color-text-muted);
+}
+
+.root code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+
+.root pre {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  /* Scrolls inside itself. A long line must never push the page sideways. */
+  overflow-x: auto;
+}
+
+.root pre code {
+  padding: 0;
+  background: none;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.root a {
+  color: var(--color-accent-300);
+  overflow-wrap: anywhere;
+}
+
+.root table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 var(--space-3);
+  border-collapse: collapse;
+  font-size: 14px;
+  /* Same rule as code: wide content scrolls in its own box. */
+  overflow-x: auto;
+}
+
+.root th,
+.root td {
+  padding: var(--space-2) var(--space-3);
+  text-align: start;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.root th {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: var(--font-heading-weight);
+}
+
+.root hr {
+  height: 1px;
+  border: 0;
+  margin: var(--space-6) 0;
+  /* Freestanding rules fade to transparent at their ends — a Nocturne
+     signature. */
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-divider) 48px,
+    var(--color-divider) calc(100% - 48px),
+    transparent
+  );
+}
+
+.root img {
+  max-width: 100%;
+  border-radius: var(--radius-md);
+}
