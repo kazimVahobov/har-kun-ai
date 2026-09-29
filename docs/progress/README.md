@@ -44,3 +44,5 @@ assembled from here.
 | [0011-styled-ui.md](0011-styled-ui.md) | The styled UI: tokens, shell, messages, markdown, error states |
 | [0012-identity-pass.md](0012-identity-pass.md) | Giving the interface a voice: type, the day, the pen-mark |
 | [0013-ui-refinement.md](0013-ui-refinement.md) | Composition, the contents rail, and the defects a real screen surfaced |
+| [0014-openrouter.md](0014-openrouter.md) | The live model: the adapter, the free-model catalogue, and what a real key exposed |
+| [0015-ui-fixes.md](0015-ui-fixes.md) | Waiting states, the interrupted answer, and the composer's key map |
