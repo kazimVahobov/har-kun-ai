@@ -255,7 +255,10 @@ staying in place (the error states remain reproducible there).
 
 Verification: the Network tab shows no request to `openrouter.ai` from the page and no
 `Authorization` header on requests to our own API; `grep` over `dist/` does not find the key.
-**Outstanding: the live model has not been run against a valid key.**
+**Done** — `grep` over the built `dist/` finds neither `openrouter` nor `Bearer`. The live model
+answered, and all sixteen free models were probed with a real key: see
+[progress 0014](progress/0014-openrouter.md) for what each one did and the two things that changed
+as a result.
 
 ## Phase 4 — README and submission
 

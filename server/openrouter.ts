@@ -230,14 +230,17 @@ function mapping(status: number): [ErrorCode, string] {
     case 400:
       return ['bad_request', 'Модель отклонила запрос.']
     case 401:
-    case 403:
-      // The key is missing, wrong or out of scope. Nobody at the browser can
-      // fix that, so it is our fault and it is logged as ours.
+      // The key is missing or wrong. Nobody at the browser can fix that, so it
+      // is our fault and it is reported as ours.
       return ['internal', 'Сервер не настроен для работы с моделью.']
     case 402:
       return ['rate_limited', 'Лимит бесплатных запросов исчерпан. Попробуйте позже.']
+    case 403:
     case 404:
-      return ['bad_request', 'Такая модель недоступна. Выберите другую.']
+      // Not "our key is broken": OpenRouter also answers 403 for a model gated
+      // to particular apps. The key works, this model does not — and choosing
+      // another is something the person asking can actually do.
+      return ['bad_request', 'Эта модель недоступна. Выберите другую.']
     case 408:
       return ['timeout', 'Модель не ответила за отведённое время.']
     case 413:

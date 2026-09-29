@@ -86,7 +86,13 @@ describe('errorForStatus', () => {
   it('reports a missing or wrong key as our own fault', () => {
     // Nobody at the browser can fix a key, so it is not framed as their problem.
     expect(errorForStatus(401).code).toBe('internal')
-    expect(errorForStatus(403).code).toBe('internal')
+  })
+
+  it('does not mistake a gated model for a broken key', () => {
+    // OpenRouter answers 403 for a model restricted to particular apps. The key
+    // works; this model does not — and picking another one is actionable.
+    expect(errorForStatus(403).code).toBe('bad_request')
+    expect(errorForStatus(403).message).toBe(errorForStatus(404).message)
   })
 
   it('treats exhausted credit as a rate limit, because that is what it means here', () => {
@@ -99,8 +105,7 @@ describe('errorForStatus', () => {
     expect(errorForStatus(500).code).toBe('upstream_error')
   })
 
-  it('names a bad model and a bad request as the caller´s', () => {
-    expect(errorForStatus(404).code).toBe('bad_request')
+  it('names a bad request as the caller´s', () => {
     expect(errorForStatus(400).code).toBe('bad_request')
     expect(errorForStatus(413).code).toBe('bad_request')
   })

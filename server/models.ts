@@ -23,20 +23,37 @@ const CACHE_MS = 5 * 60 * 1000
  * a model that has since lost its free tier fails as a plain `bad_request`.
  */
 const FALLBACK: ModelInfo[] = [
-  { id: 'google/gemma-4-31b-it:free', name: 'Google: Gemma 4 31B', contextLength: 262_144 },
-  { id: 'qwen/qwen3.8-27b:free', name: 'Qwen: Qwen3.8 27B', contextLength: 262_144 },
   {
     id: 'nvidia/nemotron-3-super-120b-a12b:free',
     name: 'NVIDIA: Nemotron 3 Super',
     contextLength: 262_144,
   },
+  {
+    id: 'inclusionai/ling-3.0-flash-sante:free',
+    name: 'inclusionAI: Ling 3.0 Flash Sante',
+    contextLength: 262_144,
+  },
+  { id: 'google/gemma-4-31b-it:free', name: 'Google: Gemma 4 31B', contextLength: 262_144 },
 ]
 
-/** Tried in order; the first one the catalogue actually offers becomes default. */
+/**
+ * Tried in order; the first one the catalogue actually offers becomes default.
+ *
+ * The order is not a ranking of the models — it is what answered. All sixteen
+ * free models were asked one question on 2026-09-30: these three replied in
+ * about a second, while Google's two and Qwen were rate-limited on a shared
+ * upstream pool and two more were gated to particular apps. A default that
+ * greets a first-time visitor with 429 is a bad default however good the model
+ * behind it is, and contention is the one property of a free tier you can
+ * measure but not reason about.
+ *
+ * It will go stale, and that is survivable: this only chooses what is selected
+ * first, and the picker holds every free model the catalogue offers.
+ */
 const PREFERRED = [
-  'google/gemma-4-31b-it:free',
-  'qwen/qwen3.8-27b:free',
   'nvidia/nemotron-3-super-120b-a12b:free',
+  'inclusionai/ling-3.0-flash-sante:free',
+  'google/gemma-4-31b-it:free',
 ]
 
 interface Catalogue {

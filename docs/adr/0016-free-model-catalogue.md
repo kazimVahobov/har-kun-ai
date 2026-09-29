@@ -31,7 +31,12 @@ ending in `:free`. Cached for five minutes, shared between concurrent requests, 
 so the first question does not pay for it.
 
 The default is the first model from a short preference order that the catalogue actually offers,
-overridable with `OPENROUTER_MODEL`. When the catalogue cannot be fetched, the last good list is
+overridable with `OPENROUTER_MODEL`. That order is not a ranking of the models — **it is what
+answered.** All sixteen free models were asked one question with a real key: three replied in about
+a second, Google's two and Qwen were rate-limited on a shared upstream pool, two were gated to
+particular apps, one timed out and one is a safety classifier rather than an assistant. A default
+that greets a first-time visitor with a 429 is a bad default however good the model behind it is,
+and contention is the one property of a free tier that can be measured but not reasoned about. When the catalogue cannot be fetched, the last good list is
 kept however stale it is, and failing that a three-entry fallback stands in — recorded with the
 date it was read, because being out of date is this list's expected state.
 
@@ -51,9 +56,13 @@ The mock keeps its own four, unchanged. It has no catalogue and needs none.
   race the design accepts rather than the one it pretends does not exist.
 - Free models are not a stable product surface: they are slow, heavily queued, and 429 often.
   That is the reality the error states were built for, and it is why the mock stays.
-- The fallback list will rot. It is dated in the source so that a reader knows to distrust it, and
-  it is only reachable when the catalogue is unreachable — at which point a stale list is better
-  than an empty picker.
+- The fallback list will rot, and so will the preference order — today's uncontended model is
+  next month's popular one. Both are dated in the source so that a reader knows to distrust them,
+  and neither is load-bearing: the order only decides what is *selected* first, and the picker
+  still holds every free model the catalogue offers.
+- **Nothing here retries a different model on a 429.** It would hide a state the assignment asks
+  to handle, and it would answer a question nobody asked — the person can see the error and change
+  the model in one click.
 - The client already handles a remembered model that has disappeared by falling back to the
   server's default, so switching between mock and live mid-session does not strand a conversation.
 
