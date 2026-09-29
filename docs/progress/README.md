@@ -36,3 +36,4 @@
 | [0004-sidebar-scope-check.md](0004-sidebar-scope-check.md) | Сверка сайдбара с заданием, перестановка в конец фазы |
 | [0005-scaffold.md](0005-scaffold.md) | Каркас: Vite + React + TS, Express, `/api/health` |
 | [0006-mock-server.md](0006-mock-server.md) | Мок-сервер: контракт, отказы, таймауты, отмена |
+| [0007-sse-parser.md](0007-sse-parser.md) | Парсер SSE и тесты на рваных кадрах |
