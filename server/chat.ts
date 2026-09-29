@@ -7,7 +7,9 @@ import {
   type SimulateMode,
 } from '../shared/contract.js'
 import { config } from './env.js'
-import { DEFAULT_MODEL, isKnownModel, mockProducer } from './mock.js'
+import { mockProducer } from './mock.js'
+import { defaultModel, isAllowedModel } from './models.js'
+import { openRouterProducer } from './openrouter.js'
 import { runStream, sendError } from './stream.js'
 
 export async function handleChat(req: Request, res: Response): Promise<void> {
@@ -29,16 +31,14 @@ export async function handleChat(req: Request, res: Response): Promise<void> {
     return
   }
 
-  if (!config.useMock) {
-    sendError(res, {
-      code: 'upstream_unavailable',
-      message: 'Живая модель ещё не подключена — она появится в фазе 3.',
-    })
+  const model = parsed.value.model ?? defaultModel()
+
+  if (config.useMock) {
+    await runStream(res, model, mockProducer(model, simulate), { ragged: true })
     return
   }
 
-  const model = parsed.value.model ?? DEFAULT_MODEL
-  await runStream(res, model, mockProducer(model, simulate), { ragged: true })
+  await runStream(res, model, openRouterProducer(parsed.value, model))
 }
 
 // ── Request parsing ──────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ function parseRequest(body: unknown): Parsed {
   }
 
   if (model !== undefined) {
-    if (typeof model !== 'string' || !isKnownModel(model)) {
+    if (typeof model !== 'string' || !isAllowedModel(model)) {
       return { error: { code: 'bad_request', message: `Неизвестная модель: ${String(model)}` } }
     }
   }
@@ -75,8 +75,13 @@ function isChatMessage(value: unknown): value is ChatMessage {
   return (role === 'user' || role === 'assistant') && typeof content === 'string'
 }
 
+/**
+ * The failure modes belong to the mock — they are how it reproduces what a live
+ * model does only by luck. Off in production, and off against a real model,
+ * where a manufactured failure would mean nothing.
+ */
 function readSimulate(req: Request): SimulateMode | undefined {
-  if (!config.allowSimulate) return undefined
+  if (!config.allowSimulate || !config.useMock) return undefined
   const raw = req.query['simulate']
   return isSimulateMode(raw) ? raw : undefined
 }
