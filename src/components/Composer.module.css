@@ -36,7 +36,10 @@
   font-size: 16px;
   line-height: 1.5;
   resize: none;
-  padding: 0;
+  /* Matches the picker's own inset — its padding plus its border — so the two
+     texts start on the same vertical without dragging the picker's box out
+     past the frame's padding. */
+  padding: 0 0 0 calc(var(--space-2) + 1px);
   max-height: 9lh;
   overflow-y: auto;
 }
@@ -63,9 +66,6 @@
   max-width: 60%;
   appearance: none;
   padding: var(--space-1) calc(var(--space-6) + var(--space-2)) var(--space-1) var(--space-2);
-  /* Pulled left by its own padding and border, so its text starts on exactly
-     the same line as the placeholder above rather than a few pixels inside it. */
-  margin-inline-start: calc(-1 * (var(--space-2) + 1px));
   font: inherit;
   font-size: 13px;
   color: var(--color-text-muted);
