@@ -2,6 +2,7 @@
 
 - **Status:** accepted
 - **Date:** 2026-09-29
+- **Relations:** extended by [0016](0016-free-model-catalogue.md)
 
 ## Context
 

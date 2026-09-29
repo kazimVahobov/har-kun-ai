@@ -2,8 +2,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
 import { handleChat } from './chat.js'
-import { config } from './env.js'
-import { handleModels } from './models.js'
+import { assertConfigured, config } from './env.js'
+import { handleModels, warmCatalogue } from './models.js'
+
+// Before anything binds a port: a server that is not configured should say so
+// and stop, not look healthy and fail on the first question somebody asks.
+assertConfigured()
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const distDir = path.resolve(here, '..', 'dist')
@@ -34,6 +38,7 @@ if (config.isProduction) {
 
 app.listen(config.port, () => {
   const mode = config.isProduction ? 'production' : 'development'
-  const source = config.useMock ? 'mock' : 'live model'
+  const source = config.useMock ? 'mock' : 'OpenRouter'
   console.log(`[server] ${mode}, ${source}, listening on http://localhost:${config.port}`)
+  warmCatalogue()
 })

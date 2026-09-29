@@ -240,15 +240,25 @@ An adapter behind the same contract; mock/live switched through the environment,
 staying in place (the error states remain reproducible there).
 
 - `server/env.ts` — validation at boot, fail fast: no key in live mode means the server does not
-  start, with a legible message, rather than dying on the first user request.
-- OpenRouter's SSE parsed by the same `shared/sse.ts`, mapped onto the contract's events.
+  start, with a legible message, rather than dying on the first user request. **Done.**
+- OpenRouter's SSE parsed by the same `shared/sse.ts`, mapped onto the contract's events. **Done**
+  — the transport itself moved out of the mock into `server/stream.ts` first, so there is one copy
+  of the keepalive, the stall guards and the settle-once rule.
 - The default model comes from the live `GET /api/v1/models` catalogue filtered by `:free`
   **at implementation time** — the list changes and must not be written from memory. A small
-  fallback list in code covers the catalogue being unreachable.
-- `Retry-After` forwarded into `retryAfter` on a 429.
+  fallback list in code covers the catalogue being unreachable. **Done**, and the catalogue is
+  fetched at runtime rather than pinned ([ADR 0016](adr/0016-free-model-catalogue.md)): it was
+  460 models and 16 free ones on the day this was built, and none of the sixteen is promised to
+  still be free next month.
+- `Retry-After` forwarded into `retryAfter` on a 429. **Done**, including the HTTP-date form and
+  `X-RateLimit-Reset`.
 
 Verification: the Network tab shows no request to `openrouter.ai` from the page and no
 `Authorization` header on requests to our own API; `grep` over `dist/` does not find the key.
+**Done** — `grep` over the built `dist/` finds neither `openrouter` nor `Bearer`. The live model
+answered, and all sixteen free models were probed with a real key: see
+[progress 0014](progress/0014-openrouter.md) for what each one did and the two things that changed
+as a result.
 
 ## Phase 4 — README and submission
 

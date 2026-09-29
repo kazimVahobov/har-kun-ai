@@ -53,7 +53,7 @@ the old file is correct in full, on its own.
 |---|---|---|---|
 | [0001](0001-project-name.md) | Project name — har kun ai | accepted | |
 | [0002](0002-api-key-on-server.md) | The OpenRouter key lives only on the server, via env | accepted | |
-| [0003](0003-mock-first.md) | Mock data first, the live model last | accepted | |
+| [0003](0003-mock-first.md) | Mock data first, the live model last | accepted | extended by [0016](0016-free-model-catalogue.md) |
 | [0004](0004-single-dark-theme.md) | One theme — Nocturne dark, no toggle | accepted | |
 | [0005](0005-no-localization.md) | No localisation; the interface is Russian | accepted | |
 | [0006](0006-responsive-layout.md) | Responsive from 320px, mobile-first | accepted | |
@@ -66,5 +66,6 @@ the old file is correct in full, on its own.
 | [0013](0013-typography.md) | A Cyrillic type set instead of Inter | accepted | refines the design-system doc |
 | [0014](0014-opens-on-the-day.md) | The empty screen opens on the day | accepted | |
 | [0015](0015-contents-rail.md) | A contents rail for the conversation | accepted | |
+| [0016](0016-free-model-catalogue.md) | The model list is fetched live and filtered to `:free` | accepted | extends [0003](0003-mock-first.md) |
 
-Nothing has been superseded or withdrawn so far: 0011 and 0012 cancel nothing, they layer.
+Nothing has been superseded or withdrawn so far: 0011, 0012 and 0016 cancel nothing, they layer.
