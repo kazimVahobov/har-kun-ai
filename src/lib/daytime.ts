@@ -14,6 +14,8 @@ export interface DayContext {
   greeting: string
   /** 0 at midnight, 1 at the next — where "now" sits along the day. */
   progress: number
+  /** "17:42" — what the mark on the day rule is pointing at. */
+  time: string
   /** "вторник, 29 сентября" */
   date: string
   /** Rotating starters, chosen to suit the hour. */
@@ -68,6 +70,13 @@ export function dayProgressAt(date: Date): number {
   return (date.getHours() * 60 + date.getMinutes()) / (24 * 60)
 }
 
+export function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
 export function formatDate(date: Date): string {
   return new Intl.DateTimeFormat('ru-RU', {
     weekday: 'long',
@@ -83,6 +92,7 @@ export function dayContext(date: Date): DayContext {
     part,
     greeting: GREETINGS[part],
     progress: dayProgressAt(date),
+    time: formatTime(date),
     date: formatDate(date),
     prompts: PROMPTS[part],
   }

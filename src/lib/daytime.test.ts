@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dayContext, dayPartAt, dayProgressAt, formatDate } from './daytime.js'
+import { dayContext, dayPartAt, dayProgressAt, formatDate, formatTime } from './daytime.js'
 
 /** Local time, because the day a person is in is their own, not UTC's. */
 const at = (hour: number, minute = 0) => new Date(2026, 8, 29, hour, minute)
@@ -42,6 +42,13 @@ describe('progress along the day', () => {
 describe('the date line', () => {
   it('reads as a Russian weekday and date', () => {
     expect(formatDate(at(9))).toBe('вторник, 29 сентября')
+  })
+})
+
+describe('the time beside the mark', () => {
+  it('is zero-padded, so the label never changes width as the day runs', () => {
+    expect(formatTime(at(9, 5))).toBe('09:05')
+    expect(formatTime(at(17, 42))).toBe('17:42')
   })
 })
 

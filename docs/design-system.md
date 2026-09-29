@@ -23,7 +23,7 @@ The things that must not be lost in translation:
 - **No pure black, no pure white.** Everything comes from the ramps. The exception is shadows:
   there, black is a shadow, not a colour.
 - **Left-aligned, asymmetric layout.** Headings flush left, content hugs the left edge, whitespace
-  stays on the right.
+  stays on the right. *Partly departed from — see below.*
 
 ## Tokens
 
@@ -177,6 +177,12 @@ Translated into a live interface, not copied from the prototype. The full screen
   `.nav` already ships with `border-bottom: none`.
 - **Chat sidebar** — on the same `--color-bg` as the conversation, with no rule between them.
   The active chat gets a `--color-surface` fill and a solid 2px accent mark on the left.
+- **The conversation is centred, not flush left.** This is the one place the system's direction is
+  not followed. Flush left put the conversation in the corner of a wide monitor and left the eye
+  wandering over half a screen of nothing — the layout read as unfinished rather than as an
+  opinion. The asymmetry survives where it earns its keep: the day scale sits in the **left**
+  margin, so the two margins are not mirrors of each other and the composition still has a
+  direction.
 - **User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide.
 - **Model message** — **no fill**, straight on the ground, with a solid 2px accent mark on the
   left. This is the system's own idiom: rules fade at their ends, while short accent marks stay

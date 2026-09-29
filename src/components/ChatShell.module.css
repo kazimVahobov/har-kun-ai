@@ -53,12 +53,17 @@
 }
 
 /**
- * Left-aligned, asymmetric: the system's direction is content hugging the left
- * edge with whitespace on the right, and it is the reason to use a system with
- * an opinion rather than centring everything by default.
+ * Centred, not flush left.
+ *
+ * Nocturne's direction is content hugging the left edge with whitespace on the
+ * right, and that is what this was. On a wide monitor it put the conversation
+ * in the corner and left the eye wandering over half a screen of nothing. The
+ * asymmetry survives where it earns its keep — the day scale sits in the left
+ * margin, so the two margins are not mirrors of each other.
  */
 .container {
   width: min(760px, 100%);
+  margin-inline: auto;
   padding-inline: var(--space-6);
 }
 
@@ -99,7 +104,8 @@
 .floating {
   position: absolute;
   bottom: 100%;
-  left: var(--space-6);
+  /* Pinned to the left edge of the centred column, not to the window. */
+  left: max(var(--space-6), calc(50% - 380px + var(--space-6)));
   z-index: 1;
   padding-bottom: var(--space-2);
 }
@@ -128,9 +134,9 @@
 }
 
 /**
- * The day, kept in the margin once work has started. Below 1024px there is no
- * margin to spare and it simply is not there — it is atmosphere, not
- * information: everything it shows is also in the empty state.
+ * The day scale, in the left margin. Left because that is where reading starts
+ * and where a scale belongs; below 1024px there is no margin to spare and it
+ * simply is not there — everything it shows is also in the empty state.
  */
 .dayPanel {
   display: none;
@@ -166,43 +172,20 @@
   }
 
   .floating {
-    left: var(--space-8);
+    left: max(var(--space-8), calc(50% - 380px + var(--space-8)));
   }
 }
 
 @media (min-width: 1024px) {
-  .container {
-    padding-inline: calc(var(--space-8) * 2);
-  }
-
-  .floating {
-    left: calc(var(--space-8) * 2);
-  }
-
   .dayPanel {
     position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-4);
+    display: block;
     inset-block: var(--space-8);
-    inset-inline-end: calc(var(--space-8) * 2);
-    width: 140px;
+    /* Inside the left margin, clear of the centred column at any width. */
+    inset-inline-start: max(var(--space-6), calc(50% - 380px - 110px));
+    width: 84px;
     pointer-events: none;
     z-index: 0;
   }
 
-  .dayPanelDate {
-    margin: 0;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: color-mix(in srgb, var(--color-text) 34%, transparent);
-    text-align: end;
-  }
-
-  .dayPanelRule {
-    flex: 1;
-    min-height: 0;
-    align-self: flex-end;
-  }
 }

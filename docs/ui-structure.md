@@ -50,6 +50,10 @@ conversation. Nocturne has no dividers at all: areas are separated by air from t
 The sidebar and the conversation sit on the same `--color-bg`; only position and the active item's
 fill tell them apart.
 
+The conversation column is centred. Nocturne's direction is content hugging the left edge, and on a
+wide monitor that put it in a corner; the asymmetry now lives in the left margin instead, where the
+day scale sits.
+
 Semantics: `<header>` → a wrapper holding `<aside>` and `<main>` → inside `<main>` the `<ol>`
 conversation and the composer `<form>`. First in the DOM is a skip link to the input: in a long
 conversation every answer carries a copy button, and without it reaching the composer would mean
@@ -276,7 +280,8 @@ Mobile-first, breakpoints at 640px and 1024px, lower bound 320px.
   `Esc`, by a click outside, and by choosing a chat. User messages take full width. The composer
   is pinned to the bottom with `env(safe-area-inset-bottom)`.
 - **640–1024px** — the sidebar is still a drawer; the conversation gets its own width.
-- **≥ 1024px** — the sidebar is permanently docked, the conversation is `min(760px, 100%)`.
+- **≥ 1024px** — the sidebar is permanently docked, the conversation is `min(760px, 100%)`,
+  centred, with the day scale in the left margin.
 
 Height is `100dvh` with a `100vh` fallback. The input's `font-size` is at least 16px, or iOS
 Safari zooms the page on focus.

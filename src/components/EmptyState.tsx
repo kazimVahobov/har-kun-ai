@@ -18,7 +18,7 @@ export function EmptyState({ day, onPick }: { day: DayContext; onPick(text: stri
       </p>
 
       <div className={`${styles.rule} ${styles.reveal}`} style={delay(140)}>
-        <DayRule progress={day.progress} />
+        <DayRule progress={day.progress} time={day.time} />
       </div>
 
       <p className={`${styles.lede} ${styles.reveal}`} style={delay(210)}>

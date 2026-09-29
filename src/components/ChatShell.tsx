@@ -37,16 +37,13 @@ export function ChatShell({
       </header>
 
       <main className={styles.main}>
-        {/* The day lives in exactly one place at a time. Here, in the margin,
-            when there is margin to spare; in the empty state's column when
-            there is not. Atmosphere rather than information — the greeting and
-            the date carry the same thing in text, so this is hidden from
+        {/* The day lives in exactly one place at a time. Here, in the left
+            margin, when there is margin to spare; in the empty state's column
+            when there is not. Atmosphere rather than information — the greeting
+            and the date carry the same thing in text, so this is hidden from
             assistive technology. */}
         <aside className={styles.dayPanel} aria-hidden="true">
-          <p className={styles.dayPanelDate}>{day.greeting}</p>
-          <div className={styles.dayPanelRule}>
-            <DayRule progress={day.progress} orientation="vertical" />
-          </div>
+          <DayRule progress={day.progress} time={day.time} orientation="vertical" />
         </aside>
 
         {/* A scrollable region needs to be reachable from the keyboard, or its
