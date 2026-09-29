@@ -29,3 +29,18 @@ emphasis.
   a model. The empty state's subtitle compensates by explaining what this is outright.
 - The domain ties the project to the author's personal infrastructure. For a take-home that is a
   plus; on someone else's project it would be coupling.
+
+## Amendment, 2026-09-29
+
+The decision above stands; one detail inside it does not. It said the mark is set lowercase,
+because lowercase suits a system whose hierarchy comes from size and space rather than emphasis.
+
+In the display face that reasoning stopped holding. Unbounded already carries the presence the
+lowercase was meant to avoid asking for, and set in lowercase at 15px the mark read as a footnote
+rather than as a name. It is now **Har Kun**, capitalised, at 18px.
+
+The capitalised form is used everywhere the name appears, including the empty state's slogan, which
+quotes it in order to translate it. Two spellings of one name on one screen would read as an
+oversight rather than as a distinction between a product and a phrase.
+
+The record is appended rather than edited, so what was decided and what changed both stay visible.

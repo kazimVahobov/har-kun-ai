@@ -27,28 +27,36 @@ Full height, `100dvh`. Only the conversation scrolls; header, sidebar and compos
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│ har kun ai                                           │  navbar: logo, no borders
-├─────────────┬────────────────────────────────────────┤
-│ + Новый чат │                                        │
-│             │   ▍A model answer, no fill,            │
-│ Про SSE     │    accent mark on the left             │
-│ Рецепт    ● │                                        │
-│ Отмена fetch│               ┌──────────────────┐     │
-│             │               │ A question, card │     │
-│             │               └──────────────────┘     │
-│             │                                        │
-│             │   ● ● ●  Модель печатает               │
-│             │  ┌──────────────────────────────────┐  │
-│             │  │ Спросите что-нибудь              │  │
-│             │  │ [ модель ▾ ]               [ ↑ ] │  │
-│             │  └──────────────────────────────────┘  │
-└─────────────┴────────────────────────────────────────┘
+│ Har Kun   вторник, 29 сентября                       │  navbar: mark and date
+├──────┬───────────────────────────────────────────────┤
+│  00 ┤│                                               │
+│     ┤│        ▍A model answer, no fill,              │
+│  06 ┤│         accent mark on the left               │
+│     ┤│                                               │
+│     ┤│                    ┌──────────────────┐       │
+│  12 ┤│                    │ A question, card │       │
+│     ┤│                    └──────────────────┘       │
+│──17:15                                               │
+│  18 ┤│        ● ● ●  Модель печатает                 │
+│     ┤│       ┌──────────────────────────────────┐    │
+│     ┤│       │ Спросите что-нибудь              │    │
+│     ┤│       │ [ модель ▾ ]               [ ↑ ] │    │
+│     ┤│       └──────────────────────────────────┘    │
+└──────┴───────────────────────────────────────────────┘
+   day scale          centred conversation
 ```
+
+The sidebar, when it arrives, takes the left margin and the day scale moves into the empty
+state's column.
 
 There are no rules between areas — not under the navbar, not between the sidebar and the
 conversation. Nocturne has no dividers at all: areas are separated by air from the spacing scale.
 The sidebar and the conversation sit on the same `--color-bg`; only position and the active item's
 fill tell them apart.
+
+The conversation column is centred. Nocturne's direction is content hugging the left edge, and on a
+wide monitor that put it in a corner; the asymmetry now lives in the left margin instead, where the
+day scale sits.
 
 Semantics: `<header>` → a wrapper holding `<aside>` and `<main>` → inside `<main>` the `<ol>`
 conversation and the composer `<form>`. First in the DOM is a skip link to the input: in a long
@@ -57,12 +65,16 @@ tabbing through the whole history.
 
 ## Navbar
 
-Only the `har kun ai` logo (`.nav-brand`, lowercase) on the left. No bottom border, no shadow, no
-background differing from the page — `.nav` already ships with `border-bottom: none`.
+The `Har Kun` mark in the display face, and today's date beside it. A daily assistant should know
+what day it is and say so without being asked — and the navbar is the one place that stays true
+once a conversation has started and the empty state is gone. Below 480px there is no room for both
+and the mark wins.
 
-Nothing else lives there: there are no settings, the model picker moved into the composer, chat
-management is in the sidebar. On a narrow screen a hamburger appears to the left of the logo and
-opens the sidebar.
+No bottom border, no shadow, no background differing from the page — `.nav` already ships with
+`border-bottom: none`.
+
+Nothing else lives there: there are no settings, the model picker is in the composer, chat
+management is in the sidebar. On a narrow screen a hamburger appears to the left of the mark.
 
 ## Sidebar
 
@@ -95,36 +107,82 @@ An `<ol>`, each message an `<li>`. `--space-6` between messages, no rules.
 **User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide (full width on
 a narrow screen).
 
-**Model message** — no fill, straight on the ground, full width, with a solid 2px accent mark on
-the left. Flooding an answer with the accent is not allowed: in Nocturne the accent is a line and
-a mark, not a fill. The difference between roles rests on weight and position, not colour.
+**Model message** — no fill, full width, with a solid 2px accent spine on the left. Flooding an
+answer with the accent is not allowed: in Nocturne the accent is a line and a mark, not a fill. The
+difference between roles is fill against outline, the same distinction the system's own buttons
+make.
+
+**A thin border closes the block when the answer is finished.** While it is being written the block
+stays open and the spine reads like a pen — dim over what is written, bright where words arrive. A
+border drawn at both times would say where the answer ends and nothing about whether it has, which
+was the actual ambiguity. The border is transparent while streaming rather than absent, so closing
+the block costs no layout shift.
 
 Inside an answer, markdown renders with a reduced heading scale (h1→20px, h2→17px, h3→16px, then
 15px): the system's 42px is absurd in a chat reply. Code blocks scroll inside themselves.
 
-Under a finished answer sits a row of actions, appearing on hover and on focus: copy, and for the
-last message in the conversation, retry.
+Under a finished answer sits a row of actions, aligned to its right edge and always visible: copy,
+and for the last message in the conversation, retry. It used to fade in on hover, which meant a
+complete answer looked exactly like one still being written unless you pointed at it — and nothing
+hovers on a touchscreen. The copy icon trails its label, since the row is flush right and the glyph
+belongs on the edge.
 
 **Autoscroll** sticks to the bottom until the user scrolls up themselves. After that it switches
 off — otherwise you cannot reread the start of an answer while it is being generated — and a
-"jump to bottom" button appears to resume following.
+"jump to bottom" button appears opposite the status chip, above the composer, to resume following.
+It sits outside the live region: a control is not something to announce.
 
 ## Empty state
 
-Not a separate screen, but what the conversation holds while it is empty. Left-aligned, per the
-system's direction:
+Not a separate screen, but what the conversation holds while it is empty. It opens on **today**
+rather than describing the app — reasoning in [ADR 0014](adr/0014-opens-on-the-day.md):
 
-- an h3, "har kun ai";
-- a muted line: "har kun" is Uzbek for "every day" — which also explains the name to anyone who
-  does not speak it;
-- three example prompts as `.btn-secondary`. Clicking one puts the text in the composer and moves
-  focus there, but does **not** send: the user has to be able to change their mind or add to it.
+- a greeting that follows the hour, set in the display face — "Доброе утро" / "Добрый день" /
+  "Добрый вечер" / "Доброй ночи". The date is not repeated here; it lives in the navbar;
+- the day scale, horizontal here. Above 1024px it is not: the scale lives in the left margin
+  instead, and the column version steps aside so there is never two of it;
+- a muted line explaining the name and what the thing does;
+- three starters that belong to that hour — what is offered at 8am is not what is offered at 11pm.
+  Each is a card on `--color-surface`, carrying a one-word kicker for the kind of work, the request
+  itself, and a line saying what comes back — so the choice is legible before the click. Three
+  across above 640px, stacked below. Clicking one puts the text in the composer and moves focus
+  there, but does **not** send: the user has to be able to change their mind or add to it.
+
+Everything arrives in sequence on load: 8px and 420ms, 70ms apart. Small, because this system is
+quiet and a loud entrance would be somebody else's design.
+
+## Contents rail
+
+In the right margin, opposite the day scale, appearing with the first message. One item per **user
+question** — answers are long and interchangeable as labels; the question is what someone is looking
+for. Reasoning and its cost in [ADR 0015](adr/0015-contents-rail.md).
+
+- **Fixed rhythm, never proportional.** Every item is the same height with the same gap, so a tap
+  target does not shrink as the conversation grows. Position means order, not scroll offset — which
+  is the one way this rail differs from the day scale it copies.
+- **It scrolls when it overflows**, with the fade on the frame rather than the content: on a
+  scrolling list the ends belong to the viewport, so the mask follows it.
+- **Clicking scrolls the question into view**, smoothly unless motion is reduced. Messages carry
+  `scroll-margin-top` so the question does not land flush against the edge.
+- **The item in view is marked in the accent** — the rail says where you are, not only where you
+  could go. It is derived from the log's scroll position rather than from an `IntersectionObserver`;
+  the reason is in the ADR's amendment.
+- **Labels are one line, truncated twice.** Whitespace is collapsed and the text is cut on a word
+  boundary before it is rendered — a pasted question arrives as several paragraphs, and a label
+  built from it would carry the breaks as gaps and stop mid-word. CSS ellipsis then handles
+  whatever still does not fit, since the rail's width decides that, not a character count. The full
+  question is the accessible name and the hover title.
+
+Below 1024px there is no margin for it and it is absent.
 
 ## Status line
 
-Between the conversation and the composer, `role="status" aria-live="polite"`. It carries the
-typing indicator (three accent dots), "Генерация остановлена", "Ответ получен",
-"Чат удалён · Вернуть".
+A chip above the composer, `role="status" aria-live="polite"`. It carries the typing indicator
+(three accent dots), "Генерация остановлена", "Ответ получен", "Чат удалён · Вернуть".
+
+A chip rather than a line of loose text beside the field: loose text read as a stray caption, while
+a bounded object reads as a status. Its height is reserved whether or not there is anything to say,
+so the composer never shifts underneath a pointer.
 
 The live region is here and **not** on the answer text: a region updated on every token turns a
 screen reader into a machine gun. The status changes discretely.
@@ -276,7 +334,8 @@ Mobile-first, breakpoints at 640px and 1024px, lower bound 320px.
   `Esc`, by a click outside, and by choosing a chat. User messages take full width. The composer
   is pinned to the bottom with `env(safe-area-inset-bottom)`.
 - **640–1024px** — the sidebar is still a drawer; the conversation gets its own width.
-- **≥ 1024px** — the sidebar is permanently docked, the conversation is `min(760px, 100%)`.
+- **≥ 1024px** — the sidebar is permanently docked, the conversation is `min(760px, 100%)`,
+  centred, with the day scale in the left margin.
 
 Height is `100dvh` with a `100vh` fallback. The input's `font-size` is at least 16px, or iOS
 Safari zooms the page on focus.

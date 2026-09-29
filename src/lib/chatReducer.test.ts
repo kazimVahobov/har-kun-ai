@@ -139,6 +139,21 @@ describe("a partial answer is never lost — the assignment's central invariant"
     })
   })
 
+  it('stamps when the failure happened, so a wait can outlive a reload', () => {
+    // retryAfter is a duration; on its own it would restart at full length
+    // after a reload. Paired with this stamp it becomes a moment.
+    const error = { code: 'rate_limited' as const, message: 'Занята', retryAfter: 30 }
+    const state = apply(sent(start()), {
+      type: 'stream/failed',
+      chatId: 'c1',
+      messageId: 'c1-a',
+      error,
+      now: 4000,
+    })
+
+    expect(assistant(state)?.failedAt).toBe(4000)
+  })
+
   it('a late delta after a stop does not revive the text', () => {
     // Between abort and the socket closing, an event may already be on the wire.
     const state = apply(

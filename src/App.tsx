@@ -1,23 +1,33 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ChatShell } from './components/ChatShell.js'
+import { Composer } from './components/Composer.js'
+import { ContentsRail } from './components/ContentsRail.js'
+import { EmptyState } from './components/EmptyState.js'
+import { ArrowDownIcon } from './components/icons/index.js'
+import { MessageList } from './components/Message.js'
+import { StatusLine } from './components/StatusLine.js'
+import { useAutoScroll } from './hooks/useAutoScroll.js'
+import { useCurrentQuestion } from './hooks/useCurrentQuestion.js'
+import { useDayContext } from './hooks/useDayContext.js'
 import { useChat } from './hooks/useChat.js'
 import type { Message } from './lib/types.js'
 
-/**
- * The bare chat: correct semantics and behaviour, no styling at all. Nocturne's
- * tokens are a separate step, and mixing them in here would hide whether the
- * markup stands up on its own.
- */
 export function App() {
   const { chat, models, model, isStreaming, send, stop, retry, setModel } = useChat()
   const [draft, setDraft] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const day = useDayContext()
 
-  // Esc stops generation, from anywhere on the page. It lives here rather than
+  // The message array is a new object on every delta, so this follows the
+  // answer as it grows.
+  const { ref: logRef, isPinned, scrollToBottom } = useAutoScroll(chat.messages)
+
+  // Esc stops generation from anywhere on the page. It lives here rather than
   // in the hook because once the sidebar exists, Esc has to close that first.
   useEffect(() => {
     if (!isStreaming) return
 
-    const onKeyDown = (event: globalThis.KeyboardEvent): void => {
+    const onKeyDown = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') stop()
     }
 
@@ -25,133 +35,112 @@ export function App() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [isStreaming, stop])
 
-  const submit = (event: FormEvent): void => {
-    event.preventDefault()
-    if (isStreaming) return
-
+  const submit = (): void => {
+    if (isStreaming || draft.trim() === '') return
     send(draft)
     setDraft('')
   }
 
-  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    if (event.key !== 'Enter' || event.shiftKey) return
-    event.preventDefault()
-    if (isStreaming) return
+  const questions = useMemo(
+    () => chat.messages.filter((message) => message.role === 'user'),
+    [chat.messages],
+  )
+  const currentQuestionId = useCurrentQuestion(
+    logRef,
+    useMemo(() => questions.map((question) => question.id), [questions]),
+  )
 
-    send(draft)
-    setDraft('')
-  }
+  const goToQuestion = useCallback((messageId: string) => {
+    const element = document.getElementById(`message-${messageId}`)
+    if (element === null) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    element.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' })
+  }, [])
 
   const lastMessage = chat.messages[chat.messages.length - 1]
   const canRetry =
     lastMessage?.role === 'assistant' &&
     (lastMessage.status === 'error' || lastMessage.status === 'stopped')
+  const hasMessages = chat.messages.length > 0
 
   return (
-    <>
-      <header>
-        <h1>har kun ai</h1>
-      </header>
-
-      <main>
-        {chat.messages.length === 0 ? (
-          <section aria-labelledby="empty-title">
-            <h2 id="empty-title">Спросите что-нибудь</h2>
-            <p>«har kun» по-узбекски — «каждый день». Модель отвечает потоком, ответ можно прервать.</p>
-          </section>
+    <ChatShell
+      day={day}
+      logRef={logRef}
+      log={
+        hasMessages ? (
+          // Retry lives on the message that failed, not in the footer: the
+          // error belongs to its cause.
+          <MessageList messages={chat.messages} onRetry={canRetry ? retry : undefined} />
         ) : (
-          <ol>
-            {chat.messages.map((message) => (
-              <li key={message.id}>
-                <MessageView message={message} />
-              </li>
-            ))}
-          </ol>
-        )}
+          // An example fills the field and moves focus there, but never sends:
+          // the user has to be able to change their mind or add to it.
+          <EmptyState
+            day={day}
+            onPick={(text) => {
+              setDraft(text)
+              inputRef.current?.focus()
+            }}
+          />
+        )
+      }
+      contents={
+        questions.length > 0 ? (
+          <ContentsRail
+            questions={questions}
+            currentId={currentQuestionId}
+            onPick={goToQuestion}
+          />
+        ) : undefined
+      }
+      footer={
+        <>
+          <StatusLine
+            isStreaming={isStreaming}
+            text={statusText(isStreaming, lastMessage)}
+            action={
+              hasMessages && !isPinned ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-icon"
+                  onClick={scrollToBottom}
+                  aria-label="К последнему сообщению"
+                >
+                  <ArrowDownIcon />
+                </button>
+              ) : undefined
+            }
+          />
 
-        <p role="status" aria-live="polite">
-          {statusText(isStreaming, lastMessage)}
-        </p>
-
-        {canRetry && (
-          <button type="button" onClick={retry}>
-            Повторить
-          </button>
-        )}
-      </main>
-
-      <form onSubmit={submit}>
-        <label htmlFor="composer">Сообщение</label>
-        <textarea
-          id="composer"
-          ref={inputRef}
-          rows={3}
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={onKeyDown}
-          placeholder="Enter — отправить, Shift+Enter — перенос строки"
-        />
-
-        <label htmlFor="model">Модель</label>
-        <select
-          id="model"
-          value={model}
-          onChange={(event) => setModel(event.target.value)}
-          disabled={models.length === 0}
-        >
-          {models.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.name}
-            </option>
-          ))}
-        </select>
-
-        {isStreaming ? (
-          <button type="button" onClick={stop}>
-            Стоп
-          </button>
-        ) : (
-          <button type="submit" disabled={draft.trim() === ''}>
-            Отправить
-          </button>
-        )}
-      </form>
-    </>
-  )
-}
-
-function MessageView({ message }: { message: Message }) {
-  const author = message.role === 'user' ? 'Вы' : 'Модель'
-
-  return (
-    <article aria-busy={message.status === 'streaming'}>
-      <h3>{author}</h3>
-      {/* Plain text for now: markdown rendering comes with the styled UI. */}
-      <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
-
-      {message.status === 'stopped' && <p>Генерация остановлена.</p>}
-
-      {message.error !== undefined && (
-        <p>
-          {message.error.message}
-          {message.error.retryAfter !== undefined && ` Повторите через ${message.error.retryAfter} с.`}
-        </p>
-      )}
-    </article>
+          <Composer
+            value={draft}
+            onChange={setDraft}
+            onSubmit={submit}
+            onStop={stop}
+            isStreaming={isStreaming}
+            models={models}
+            model={model}
+            onModelChange={setModel}
+            inputRef={inputRef}
+          />
+        </>
+      }
+    />
   )
 }
 
 function statusText(isStreaming: boolean, last: Message | undefined): string {
-  if (isStreaming) return 'Модель печатает…'
+  if (isStreaming) return 'Модель печатает'
   if (last === undefined || last.role !== 'assistant') return ''
 
   switch (last.status) {
     case 'done':
-      return 'Ответ получен.'
+      return 'Ответ получен'
     case 'stopped':
-      return 'Генерация остановлена.'
+      return 'Генерация остановлена'
     case 'error':
-      return 'Ошибка при генерации.'
+      return 'Ошибка при генерации'
     default:
       return ''
   }

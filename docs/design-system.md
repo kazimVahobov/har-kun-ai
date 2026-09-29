@@ -23,7 +23,7 @@ The things that must not be lost in translation:
 - **No pure black, no pure white.** Everything comes from the ramps. The exception is shadows:
   there, black is a shadow, not a colour.
 - **Left-aligned, asymmetric layout.** Headings flush left, content hugs the left edge, whitespace
-  stays on the right.
+  stays on the right. *Partly departed from — see below.*
 
 ## Tokens
 
@@ -76,10 +76,17 @@ this project does not use them.
 ### Type
 
 ```css
---font-heading: "Inter", system-ui, sans-serif;
+--font-display: 'Unbounded', system-ui, sans-serif;     /* the mark, the greeting */
+--font-heading: 'Golos Text', system-ui, sans-serif;
 --font-heading-weight: 500;
---font-body:    "Inter", system-ui, sans-serif;
+--font-body:    'Golos Text', system-ui, sans-serif;
+--font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
 ```
+
+> **Departure from the bundle.** Nocturne specifies Inter. We use a Cyrillic-first set instead —
+> Unbounded for the two places the identity asserts itself, Golos Text for everything else. The
+> reasoning, and what it costs, is in [ADR 0013](adr/0013-typography.md). The palette, scales,
+> density and component vocabulary are unchanged.
 
 Body text: `15px / 1.55`, weight 400. Headings: `line-height: 1.12`,
 `letter-spacing: -0.015em`.
@@ -146,7 +153,7 @@ These classes port over as they are; do not invent parallel ones.
 | `.field` + `label` | label above the field, 12px | the composer wrapper |
 | `.card` + `.card-*` | a surface-filled card | user message, error banner, active chat in the sidebar |
 | `.tag` + `.tag-accent`/`-outline`/`-neutral` | small labels | model, status, error code |
-| `.nav` + `.nav-brand` | the header | the "har kun ai" logo only, no bottom border |
+| `.nav` + `.nav-brand` | the header | the "Har Kun" mark in the display face, plus the date |
 | `.elev-sm/md/lg` | elevation utilities | |
 | `.hr`, `.table`, `.dialog`, `.lighten` | — | not needed |
 
@@ -166,14 +173,21 @@ icons are needed (send, stop, copy, clear, warning, chevron), and they live in
 Translated into a live interface, not copied from the prototype. The full screen layout is in
 `docs/ui-structure.md`; only what concerns the system is here.
 
-- **Header** — `.nav`: just `.nav-brand` "har kun ai" in lowercase. No bottom border, no shadow:
-  `.nav` already ships with `border-bottom: none`.
+- **Header** — `.nav`: `.nav-brand` "Har Kun" in the display face, with the date set back beside
+  it. No bottom border, no shadow: `.nav` already ships with `border-bottom: none`.
 - **Chat sidebar** — on the same `--color-bg` as the conversation, with no rule between them.
   The active chat gets a `--color-surface` fill and a solid 2px accent mark on the left.
+- **The conversation is centred, not flush left.** This is the one place the system's direction is
+  not followed. Flush left put the conversation in the corner of a wide monitor and left the eye
+  wandering over half a screen of nothing — the layout read as unfinished rather than as an
+  opinion. The asymmetry survives where it earns its keep: the day scale sits in the **left**
+  margin, so the two margins are not mirrors of each other and the composition still has a
+  direction.
 - **User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide.
-- **Model message** — **no fill**, straight on the ground, with a solid 2px accent mark on the
-  left. This is the system's own idiom: rules fade at their ends, while short accent marks stay
-  solid. Flooding an answer with the accent is not allowed — the accent is not a fill.
+- **Model message** — **no fill**, with a solid 2px accent spine on the left. This is the system's
+  own idiom: rules fade at their ends, while short accent marks stay solid. Flooding an answer with
+  the accent is not allowed — the accent is not a fill. A thin border appears when the answer
+  finishes: the one box this system tolerates, because it is a state rather than decoration.
 - **Composer** — one `.input` frame holding a `textarea` that grows to ~6 rows, with a row beneath
   it carrying the native model `select` on the left and the primary button on the right. During
   generation "Отправить" is replaced by "Стоп" (`.btn-secondary` + icon).
@@ -212,15 +226,19 @@ Nocturne was built for prototype pages and lacks a few things a chat needs. We a
    colour blindness and in a screen reader, where there is no colour at all. Colour should never
    be the sole carrier of meaning; here it carries none.
 
-## Font
+## Fonts
 
-The bundle pulls Inter through an `@import` from Google Fonts. For an application that is an
-external render-blocking request and hands the user's address to a third party. We use a `<link>`
-with `preconnect` in `index.html` — faster than `@import`, and visible in the markup. Self-hosting
-goes into "what's next": it is an extra dependency for a gain this assignment cannot measure.
+All three faces are self-hosted through `@fontsource`, importing only the four weights in use:
+Unbounded 400, Golos Text 400 and 500, JetBrains Mono 400. Nocturne forbids going bolder than 500,
+so nothing heavier is fetched.
 
-The `system-ui` fallback is already in the token: if Inter fails to load, the interface does not
-fall apart.
+Self-hosting rather than a CDN link is specific to this assignment: it says the Network tab will be
+checked. A link to a font CDN fills that tab with third-party requests — not a violation, but noise
+in exactly the check being run. Self-hosting leaves only own-origin requests there, removes a
+render-blocking external request, and stops handing the user's address to a third party.
+
+The `system-ui` fallback is in every token: if a face fails to load, the interface does not fall
+apart.
 
 ## Do not
 

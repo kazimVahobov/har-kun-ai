@@ -123,6 +123,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
         ...message,
         status: 'error',
         error: action.error,
+        failedAt: action.now,
       }))
   }
 }

@@ -37,6 +37,7 @@ interface StoredMessage {
   content: string
   status: StoredStatus
   error?: ApiError
+  failedAt?: number
 }
 
 interface StoredChat {
@@ -208,6 +209,9 @@ function toStoredMessage(message: Message): StoredMessage {
     status: message.status === 'streaming' ? 'stopped' : message.status,
   }
   if (message.error !== undefined) stored.error = message.error
+  // Without this the retry countdown would restart at its full length after a
+  // reload, however long the wait had actually been.
+  if (message.failedAt !== undefined) stored.failedAt = message.failedAt
   return stored
 }
 
@@ -249,6 +253,7 @@ function toChat(stored: StoredChat): Chat {
         status: message.status satisfies MessageStatus,
       }
       if (message.error !== undefined) result.error = message.error
+      if (message.failedAt !== undefined) result.failedAt = message.failedAt
       return result
     }),
   }
@@ -279,6 +284,7 @@ function isStoredMessage(value: unknown): value is StoredMessage {
 
   const status = value['status']
   const error = value['error']
+  const failedAt = value['failedAt']
 
   return (
     typeof value['id'] === 'string' &&
@@ -286,7 +292,8 @@ function isStoredMessage(value: unknown): value is StoredMessage {
     typeof value['content'] === 'string' &&
     typeof status === 'string' &&
     (STORED_STATUSES as readonly string[]).includes(status) &&
-    (error === undefined || isApiError(error))
+    (error === undefined || isApiError(error)) &&
+    (failedAt === undefined || Number.isFinite(failedAt))
   )
 }
 

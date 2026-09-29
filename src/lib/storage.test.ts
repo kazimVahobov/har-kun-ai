@@ -83,6 +83,29 @@ describe('round trip', () => {
     expect(roundTrip(input)?.chats[0]?.messages[0]?.error).toEqual(error)
   })
 
+  it('carries the failure stamp, so a retry wait survives a reload', () => {
+    const error = { code: 'rate_limited' as const, message: 'Занята', retryAfter: 30 }
+    const input = state({
+      chats: [chat({ messages: [message({ status: 'error', error, failedAt: 1_700_000_000_000 })] })],
+    })
+
+    expect(roundTrip(input)?.chats[0]?.messages[0]?.failedAt).toBe(1_700_000_000_000)
+  })
+
+  it('drops a chat whose failure stamp is not a number', () => {
+    const storage = new FakeStorage()
+    storage.items.set(
+      STORAGE_KEY,
+      JSON.stringify({
+        version: STORAGE_VERSION,
+        activeChatId: 'c1',
+        chats: [{ ...chat(), messages: [{ ...message(), failedAt: 'вчера' }] }],
+      }),
+    )
+
+    expect(loadState(storage)).toBeNull()
+  })
+
   it('writes a streaming message as stopped', () => {
     // The stream cannot outlive the page, so that is what it will be on the way
     // back. Storing `streaming` would mean storing a state that cannot be true.

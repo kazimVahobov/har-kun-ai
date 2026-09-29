@@ -14,6 +14,12 @@ export interface Message {
   content: string
   status: MessageStatus
   error?: ApiError
+  /**
+   * When the failure happened, in epoch milliseconds. The contract's
+   * `retryAfter` is a duration, and a duration alone cannot survive a reload —
+   * the wait would start over. Paired with this it becomes a moment.
+   */
+  failedAt?: number
 }
 
 export interface Chat {

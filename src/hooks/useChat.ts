@@ -98,7 +98,10 @@ export function useChat(): UseChat {
       const controller = streams.register(chatId)
 
       void runChatStream({
-        request: requestedModel === '' ? { messages: history } : { messages: history, model: requestedModel },
+        request:
+          requestedModel === ''
+            ? { messages: history }
+            : { messages: history, model: requestedModel },
         signal: controller.signal,
         handlers: {
           onDelta: (text) => dispatch({ type: 'stream/delta', chatId, messageId, text }),

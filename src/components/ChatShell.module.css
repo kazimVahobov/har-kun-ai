@@ -1,0 +1,177 @@
+/**
+ * The frame. Only the log scrolls; the navbar and the composer stay put.
+ *
+ * `100dvh` rather than `100vh`: the dynamic unit accounts for a collapsed
+ * mobile browser bar, while the static one leaves the composer underneath it.
+ * The `100vh` line before it is the fallback for browsers without `dvh`.
+ */
+
+.shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  isolation: isolate;
+}
+
+/**
+ * Grain. A flat dark ground reads as a void on a large screen; a little noise
+ * gives it a surface. Generated in an SVG filter rather than shipped as an
+ * image — it costs no request and cannot go blurry.
+ */
+.shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+
+.main {
+  position: relative;
+  display: grid;
+  /* minmax(0, 1fr) and not 1fr: a grid track sized to its content refuses to
+     shrink, and the log would push the composer off the screen. */
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.log {
+  overflow-y: auto;
+  /* A scroll that reaches the end of the log should not start scrolling the
+     page behind it. */
+  overscroll-behavior: contain;
+}
+
+/* Inset, because a ring drawn outside a full-height region would sit off the
+   edges of the window. */
+.log:focus-visible {
+  outline-offset: -2px;
+}
+
+/**
+ * Centred, not flush left.
+ *
+ * Nocturne's direction is content hugging the left edge with whitespace on the
+ * right, and that is what this was. On a wide monitor it put the conversation
+ * in the corner and left the eye wandering over half a screen of nothing. The
+ * asymmetry survives where it earns its keep — the day scale sits in the left
+ * margin, so the two margins are not mirrors of each other.
+ */
+.container {
+  width: min(760px, 100%);
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+}
+
+.logInner {
+  padding-block: var(--space-6) var(--space-8);
+}
+
+.footer {
+  position: relative;
+  padding-block-start: var(--space-2);
+  /* The home indicator on a phone sits where the composer would otherwise be. */
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+}
+
+/**
+ * A pool of accent light under the composer. The system sanctions the accent as
+ * a line and a glow; here the glow says where the day starts.
+ */
+.footer::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: 220px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    60% 100% at 24% 100%,
+    color-mix(in srgb, var(--color-accent) 12%, transparent),
+    transparent 70%
+  );
+}
+
+/* The dateline beside the mark: context, not a title, so it sits back. */
+.navDate {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--color-text) 38%, transparent);
+}
+
+@media (max-width: 480px) {
+  /* No room for both; the mark wins. */
+  .navDate {
+    display: none;
+  }
+}
+
+/**
+ * The day scale, in the left margin. Left because that is where reading starts
+ * and where a scale belongs; below 1024px there is no margin to spare and it
+ * simply is not there — everything it shows is also in the empty state.
+ */
+.dayPanel,
+.contentsPanel {
+  display: none;
+}
+
+/**
+ * Visible only when focused. Without it, reaching the composer in a long
+ * conversation means tabbing past every answer's action row.
+ */
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: var(--space-4);
+  z-index: 2;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  color: var(--color-text);
+  font-size: 14px;
+  text-decoration: none;
+  transform: translateY(-200%);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.skipLink:focus-visible {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-inline: var(--space-8);
+  }
+
+}
+
+@media (min-width: 1024px) {
+  .dayPanel {
+    position: absolute;
+    display: block;
+    inset-block: var(--space-8);
+    /* Inside the left margin, clear of the centred column at any width. */
+    inset-inline-start: max(var(--space-6), calc(50% - 380px - 110px));
+    width: 84px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* The contents, opposite the day. Wider, because these items carry text. */
+  .contentsPanel {
+    position: absolute;
+    display: flex;
+    inset-block: var(--space-8);
+    inset-inline-start: calc(50% + 380px + var(--space-6));
+    inset-inline-end: var(--space-6);
+    max-width: 200px;
+    z-index: 0;
+  }
+
+}
