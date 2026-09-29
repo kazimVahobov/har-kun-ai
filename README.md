@@ -148,6 +148,32 @@ Full reasoning in [ADR 0007](docs/adr/0007-custom-focus-ring.md). It is stated h
 left to be discovered, because a reviewer reading the requirement literally would otherwise mark
 it unmet.
 
+## The time budget, missed
+
+The assignment asks for two to six hours of clean time. This took **eight to nine** — thinking the
+idea through, the documents and the code together. That is over, by enough that rounding it down
+would be a dodge, so here it is at the top rather than buried in a report.
+
+Where it went is visible in the repository: sixteen decision records, seventeen progress reports, a
+written design system, a screen specification. Part of that the assignment asked for — it grades
+process, and it wants an AI log naming where the model was wrong and how that was caught. None of
+that can be reconstructed at the end; it is written while it happens or it is lost, and
+[one report written late](docs/progress/0017-readme.md) shows what the reconstruction is worth.
+
+But that accounts for a part, not the whole. The rest is scope I chose: the contents rail
+([ADR 0015](docs/adr/0015-contents-rail.md)), the day scale and the identity pass around it
+([ADR 0013](docs/adr/0013-typography.md), [ADR 0014](docs/adr/0014-opens-on-the-day.md)), the model
+picker. Each is argued in its own record and not one of them is in `TASK.md`. The sidebar was the
+one piece of self-assigned scope that got stopped before it was built
+([ADR 0012](docs/adr/0012-chat-sidebar-scope.md)) — the judgement that caught it should have caught
+the other three.
+
+Held to six hours, those three would go first, in that order, and the writing would shrink to the
+plan, the contract and the reports — no design system set down in prose, no record for a decision
+nobody would question. What has to survive a cut is the functional requirements and the edges:
+streaming, stop, the failure states, the key on the server. That is also what the assignment says
+it grades first, and it is the part I would not have traded for any of the above.
+
 ## Trying the edge cases
 
 The mock reproduces on demand what a free model only produces by luck. Outside production,
@@ -177,13 +203,14 @@ two were gated to particular apps, one was unavailable and one returned headers 
 ## The AI log
 
 Written by Claude Opus 5 in Claude Code, driven by a human review loop, over roughly a day of
-elapsed time across 86 commits on nine working branches. The browser checks were done with Claude's
+elapsed time across 87 commits on nine working branches. The browser checks were done with Claude's
 Chrome automation; there is no other tooling here.
 
-The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — sixteen reports,
-one per task, each with a mandatory section on what the AI got wrong. They were written as the
-work happened, because none of it can be reconstructed afterwards. What follows is the summary;
-the files have the detail.
+The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — seventeen reports,
+one per task, each with a mandatory section on what the AI got wrong. Sixteen were written as the
+work happened, because none of it can be reconstructed afterwards; the
+[seventeenth](docs/progress/0017-readme.md) was written late, for a phase that shipped without one,
+and opens by saying what that cost it. What follows is the summary; the files have the detail.
 
 ### Where it went wrong, and how that surfaced
 
@@ -303,7 +330,7 @@ conversation has no button.
 | [`docs/ui-structure.md`](docs/ui-structure.md) | screen layout, states, keyboard map |
 | [`docs/design-system.md`](docs/design-system.md) | the Nocturne design system: tokens and how they map on |
 | [`docs/adr/`](docs/adr/) | 16 decisions, with context and cost |
-| [`docs/progress/`](docs/progress/) | 16 per-task reports — the source of the AI log above |
+| [`docs/progress/`](docs/progress/) | 17 per-task reports — the source of the AI log above |
 | [`CLAUDE.md`](CLAUDE.md) | the instructions the AI agents worked under |
 
 ## Licence

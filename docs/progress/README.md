@@ -19,6 +19,10 @@ assembled from here.
 - **A file is not rewritten after the fact.** A report records how it was, not how one would like
   it to look in hindsight. A mistake stays written down; the correction goes in the next paragraph
   or the next report.
+- **The number says when a report was written, not what it covers.**
+  [0017](0017-readme.md) is the one written afterwards, for a phase that shipped without one. It
+  opens by saying so and by naming what the delay cost it, which is the only way a reconstruction
+  can be read for what it is. Granted once, on the owner's call; not a precedent.
 - **The template is `_template.md`.** Do not drop fields: an empty "where the AI got it wrong" is
   better than a missing one, because it shows the question was asked.
 - **Be specific.** "There was a streaming problem, fixed it" is a useless line. "The parser lost an
@@ -47,3 +51,4 @@ assembled from here.
 | [0014-openrouter.md](0014-openrouter.md) | The live model: the adapter, the free-model catalogue, and what a real key exposed |
 | [0015-ui-fixes.md](0015-ui-fixes.md) | Waiting states, the interrupted answer, and the composer's key map |
 | [0016-assignment-audit.md](0016-assignment-audit.md) | Auditing the repository against `TASK.md`, and closing what it found |
+| [0017-readme.md](0017-readme.md) | The README phase — reported after the fact, and saying so |
