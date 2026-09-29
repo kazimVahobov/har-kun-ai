@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { summarise } from '../lib/summarise.js'
 import type { Message } from '../lib/types.js'
 import styles from './ContentsRail.module.css'
 
@@ -50,7 +51,7 @@ export function ContentsRail({ questions, currentId, onPick }: ContentsRailProps
                   aria-label={question.content}
                   aria-current={isCurrent ? 'true' : undefined}
                 >
-                  {question.content}
+                  {summarise(question.content)}
                 </button>
               </li>
             )

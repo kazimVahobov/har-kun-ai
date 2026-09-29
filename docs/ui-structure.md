@@ -156,7 +156,11 @@ for. Reasoning and its cost in [ADR 0015](adr/0015-contents-rail.md).
 - **The item in view is marked in the accent** — the rail says where you are, not only where you
   could go. It is derived from the log's scroll position rather than from an `IntersectionObserver`;
   the reason is in the ADR's amendment.
-- Labels are one line and truncated. The full question is the accessible name and the hover title.
+- **Labels are one line, truncated twice.** Whitespace is collapsed and the text is cut on a word
+  boundary before it is rendered — a pasted question arrives as several paragraphs, and a label
+  built from it would carry the breaks as gaps and stop mid-word. CSS ellipsis then handles
+  whatever still does not fit, since the rail's width decides that, not a character count. The full
+  question is the accessible name and the hover title.
 
 Below 1024px there is no margin for it and it is absent.
 

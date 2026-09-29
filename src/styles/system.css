@@ -90,6 +90,9 @@ kbd {
  * that.
  */
 .visually-hidden {
+  /* Selecting a message and copying it should not pick up an author label the
+     sighted reader cannot see — it ends up pasted into the next question. */
+  user-select: none;
   width: 1px;
   height: 1px;
   margin: -1px;
