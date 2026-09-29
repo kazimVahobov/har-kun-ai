@@ -46,3 +46,4 @@ assembled from here.
 | [0013-ui-refinement.md](0013-ui-refinement.md) | Composition, the contents rail, and the defects a real screen surfaced |
 | [0014-openrouter.md](0014-openrouter.md) | The live model: the adapter, the free-model catalogue, and what a real key exposed |
 | [0015-ui-fixes.md](0015-ui-fixes.md) | Waiting states, the interrupted answer, and the composer's key map |
+| [0016-assignment-audit.md](0016-assignment-audit.md) | Auditing the repository against `TASK.md`, and closing what it found |

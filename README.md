@@ -47,7 +47,7 @@ and says why, rather than one that looks healthy and fails on the first question
 | Command | What it does |
 |---|---|
 | `npm run dev` | Vite on :5173, backend on :8787, `/api` proxied |
-| `npm test` | Vitest — 166 tests |
+| `npm test` | Vitest — 164 tests |
 | `npm run build` | typecheck, then build into `dist/` |
 | `npm start` | production: one server serves `dist/` and `/api` |
 | `npm run typecheck` | types only, client and server |
@@ -177,10 +177,10 @@ two were gated to particular apps, one was unavailable and one returned headers 
 ## The AI log
 
 Written by Claude Opus 5 in Claude Code, driven by a human review loop, over roughly a day of
-elapsed time across 73 commits. The browser checks were done with Claude's Chrome automation;
-there is no other tooling here.
+elapsed time across 86 commits on nine working branches. The browser checks were done with Claude's
+Chrome automation; there is no other tooling here.
 
-The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — fifteen reports,
+The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — sixteen reports,
 one per task, each with a mandatory section on what the AI got wrong. They were written as the
 work happened, because none of it can be reconstructed afterwards. What follows is the summary;
 the files have the detail.
@@ -238,6 +238,22 @@ not a sign it needs a stronger rule ([0015](docs/progress/0015-ui-fixes.md)).
 implementation time. Reading it returned 460 models and 16 free ones — and none of the ids I would
 have written from memory was among them ([0014](docs/progress/0014-openrouter.md)).
 
+**Rules that the code could not obey, written by the same model that then broke them.** A final
+audit against `TASK.md` read the agent instructions next to the stylesheets and found two clauses
+that nothing in the project satisfied: one demanded a `:focus-visible` beside every `outline: none`
+— the composer's field is indicated by the border of the frame around it instead, which is the
+better design — and one demanded a token for every pixel value, in a design system that has no
+size tokens at all and whose component layer was ported with its literals intact. A rule broken by
+every file is not a rule. Both were rewritten to say what the project actually does, and the one
+genuine violation hiding among the false ones — a `#000` in a mask — got a name
+([0016](docs/progress/0016-assignment-audit.md)).
+
+The same pass found a dependency nothing imported, left behind when a decision replaced it; a
+storage key an ADR still named by its old spelling; agent tooling committed inside an unrelated UI
+commit; and a dev-server proxy that silently ignored `PORT` while `.env.example` promised it did
+not. None of these breaks a demo. All of them are the kind of thing that only a reader comparing
+two files notices, and the model wrote every one of them.
+
 **And the one that was not a code bug at all.** The picker kept showing mock models while the boot
 log said `OpenRouter`. A single process cannot do both — and that contradiction was the whole
 diagnosis: two `npm run dev` stacks were running, and the older one, started before `.env` reading
@@ -276,9 +292,8 @@ In the order I would actually do them:
    is already a single process serving `dist/` and `/api`.
 
 Smaller, listed for honesty: `Esc — остановить` is shown in the key map even when nothing is
-streaming; retry is offered only on the last message, so an identical error card earlier in the
-conversation has no button; and [ADR 0008](docs/adr/0008-session-storage-history.md) names a
-storage key the code has since changed.
+streaming, and retry is offered only on the last message, so an identical error card earlier in the
+conversation has no button.
 
 ## Documentation
 
@@ -288,7 +303,7 @@ storage key the code has since changed.
 | [`docs/ui-structure.md`](docs/ui-structure.md) | screen layout, states, keyboard map |
 | [`docs/design-system.md`](docs/design-system.md) | the Nocturne design system: tokens and how they map on |
 | [`docs/adr/`](docs/adr/) | 16 decisions, with context and cost |
-| [`docs/progress/`](docs/progress/) | 15 per-task reports — the source of the AI log above |
+| [`docs/progress/`](docs/progress/) | 16 per-task reports — the source of the AI log above |
 | [`CLAUDE.md`](CLAUDE.md) | the instructions the AI agents worked under |
 
 ## Licence
