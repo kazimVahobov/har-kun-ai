@@ -1,43 +1,45 @@
-# 0010 — Деплой: опциональный последний этап
+# 0010 — Deployment: an optional last step
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Задание деплой не требует: сдача — публичный репозиторий на GitHub, проверяют локально,
-и README обязан объяснить запуск за пять минут.
+The assignment does not ask for a deployment: submission is a public GitHub repository, review
+happens locally, and the README is required to explain how to run it in five minutes.
 
-При этом у автора есть домен **har-kun.uz** ([0001](0001-project-name.md)), и живая ссылка
-заметно снижает порог для проверяющего: посмотреть работающий чат проще, чем клонировать
-репозиторий и заводить ключ OpenRouter.
+At the same time the author owns **har-kun.uz** ([0001](0001-project-name.md)), and a live link
+noticeably lowers the barrier for a reviewer: looking at a working chat is easier than cloning a
+repository and obtaining an OpenRouter key.
 
-Бюджет задания — 2–6 часов. Деплой, домен и HTTPS в этот бюджет не заложены и легко съедают
-час, который нужнее на обработку краёв.
+The assignment's budget is 2–6 hours. Deployment, a domain and HTTPS are not in that budget and
+easily eat an hour better spent on edge handling.
 
-## Решение
+## Decision
 
-Деплой делается **последним этапом и только если останется время**. Приоритет ниже всего
-остального: рабочий локальный запуск важнее живой ссылки, потому что именно его требует задание.
+Deployment happens **last, and only if time is left**. Its priority is below everything else: a
+working local run matters more than a live link, because the local run is what the assignment
+actually requires.
 
-Если этап состоится:
+If the step happens:
 
-- сборка — `npm run build`, раздача статики тем же Express-сервером, который держит `/api`
-  (отдельный статический хостинг невозможен: ключ живёт на сервере, см.
+- build with `npm run build`, static files served by the same Express server that holds `/api`
+  (a separate static host is impossible: the key lives on the server, see
   [0002](0002-api-key-on-server.md));
-- `OPENROUTER_API_KEY` — из окружения сервера, не из файла в репозитории;
-- на публичном стенде обязательны ограничение частоты запросов и потолок длины истории:
-  открытый прокси к LLM без них — это чужой бесплатный API за счёт владельца ключа;
-- фолт-инъекция `?simulate=` выключена: она работает только при `NODE_ENV !== 'production'`.
+- `OPENROUTER_API_KEY` comes from the server's environment, not from a file in the repository;
+- a public deployment requires rate limiting and a cap on history length: an open proxy to an LLM
+  without them is somebody else's free API at the key owner's expense;
+- the `?simulate=` fault injection is off — it only works when `NODE_ENV !== 'production'`.
 
-Если этап не состоится — README описывает это словами, как задание и разрешает.
+If the step does not happen, the README says so in words, as the assignment permits.
 
-## Последствия
+## Consequences
 
-- Основная работа не зависит от инфраструктуры: не успели с деплоем — сдача не страдает.
-- Живая ссылка, если она будет, идёт бонусом, а не обязательством.
-- Публичный стенд означает публичный расход квоты. Поэтому ограничение частоты — не «что дальше»,
-  а условие выкатки: без него выкатывать нельзя.
-- Пока деплоя нет, единственный способ увидеть проект — поднять локально. Смягчается тем,
-  что фазы 1 и 2 запускаются вообще без ключа ([0003](0003-mock-first.md)): достаточно
-  `npm install && npm run dev`.
+- The main work does not depend on infrastructure: missing the deployment does not hurt the
+  submission.
+- A live link, if it exists, is a bonus rather than an obligation.
+- A public deployment means public quota spending. Rate limiting is therefore not a "what's next"
+  item but a precondition for shipping: without it, do not ship.
+- Until there is a deployment, the only way to see the project is to run it locally. Mitigated by
+  phases 1 and 2 running without a key at all ([0003](0003-mock-first.md)): `npm install &&
+  npm run dev` is enough.

@@ -1,7 +1,7 @@
 import type { Response } from 'express'
 import type { ApiError, DeltaEvent, DoneEvent } from '../shared/contract.js'
 
-/** Комментарий-keepalive. Клиентский парсер обязан такие строки игнорировать. */
+/** A keepalive comment. The client parser must ignore such lines. */
 export const KEEPALIVE = ':\n\n'
 
 export function openStream(res: Response): void {
@@ -30,9 +30,9 @@ function frame(event: string, data: unknown): string {
 }
 
 /**
- * Запись с учётом обратного давления: пока буфер сокета полон, ждём `drain`.
- * Разрешается и по `close` — иначе на разорванном соединении промис повиснет
- * навсегда, а вместе с ним и цикл генерации.
+ * A write that respects backpressure: while the socket buffer is full, wait for
+ * `drain`. It also resolves on `close` — otherwise on a broken connection the
+ * promise would hang forever, and the generation loop with it.
  */
 export function write(res: Response, chunk: string): Promise<void> {
   if (res.writableEnded || res.destroyed) return Promise.resolve()

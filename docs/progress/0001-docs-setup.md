@@ -1,77 +1,83 @@
-# 0001 — Инструкции агентам, план работ, структура отчётов
+# 0001 — Agent instructions, work plan, report structure
 
-- **Дата:** 2026-09-29
-- **Ветка:** `chore/docs`
-- **Статус:** готово
-- **Инструменты:** Claude Opus 5 в Claude Code
+- **Date:** 2026-09-29
+- **Branch:** `chore/docs`
+- **Status:** done
+- **Tools:** Claude Opus 5 in Claude Code
 
-## Задача
+## Task
 
-Репозиторий был пуст: один коммит с `LICENSE`, трёхстрочным `README.md` и `TASK.md`. Нужно было
-до написания кода зафиксировать документацию, по которой дальше работают ИИ-агенты: правила работы,
-план по фазам и формат отчётов.
+The repository was empty: one commit holding `LICENSE`, a three-line `README.md` and `TASK.md`.
+Before any code, the documentation that agents would work from had to be fixed: working rules, a
+phased plan, and a report format.
 
-Кода в этой задаче нет сознательно.
+There is deliberately no code in this task.
 
-## Что сделано
+## What was done
 
-- `CLAUDE.md` — инструкции агентам: стек, структура, железные правила (ключ не покидает `server/`,
-  `.env` не коммитится, `outline: none` без `:focus-visible` запрещён, мок и реальный адаптер за
-  одним контрактом), процесс, требование писать отчёт.
-- `docs/plan.md` — план по четырём фазам и контракт API: формат событий SSE, две формы ошибки,
-  поведение при отмене, таймауты. Туда же — таблица принятых решений, пушбек по заданию
-  и явный список того, что вне объёма.
-- `docs/progress/` — `README.md` с правилами ведения, `_template.md`, этот отчёт.
+- `CLAUDE.md` — agent instructions: stack, structure, hard rules (the key never leaves `server/`,
+  `.env` is never committed, `outline: none` without `:focus-visible` is forbidden, mock and real
+  adapter behind one contract), process, the requirement to write a report.
+- `docs/plan.md` — a four-phase plan and the API contract: SSE event shapes, two forms of error,
+  cancellation behaviour, timeouts. Plus a table of decisions taken, the assignment pushback, and
+  an explicit out-of-scope list.
+- `docs/progress/` — a `README.md` with the rules, `_template.md`, and this report.
 
-## Принятые решения
+## Decisions taken
 
-- **Мок-сервер до реальной модели** — первый критерий оценки в задании это обработка краёв
-  (429, таймаут, обрыв), а на живой бесплатной модели эти состояния невоспроизводимы: ждать,
-  пока само выпадет 429, — не проверка. Мок отдаёт их по параметру запроса. Цена — контракт
-  приходится описать до обеих реализаций и держать в синхроне; отсюда отдельный раздел в плане.
-- **Нормализованный SSE вместо проброса потока апстрима** — после отправки заголовков HTTP-статус
-  изменить нельзя, а ошибка в середине генерации случается регулярно. Своё событие `error` в потоке
-  — единственный способ её доставить.
-- **Контракт в плане, а не отдельным документом** — на проекте такого размера третий файл,
-  который нужно держать в синхроне, скорее разъедется, чем поможет.
-- **Обязательное поле «где ИИ ошибся» в шаблоне отчёта** — задание требует честный ИИ-лог, а он
-  задним числом не восстанавливается. Поле, которое нельзя выкинуть, заставляет вспомнить сразу.
-- **Отчёты не переписываются задним числом** — иначе к концу работы они превратятся в описание
-  того, как красиво всё вышло, и ИИ-лог потеряет смысл.
+- **Mock server before the live model** — the first grading criterion is edge handling (429,
+  timeout, dropped connection), and against a live free model those states are not reproducible:
+  waiting for a 429 to happen on its own is not a check. The mock serves them from a query
+  parameter. The cost is that the contract has to be written before both implementations and kept
+  in sync; hence its own section in the plan.
+- **Normalised SSE instead of piping the upstream** — once headers are sent the HTTP status cannot
+  change, and an error mid-generation happens regularly. Our own `error` event in the stream is the
+  only way to deliver it.
+- **The contract lives in the plan, not in a separate document** — at this size a third file to
+  keep in sync would drift sooner than it would help.
+- **A mandatory "where the AI got it wrong" field in the report template** — the assignment
+  requires an honest AI log, and it cannot be reconstructed afterwards. A field that cannot be
+  dropped forces recall while it is fresh.
+- **Reports are not rewritten after the fact** — otherwise by the end of the work they would
+  describe how nicely everything turned out, and the AI log would lose its point.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-- **Что предложила:** первый план шёл сразу на живой OpenRouter — UI писался бы против реального
-  стрима, а состояния ошибок проверялись бы по факту их случайного появления.
-  **Как заметили:** пользователь развернул порядок работ.
-  **Как поправили:** план переписан на мок-first, контракт вынесен вперёд обеих реализаций.
-  Побочно выяснилось, что так проект вообще запускается без ключа, — это сильнее исходного
-  варианта, а не просто другой порядок.
+- **What it proposed:** the first plan went straight at the live OpenRouter — the UI would have
+  been written against a real stream, and error states checked whenever they happened to appear.
+  **How it was noticed:** the owner reversed the order of work.
+  **How it was fixed:** the plan was rewritten mock-first, with the contract moved ahead of both
+  implementations. A side effect emerged: the project then runs with no key at all — which is
+  stronger than the original, not merely different.
 
-- **Что предложила:** план по умолчанию предполагал реализовать все фазы разом.
-  **Как заметили:** пользователь спросил, собираюсь ли я делать всё целиком.
-  **Как поправили:** работа разбита на фазы с точками контроля; объём сессии сузился до документации.
+- **What it proposed:** the plan assumed all phases would be implemented in one go.
+  **How it was noticed:** the owner asked whether I intended to build everything at once.
+  **How it was fixed:** the work was split into phases with checkpoints; this session's scope
+  narrowed to documentation.
 
-- **Что предложила:** в вариантах стилизации был показан пример с тёмной темой, хотя тёмную тему
-  пользователь из объёма бонусов исключил.
-  **Как заметили:** при сверке выбранных опций с тем, что уходило в план.
-  **Как поправили:** тёмная тема вынесена в раздел «вне объёма» и в «что дальше» для README.
+- **What it proposed:** among the styling options I showed an example with a dark theme, although
+  the owner had excluded a dark theme from the bonus scope.
+  **How it was noticed:** while reconciling the selected options against what was going into the
+  plan.
+  **How it was fixed:** the dark theme moved into "out of scope" and into the README's
+  "what's next".
 
-## Что осталось
+## What's left
 
-- Дефолтная `:free`-модель в фазе 3 выбирается по живому каталогу OpenRouter на момент реализации.
-  Вписывать по памяти нельзя: каталог бесплатных моделей меняется, и устаревший id даёт 404
-  вместо ответа.
-- `OPENROUTER_API_KEY` понадобится только к фазе 3. Фазы 1 и 2 запускаются без секретов.
-- `.gitignore` в репозитории пока нет (`node_modules`, `dist`, `.env`, `.idea`) — заводится
-  вместе с каркасом проекта в фазе 1.
+- The default `:free` model in phase 3 gets chosen from the live OpenRouter catalogue at
+  implementation time. It must not be written from memory: the free-model catalogue changes, and a
+  stale id returns a 404 instead of an answer.
+- `OPENROUTER_API_KEY` is only needed by phase 3. Phases 1 and 2 run without secrets.
+- The repository has no `.gitignore` yet (`node_modules`, `dist`, `.env`, `.idea`) — it arrives
+  with the project scaffold in phase 1.
 
-## Как проверить
+## How to check
 
-Кода нет, проверка — чтением:
+There is no code, so checking means reading:
 
-- `CLAUDE.md` не противоречит `TASK.md`; правила сформулированы так, что нарушение заметно.
-- Контракт в `docs/plan.md` описан достаточно, чтобы мок и реальный адаптер писались по нему
-  независимо друг от друга.
-- `_template.md` заполняется без домысливания.
-- Секретов в файлах нет.
+- `CLAUDE.md` does not contradict `TASK.md`; the rules are phrased so that breaking them is
+  visible.
+- The contract in `docs/plan.md` is described well enough for the mock and the real adapter to be
+  written against it independently.
+- `_template.md` can be filled in without guessing.
+- No secrets in any file.

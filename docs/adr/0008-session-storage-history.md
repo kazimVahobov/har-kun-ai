@@ -1,56 +1,55 @@
-# 0008 — История диалога в sessionStorage
+# 0008 — Conversation history in sessionStorage
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
-- **Уточнено:** [0011](0011-background-generation.md) — с появлением сайдбара хранится не один
-  диалог, а список чатов. Выбор `sessionStorage` и политика записи остаются в силе.
+- **Status:** accepted
+- **Date:** 2026-09-29
+- **Refined by:** [0011](0011-background-generation.md) — with the sidebar, what is stored is a
+  list of chats rather than one conversation. The choice of `sessionStorage` and the write policy
+  stand.
 
-## Контекст
+## Context
 
-Задание оставляет вопрос открытым и требует обосновать ответ:
+The assignment leaves this open and requires the answer to be argued:
 
-> История диалога в рамках сессии. Переживает ли она перезагрузку страницы — решите сами
-> и напишите почему.
+> Conversation history within the session. Whether it survives a page reload is up to you —
+> write down why.
 
-Три варианта, у каждого своя цена:
+Three options, each with its own price:
 
-- **только в памяти** — промах по F5 стирает разговор целиком;
-- **`localStorage`** — разговор живёт вечно, в том числе на чужом или общем компьютере,
-  и накапливается без спроса;
-- **`sessionStorage`** — живёт, пока жива вкладка.
+- **memory only** — a stray F5 wipes the conversation entirely;
+- **`localStorage`** — the conversation lives forever, including on someone else's or a shared
+  computer, accumulating without being asked;
+- **`sessionStorage`** — it lives as long as the tab does.
 
-## Решение
+## Decision
 
-`sessionStorage`, ключ `har-kun-ai:chat`, запись с дебаунсом (порядка 300 мс), чтобы не
-сериализовать историю на каждый токен стрима.
+`sessionStorage`, key `har-kun-ai:chat`, written with a debounce (around 300 ms) so the history is
+not serialised on every streamed token.
 
-Почему так: чат с моделью контекстен. Ценность разговора почти вся сосредоточена внутри сессии —
-пока человек думает над задачей. Через неделю это шум, который уже никто не перечитывает,
-но который лежит в браузере и виден всякому, кто открыл вкладку.
+The reasoning: a chat with a model is contextual. Almost all of a conversation's value is
+concentrated inside the session, while the person is working through a problem. A week later it is
+noise nobody rereads — but it is sitting in the browser, visible to whoever opens the tab.
 
-`sessionStorage` даёт ровно нужную границу: промах по F5 или случайная перезагрузка ничего
-не стоят, а закрытая вкладка уносит разговор с собой. Отдельной кнопки «очистить», которую
-пришлось бы объяснять и не забывать нажимать, не требуется — граница проходит там же,
-где она и так проходит в голове у пользователя.
+`sessionStorage` draws exactly the right boundary: a stray F5 or an accidental reload costs
+nothing, while a closed tab takes the conversation with it. No separate "clear" button has to be
+explained and remembered — the boundary falls where the user's own mental boundary already is.
 
-Дополнительно:
+Additionally:
 
-- незавершённое сообщение восстанавливается со статусом `stopped`, а не `streaming` —
-  иначе после перезагрузки интерфейс покажет вечный индикатор печати для потока,
-  которого больше нет;
-- чтение из хранилища обёрнуто в `try/catch`: в приватном режиме и при переполнении квоты
-  обращение бросает исключение, и падать из-за истории приложение не должно;
-- битые данные в хранилище не ломают запуск — диалог начинается с чистого листа.
+- an unfinished message is restored as `stopped`, not `streaming` — otherwise after a reload the
+  interface shows a permanent typing indicator for a stream that no longer exists;
+- reads are wrapped in `try/catch`: in private mode and on quota overflow the call throws, and the
+  app must not die because of its history;
+- corrupt data in storage does not break startup — the conversation begins empty.
 
-## Последствия
+## Consequences
 
-- Перезагрузка не теряет разговор; закрытие вкладки — теряет, и это осознанный выбор,
-  а не недоделка.
-- Новая вкладка всегда чистая. Для чата это скорее свойство, чем недостаток: «новая вкладка —
-  новый разговор» понятно без объяснений.
-- История никуда не синхронизируется и с другого устройства недоступна. Серверное хранение —
-  в «что дальше», и оно потянет за собой авторизацию.
-- Очень длинный диалог упрётся в квоту хранилища (обычно около 5 МБ). Практически недостижимо
-  за одну сессию текстового чата; обработка исключения при записи всё равно на месте.
-- Кнопка «очистить диалог» в интерфейсе всё же есть — не ради приватности, а чтобы начать
-  заново, не трогая вкладку.
+- A reload does not lose the conversation; closing the tab does, and that is a deliberate choice
+  rather than an omission.
+- A new tab is always clean. For a chat that reads as a property rather than a defect:
+  "new tab, new conversation" needs no explanation.
+- History syncs nowhere and is unavailable from another device. Server-side storage goes into
+  "what's next", and it drags authentication along with it.
+- A very long conversation would hit the storage quota (usually around 5 MB). Practically
+  unreachable in one session of a text chat; the write is wrapped in exception handling regardless.
+- The interface does have a "clear conversation" control — not for privacy, but to start over
+  without touching the tab.

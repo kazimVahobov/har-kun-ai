@@ -1,75 +1,77 @@
-# 0008 — Редьюсер чата
+# 0008 — Chat reducer
 
-- **Дата:** 2026-09-29
-- **Ветка:** `feat/mock-server`
-- **Статус:** готово
-- **Инструменты:** Claude Opus 5 в Claude Code
+- **Date:** 2026-09-29
+- **Branch:** `feat/mock-server`
+- **Status:** done
+- **Tools:** Claude Opus 5 in Claude Code
 
-## Задача
+## Task
 
-Состояние диалогов чистой функцией, с тестами на «стоп посреди генерации» и «ошибка после
-частичного текста» — это главный инвариант задания.
+Conversation state as a pure function, with tests on "stopped mid-generation" and "error after
+partial text" — the assignment's central invariant.
 
-## Что сделано
+## What was done
 
-- `src/lib/types.ts` — `Message`, `Chat`, `ChatState`, статусы сообщения.
-- `src/lib/chatReducer.ts` — редьюсер, конструкторы состояния и выборки
-  (`activeChat`, `chatsByRecency`, `isStreaming`, `streamingMessage`).
-- `src/lib/chatReducer.test.ts` — 24 теста. Всего в проекте 50.
+- `src/lib/types.ts` — `Message`, `Chat`, `ChatState`, message statuses.
+- `src/lib/chatReducer.ts` — the reducer, state constructors and selectors (`activeChat`,
+  `chatsByRecency`, `isStreaming`, `streamingMessage`).
+- `src/lib/chatReducer.test.ts` — 24 tests. 50 in the project overall.
 
-## Принятые решения
+## Decisions taken
 
-- **Ни `Date.now()`, ни генерации идентификаторов внутри редьюсера** — и то и другое приходит
-  в действии. Иначе его нельзя проверить, не подменяя время, а проверять надо: здесь живёт
-  требование «уже полученный кусок ответа остаётся в истории».
-- **`delta` не двигает `updatedAt`, терминальные события двигают.** Иначе чат прыгал бы
-  в сайдбаре на каждом токене.
-- **Поздняя `delta` в завершённое сообщение игнорируется.** Между `abort` и закрытием сокета
-  событие уже могло уйти в сеть; без этой проверки текст «оживал» бы после нажатия «Стоп».
-  То же и со вторым терминальным событием: первое побеждает.
-- **Повтор пересобирает сообщение с нуля**, а не правит поле за полем — так гарантированно
-  уходят и прежний текст, и прежняя ошибка.
-- **Действие по несуществующему чату или сообщению возвращает ту же ссылку на состояние.**
-  Новый объект без изменений — это лишний рендер всего дерева.
-- **Нормализация при восстановлении живёт в редьюсере, а не в слое хранилища.** Так правило
-  «восстановленный `streaming` становится `stopped`» действует независимо от того, откуда
-  пришло состояние, и проверяется тем же тестом, что и остальное.
+- **No `Date.now()` and no id generation inside the reducer** — both arrive in the action.
+  Otherwise it cannot be checked without faking time, and it has to be checked: this is where the
+  requirement "the chunk already received stays in the history" lives.
+- **`delta` does not move `updatedAt`; terminal events do.** Otherwise the chat would jump around
+  the sidebar on every token.
+- **A late `delta` into a finished message is ignored.** Between `abort` and the socket closing,
+  an event could already be in flight; without this check the text would come back to life after
+  "Stop" was pressed. The same goes for a second terminal event: the first one wins.
+- **A retry rebuilds the message from scratch** rather than editing field by field — that
+  guarantees both the previous text and the previous error are gone.
+- **An action aimed at a missing chat or message returns the same state reference.** A new object
+  with no changes is a pointless re-render of the whole tree.
+- **Restore normalisation lives in the reducer, not in the storage layer.** That way the rule
+  "a restored `streaming` becomes `stopped`" holds regardless of where the state came from, and is
+  covered by the same tests as everything else.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-- **Что сделала:** в тесте на сортировку чатов по свежести использовала хелпер `sent()`
-  с жёстко зашитым временем `2000`, а соседний чат создавала с `3000`. Ожидала порядок
-  `['c1', 'c2']`, получила `['c2', 'c1']`.
-  **Как заметили:** `vitest`.
-  **Как поправили:** ошибка снова оказалась **в тесте, не в коде** — сортировка отработала
-  ровно как задумано. Хелпер получил параметр времени, а тест стал проверять и исходный
-  порядок, и подъём чата наверх после новой реплики. Получилось полезнее исходного замысла.
+- **What it did:** in the test for sorting chats by recency, it used the `sent()` helper with a
+  hard-coded timestamp of `2000` while creating the neighbouring chat with `3000`. It expected the
+  order `['c1', 'c2']` and got `['c2', 'c1']`.
+  **How it was noticed:** `vitest`.
+  **How it was fixed:** the mistake was again **in the test, not the code** — the sort behaved
+  exactly as designed. The helper gained a time parameter, and the test now checks both the
+  initial order and the chat rising to the top after a new message. It ended up more useful than
+  originally intended.
 
-  Третий раз подряд падающий тест указывает на моё неверное ожидание, а не на дефект.
-  Общее у всех трёх: я подставляла в ожидание то, что хотела увидеть, вместо того чтобы
-  вывести результат из входных данных. Для тестов на время и на посимвольные буферы это
-  не работает — нужно считать, а не угадывать.
+  Three failing tests in a row, each pointing at my wrong expectation rather than a defect. What
+  they share: I put into the expectation what I wanted to see, instead of deriving the result from
+  the inputs. For tests about time and about character-by-character buffers that does not work —
+  you have to compute, not guess.
 
-## Что осталось
+## What's left
 
-- `storage.ts` — сериализация в `sessionStorage`, дебаунс, вытеснение по квоте.
-- `useChat` — чтение потока из `fetch`, `AbortController`, стор потоков по `chatId`.
-- Голая страница поверх всего этого.
+- `storage.ts` — serialisation into `sessionStorage`, debouncing, eviction on quota.
+- `useChat` — reading the stream from `fetch`, the `AbortController`, the stream store keyed by
+  `chatId`.
+- The bare page on top of all of it.
 
-## Как проверить
+## How to check
 
 ```bash
 npm test
 ```
 
-Что покрыто по существу:
+What is covered, by substance:
 
-| Проверка | Почему важна |
+| Check | Why it matters |
 |---|---|
-| стоп посреди генерации сохраняет текст | прямое требование задания |
-| ошибка после частичного текста сохраняет текст и прикладывает ошибку | то же |
-| поздняя `delta` не оживляет остановленное сообщение | гонка между `abort` и сокетом |
-| второе терминальное событие не переписывает первое | та же гонка с другой стороны |
-| генерация в фоновом чате продолжает копиться | ADR 0011 |
-| восстановленный `streaming` становится `stopped` | иначе вечный индикатор печати после F5 |
-| действие по чужому чату возвращает ту же ссылку | лишний объект — лишний рендер |
+| a stop mid-generation keeps the text | a direct requirement of the assignment |
+| an error after partial text keeps the text and attaches the error | the same |
+| a late `delta` does not revive a stopped message | the race between `abort` and the socket |
+| a second terminal event does not overwrite the first | the same race from the other side |
+| generation in a background chat keeps accumulating | ADR 0011 |
+| a restored `streaming` becomes `stopped` | otherwise a permanent typing indicator after F5 |
+| an action for a missing chat returns the same reference | a pointless object is a pointless render |

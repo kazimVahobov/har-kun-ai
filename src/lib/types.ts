@@ -1,9 +1,9 @@
 import type { ApiError, ChatRole } from '../../shared/contract.js'
 
 /**
- * `streaming` живёт только в памяти: в хранилище его нет. Восстановленное
- * из `sessionStorage` незавершённое сообщение становится `stopped` — поток
- * умер вместе со страницей, и показывать для него индикатор печати нельзя
+ * `streaming` lives only in memory; it never reaches storage. An unfinished
+ * message restored from `sessionStorage` becomes `stopped` — the stream died
+ * with the page, and showing a typing indicator for it would be a lie
  * (ADR 0011).
  */
 export type MessageStatus = 'streaming' | 'done' | 'stopped' | 'error'
@@ -18,7 +18,7 @@ export interface Message {
 
 export interface Chat {
   id: string
-  /** Из первого сообщения пользователя; до него — пусто. */
+  /** From the first user message; empty until there is one. */
   title: string
   createdAt: number
   updatedAt: number

@@ -19,8 +19,8 @@ function apply(state: ChatState, ...actions: ChatAction[]): ChatState {
   return actions.reduce(chatReducer, state)
 }
 
-/** Отправка сообщения и начало генерации — приставка почти ко всем тестам. */
-function sent(state: ChatState, content = 'привет', chatId = 'c1', now = 2000): ChatState {
+/** Sending a message and starting generation — the prelude to nearly every test. */
+function sent(state: ChatState, content = 'hello', chatId = 'c1', now = 2000): ChatState {
   return apply(state, {
     type: 'message/sent',
     chatId,
@@ -39,22 +39,22 @@ function assistant(state: ChatState, chatId = 'c1'): Message | undefined {
   return messages(state, chatId)[1]
 }
 
-describe('отправка сообщения', () => {
-  it('добавляет сообщение пользователя и пустой ответ в статусе streaming', () => {
+describe('sending a message', () => {
+  it('appends the user message and an empty answer in streaming', () => {
     const state = sent(start())
 
     expect(messages(state)).toEqual([
-      { id: 'c1-u', role: 'user', content: 'привет', status: 'done' },
+      { id: 'c1-u', role: 'user', content: 'hello', status: 'done' },
       { id: 'c1-a', role: 'assistant', content: '', status: 'streaming' },
     ])
   })
 
-  it('берёт заголовок чата из первого сообщения', () => {
-    expect(activeChat(sent(start()))?.title).toBe('привет')
+  it('takes the chat title from the first message', () => {
+    expect(activeChat(sent(start()))?.title).toBe('hello')
   })
 
-  it('обрезает длинный заголовок по границе слова', () => {
-    const long = 'как устроена отмена генерации в потоковом ответе языковой модели'
+  it('trims a long title on a word boundary', () => {
+    const long = 'how cancelling generation works inside a streamed language model response'
     const title = activeChat(sent(start(), long))?.title ?? ''
 
     expect(title.length).toBeLessThanOrEqual(41)
@@ -62,23 +62,23 @@ describe('отправка сообщения', () => {
     expect(long.startsWith(title.slice(0, -1))).toBe(true)
   })
 
-  it('не переписывает заголовок вторым сообщением', () => {
-    const first = sent(start(), 'первое')
+  it('does not let a second message rewrite the title', () => {
+    const first = sent(start(), 'first')
     const second = apply(first, {
       type: 'message/sent',
       chatId: 'c1',
       userId: 'u2',
       assistantId: 'a2',
-      content: 'второе',
+      content: 'second',
       now: 3000,
     })
 
-    expect(activeChat(second)?.title).toBe('первое')
+    expect(activeChat(second)?.title).toBe('first')
   })
 })
 
-describe('накопление потока', () => {
-  it('склеивает приращения', () => {
+describe('accumulating the stream', () => {
+  it('joins increments', () => {
     const state = apply(
       sent(start()),
       { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'Lorem ' },
@@ -88,7 +88,7 @@ describe('накопление потока', () => {
     expect(assistant(state)?.content).toBe('Lorem ipsum')
   })
 
-  it('не двигает updatedAt на каждом токене', () => {
+  it('does not move updatedAt on every token', () => {
     const before = sent(start())
     const after = apply(before, {
       type: 'stream/delta',
@@ -97,14 +97,14 @@ describe('накопление потока', () => {
       text: 'a',
     })
 
-    // Иначе чат прыгал бы в сайдбаре на каждом символе.
+    // Otherwise the chat would jump around the sidebar on every character.
     expect(activeChat(after)?.updatedAt).toBe(activeChat(before)?.updatedAt)
   })
 
-  it('done переводит в done и двигает updatedAt', () => {
+  it('done moves the message to done and moves updatedAt', () => {
     const state = apply(
       sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'готово' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'finished' },
       { type: 'stream/done', chatId: 'c1', messageId: 'c1-a', now: 5000 },
     )
 
@@ -113,42 +113,46 @@ describe('накопление потока', () => {
   })
 })
 
-describe('частичный ответ не теряется — главный инвариант задания', () => {
-  it('стоп посреди генерации сохраняет накопленный текст', () => {
+describe("a partial answer is never lost — the assignment's central invariant", () => {
+  it('a stop mid-generation keeps the accumulated text', () => {
     const state = apply(
       sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'Половина ответа' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'half an answer' },
       { type: 'stream/stopped', chatId: 'c1', messageId: 'c1-a', now: 4000 },
     )
 
-    expect(assistant(state)).toMatchObject({ content: 'Половина ответа', status: 'stopped' })
+    expect(assistant(state)).toMatchObject({ content: 'half an answer', status: 'stopped' })
   })
 
-  it('ошибка после частичного текста сохраняет текст и прикладывает ошибку', () => {
+  it('an error after partial text keeps the text and attaches the error', () => {
     const error = { code: 'upstream_error' as const, message: 'Модель оборвала генерацию.' }
     const state = apply(
       sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'Начало ответа' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'the start of an answer' },
       { type: 'stream/failed', chatId: 'c1', messageId: 'c1-a', error, now: 4000 },
     )
 
-    expect(assistant(state)).toMatchObject({ content: 'Начало ответа', status: 'error', error })
+    expect(assistant(state)).toMatchObject({
+      content: 'the start of an answer',
+      status: 'error',
+      error,
+    })
   })
 
-  it('поздняя delta после остановки не оживляет текст', () => {
-    // Между abort и закрытием сокета событие уже могло уйти в сеть.
+  it('a late delta after a stop does not revive the text', () => {
+    // Between abort and the socket closing, an event may already be on the wire.
     const state = apply(
       sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'кусок' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'a chunk' },
       { type: 'stream/stopped', chatId: 'c1', messageId: 'c1-a', now: 4000 },
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: ' опоздавший' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: ' arriving late' },
     )
 
-    expect(assistant(state)?.content).toBe('кусок')
+    expect(assistant(state)?.content).toBe('a chunk')
     expect(assistant(state)?.status).toBe('stopped')
   })
 
-  it('второе терминальное событие не переписывает первое', () => {
+  it('a second terminal event does not overwrite the first', () => {
     const state = apply(
       sent(start()),
       { type: 'stream/stopped', chatId: 'c1', messageId: 'c1-a', now: 4000 },
@@ -158,11 +162,11 @@ describe('частичный ответ не теряется — главный
     expect(assistant(state)?.status).toBe('stopped')
   })
 
-  it('повтор очищает и текст, и ошибку', () => {
+  it('a retry clears both the text and the error', () => {
     const error = { code: 'timeout' as const, message: 'Модель не ответила.' }
     const state = apply(
       sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'обрывок' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'a fragment' },
       { type: 'stream/failed', chatId: 'c1', messageId: 'c1-a', error, now: 4000 },
       { type: 'message/retried', chatId: 'c1', messageId: 'c1-a', now: 5000 },
     )
@@ -176,9 +180,9 @@ describe('частичный ответ не теряется — главный
   })
 })
 
-describe('несколько чатов', () => {
-  it('генерация в фоновом чате продолжает копиться', () => {
-    // Переключение чата не должно ронять генерацию (ADR 0011).
+describe('several chats', () => {
+  it('keeps accumulating generation in a background chat', () => {
+    // Switching chats must not kill generation (ADR 0011).
     let state = sent(start())
     state = apply(state, { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
 
@@ -188,21 +192,26 @@ describe('несколько чатов', () => {
       type: 'stream/delta',
       chatId: 'c1',
       messageId: 'c1-a',
-      text: 'фоновый текст',
+      text: 'background text',
     })
 
-    expect(assistant(state)?.content).toBe('фоновый текст')
+    expect(assistant(state)?.content).toBe('background text')
     expect(state.activeChatId).toBe('c2')
   })
 
-  it('isStreaming видит генерацию в неактивном чате', () => {
-    const state = apply(sent(start()), { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
+  it('isStreaming sees generation in an inactive chat', () => {
+    const state = apply(sent(start()), {
+      type: 'chat/created',
+      chatId: 'c2',
+      model: MODEL,
+      now: 3000,
+    })
     const background = state.chats.find((chat) => chat.id === 'c1')
 
     expect(background && isStreaming(background)).toBe(true)
   })
 
-  it('модель запоминается у чата, а не глобально', () => {
+  it('remembers the model per chat rather than globally', () => {
     let state = apply(start(), { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
     state = apply(state, { type: 'chat/model-changed', chatId: 'c2', model: 'mock/lorem-slow:free' })
 
@@ -210,24 +219,24 @@ describe('несколько чатов', () => {
     expect(state.chats.find((chat) => chat.id === 'c2')?.model).toBe('mock/lorem-slow:free')
   })
 
-  it('сортирует чаты по свежести', () => {
+  it('sorts chats by recency', () => {
     let state = apply(start(), { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
     expect(chatsByRecency(state).map((chat) => chat.id)).toEqual(['c2', 'c1'])
 
-    // Написали в старый чат — он поднимается наверх.
-    state = sent(state, 'привет', 'c1', 4000)
+    // A new message in the older chat lifts it to the top.
+    state = sent(state, 'hello', 'c1', 4000)
     expect(chatsByRecency(state).map((chat) => chat.id)).toEqual(['c1', 'c2'])
   })
 })
 
-describe('удаление чата', () => {
-  it('удаление активного переключает на самый свежий из оставшихся', () => {
+describe('deleting a chat', () => {
+  it('deleting the active one switches to the freshest of the rest', () => {
     let state = apply(start(), { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
     state = apply(state, { type: 'chat/created', chatId: 'c3', model: MODEL, now: 4000 })
     state = apply(state, {
       type: 'chat/deleted',
       chatId: 'c3',
-      newChatId: 'nope',
+      newChatId: 'unused',
       model: MODEL,
       now: 5000,
     })
@@ -236,12 +245,12 @@ describe('удаление чата', () => {
     expect(state.activeChatId).toBe('c2')
   })
 
-  it('удаление фонового не трогает активный', () => {
+  it('deleting a background chat leaves the active one alone', () => {
     let state = apply(start(), { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
     state = apply(state, {
       type: 'chat/deleted',
       chatId: 'c1',
-      newChatId: 'nope',
+      newChatId: 'unused',
       model: MODEL,
       now: 5000,
     })
@@ -249,7 +258,7 @@ describe('удаление чата', () => {
     expect(state.activeChatId).toBe('c2')
   })
 
-  it('удаление последнего заводит пустой чат', () => {
+  it('deleting the last one starts an empty chat', () => {
     const state = apply(sent(start()), {
       type: 'chat/deleted',
       chatId: 'c1',
@@ -264,23 +273,25 @@ describe('удаление чата', () => {
   })
 })
 
-describe('восстановление из хранилища', () => {
-  it('незавершённое сообщение становится stopped, текст остаётся', () => {
-    // fetch умер вместе со страницей — показывать индикатор печати нельзя.
-    const stored = apply(
-      sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'обрывок' },
-    )
+describe('restoring from storage', () => {
+  it('turns an unfinished message into stopped and keeps the text', () => {
+    // fetch died with the page — a typing indicator would be a lie.
+    const stored = apply(sent(start()), {
+      type: 'stream/delta',
+      chatId: 'c1',
+      messageId: 'c1-a',
+      text: 'a fragment',
+    })
 
     const restored = chatReducer(start(), { type: 'restored', state: stored })
 
-    expect(assistant(restored)).toMatchObject({ content: 'обрывок', status: 'stopped' })
+    expect(assistant(restored)).toMatchObject({ content: 'a fragment', status: 'stopped' })
   })
 
-  it('завершённые сообщения не трогает', () => {
+  it('leaves finished messages alone', () => {
     const stored = apply(
       sent(start()),
-      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'целый' },
+      { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'whole' },
       { type: 'stream/done', chatId: 'c1', messageId: 'c1-a', now: 5000 },
     )
 
@@ -290,34 +301,34 @@ describe('восстановление из хранилища', () => {
   })
 })
 
-describe('неизвестные цели ничего не ломают', () => {
-  it('действие по чужому чату возвращает то же состояние', () => {
+describe('unknown targets break nothing', () => {
+  it('an action for another chat returns the same state', () => {
     const state = sent(start())
     const after = apply(state, {
       type: 'stream/delta',
-      chatId: 'нет-такого',
+      chatId: 'no-such-chat',
       messageId: 'c1-a',
       text: 'x',
     })
 
-    // Та же ссылка: лишний объект состояния — лишний рендер.
+    // The same reference: a pointless state object is a pointless render.
     expect(after).toBe(state)
   })
 
-  it('действие по чужому сообщению возвращает то же состояние', () => {
+  it('an action for another message returns the same state', () => {
     const state = sent(start())
     const after = apply(state, {
       type: 'stream/done',
       chatId: 'c1',
-      messageId: 'нет-такого',
+      messageId: 'no-such-message',
       now: 5000,
     })
 
     expect(after).toBe(state)
   })
 
-  it('выбор несуществующего чата игнорируется', () => {
+  it('selecting a chat that does not exist is ignored', () => {
     const state = sent(start())
-    expect(apply(state, { type: 'chat/selected', chatId: 'нет-такого' })).toBe(state)
+    expect(apply(state, { type: 'chat/selected', chatId: 'no-such-chat' })).toBe(state)
   })
 })

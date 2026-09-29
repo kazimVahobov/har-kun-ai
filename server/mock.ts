@@ -1,17 +1,17 @@
 import type { ModelInfo } from '../shared/contract.js'
 
 /**
- * Мок-модель. Задача — не «отдать текст», а воспроизвести повадки живого
- * стрима: разную скорость, разную длину, markdown, рваные кадры и отказы.
- * На бесплатной модели всё это ловится только везением (ADR 0003).
+ * The mock model. The job is not "return some text" but to reproduce a live
+ * stream's habits: varying speed, varying length, markdown, ragged frames and
+ * failures. Against a free model all of that only happens by luck (ADR 0003).
  */
 
 export interface MockProfile {
-  /** Пауза перед первым токеном, мс. */
+  /** Delay before the first token, ms. */
   firstToken: [number, number]
-  /** Пауза между чанками, мс. */
+  /** Delay between chunks, ms. */
   betweenChunks: [number, number]
-  /** Длина ответа, символов. */
+  /** Response length, in characters. */
   length: [number, number]
   markdown: 'never' | 'sometimes' | 'always'
 }
@@ -24,10 +24,9 @@ const DEFAULT_PROFILE: MockProfile = {
 }
 
 /**
- * Идентификаторы намеренно не маскируются под настоящие: подставлять сюда
- * реальные `:free`-модели значило бы выдумывать каталог, который меняется.
- * Заодно выбор модели в интерфейсе становится проверяемым — он реально
- * меняет поведение потока.
+ * The identifiers deliberately do not pose as real ones: putting actual `:free`
+ * models here would mean inventing a catalogue that changes. It also makes the
+ * model picker testable — it genuinely changes how the stream behaves.
  */
 const PROFILES: Record<string, MockProfile> = {
   'mock/lorem:free': DEFAULT_PROFILE,
@@ -57,7 +56,7 @@ export function randomBetween([min, max]: [number, number]): number {
   return Math.floor(min + Math.random() * (max - min + 1))
 }
 
-// ── Текст ────────────────────────────────────────────────────────────────────
+// ── Text ─────────────────────────────────────────────────────────────────────
 
 const WORDS = [
   'lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit',
@@ -112,9 +111,9 @@ function emphasised(): string {
 }
 
 /**
- * Собирается блоками и обрезается только по границе абзаца или слова: резать
- * посреди блока кода или списка значило бы отдавать заведомо битый markdown,
- * чего живая модель не делает.
+ * Assembled in blocks and trimmed only on a paragraph or word boundary: cutting
+ * inside a code block or a list would emit knowingly broken markdown, which a
+ * live model does not do.
  */
 export function buildResponse(profile: MockProfile): string {
   const target = randomBetween(profile.length)
@@ -142,14 +141,14 @@ export function buildResponse(profile: MockProfile): string {
   return cut > 0 ? `${text.slice(0, cut)}…` : text
 }
 
-/** Разбивка на чанки по 1–5 слов — как токены живой модели. */
+/** Split into chunks of 1-5 words, like a live model's tokens. */
 export function splitIntoChunks(text: string): string[] {
   const pieces = text.split(/(\s+)/).filter((piece) => piece !== '')
   const chunks: string[] = []
 
   let index = 0
   while (index < pieces.length) {
-    const take = randomBetween([2, 10]) // слово + пробел считаются отдельно
+    const take = randomBetween([2, 10]) // a word and a space count separately
     chunks.push(pieces.slice(index, index + take).join(''))
     index += take
   }

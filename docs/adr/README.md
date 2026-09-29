@@ -1,64 +1,67 @@
 # Architecture Decision Records
 
-Решения, принятые по проекту: что решили, из чего выбирали и чем за это платим.
+Decisions taken on this project: what was decided, what it was chosen over, and what it costs.
 
-## Зачем отдельно от плана
+## Why separate from the plan
 
-План отвечает на вопрос «что делаем», ADR — на вопрос «почему именно так, а не иначе».
-Это разные вопросы и разный срок жизни: план устаревает, когда работа сделана, а решение
-продолжает объяснять код спустя месяцы.
+The plan answers "what are we building"; an ADR answers "why this way and not another". Different
+questions, different lifespans: a plan goes stale once the work is done, while a decision keeps
+explaining the code months later.
 
-Задание отдельно оценивает суждение — «что вы заметили в задании и как обосновали свои решения».
-Формулировка решения вместе с отвергнутой альтернативой и ценой — и есть форма такого ответа.
-Для README эти файлы — заготовка раздела «ключевые решения и почему именно так».
+The assignment grades judgement separately — "what you noticed in the assignment and how you
+argued your decisions". A decision stated together with the alternative it beat and the price it
+carries is that answer in written form. For the README, these files are the draft of the
+"key decisions and why" section.
 
-## Правила
+## Rules
 
-- Один файл на решение, имя `NNNN-slug.md`, нумерация сквозная.
-- Формат: **Контекст** (что вынудило решать) → **Решение** → **Последствия** (включая плохие).
-- Принятый ADR не переписывается. Передумали — новый ADR со ссылкой на старый, старый получает
-  обратную ссылку. Затирать историю решений — значит потерять её.
-- Раздел «Последствия» без единого минуса — признак, что цену не продумали, а не что её нет.
+- One file per decision, named `NNNN-slug.md`, numbered continuously.
+- Format: **Context** (what forced a decision) → **Decision** → **Consequences** (including the
+  bad ones).
+- An accepted ADR is not rewritten. If we change our minds, a new ADR references the old one and
+  the old one gets a back-reference. Erasing the history of decisions means losing it.
+- A "Consequences" section without a single downside means the cost was not thought through,
+  not that there is none.
 
-### Статусы и связи
+### Statuses and relations
 
-Список закрытый: слова со стороны означают разное, и путать их нельзя.
+Both lists are closed: the words mean different things and must not be mixed.
 
-**Статус решения:**
+**Status of a decision:**
 
-| Статус | Что значит |
+| Status | Meaning |
 |---|---|
-| принято | действует |
-| заменено | больше не действует, вместо него другой ADR |
-| отменено | больше не действует, замены нет |
+| accepted | in force |
+| superseded | no longer in force, another ADR replaces it |
+| withdrawn | no longer in force, nothing replaces it |
 
-**Связь с другим ADR** — в новом файле прямая, в старом обратная:
+**Relation to another ADR** — forward in the new file, back in the old one:
 
-| В новом | В старом | Что произошло |
+| In the new | In the old | What happened |
 |---|---|---|
-| заменяет | заменено | прежнее решение отменено целиком |
-| уточняет | уточнено | решение в силе, изменилась деталь внутри него |
-| дополняет | дополнено | решение в силе и не тронуто, добавлено новое измерение |
+| supersedes | superseded by | the earlier decision is withdrawn entirely |
+| refines | refined by | the decision stands; a detail inside it changed |
+| extends | extended by | the decision stands untouched; a new dimension was added |
 
-Разница между «уточняет» и «дополняет» практическая: в первом случае старый файл описывает
-что-то, чего больше нет, и читать его без нового нельзя; во втором старый файл верен целиком
-и сам по себе.
+The difference between "refines" and "extends" is practical: in the first case the old file
+describes something that no longer exists and cannot be read without the new one; in the second
+the old file is correct in full, on its own.
 
-## Реестр
+## Register
 
-| № | Решение | Статус | Связи |
+| № | Decision | Status | Relations |
 |---|---|---|---|
-| [0001](0001-project-name.md) | Название проекта — har kun ai | принято | |
-| [0002](0002-api-key-on-server.md) | Ключ OpenRouter только на сервере, через env | принято | |
-| [0003](0003-mock-first.md) | Сначала мок-данные, живая модель последней | принято | |
-| [0004](0004-single-dark-theme.md) | Одна тема — тёмная Nocturne, без переключателя | принято | |
-| [0005](0005-no-localization.md) | Без локализации, интерфейс на русском | принято | |
-| [0006](0006-responsive-layout.md) | Адаптивная вёрстка от 320px, mobile-first | принято | |
-| [0007](0007-custom-focus-ring.md) | Свой фокус вместо браузерного — пушбек по заданию | принято | |
-| [0008](0008-session-storage-history.md) | История диалога в sessionStorage | принято | уточнено [0011](0011-background-generation.md) |
-| [0009](0009-normalized-sse.md) | Свой формат SSE вместо проброса потока апстрима | принято | |
-| [0010](0010-deployment.md) | Деплой — опциональный последний этап | принято | |
-| [0011](0011-background-generation.md) | Несколько чатов, генерация продолжается фоново | принято | уточняет [0008](0008-session-storage-history.md), дополнено [0012](0012-chat-sidebar-scope.md) |
-| [0012](0012-chat-sidebar-scope.md) | Сайдбар сверх задания — делается последним | принято | дополняет [0011](0011-background-generation.md) |
+| [0001](0001-project-name.md) | Project name — har kun ai | accepted | |
+| [0002](0002-api-key-on-server.md) | The OpenRouter key lives only on the server, via env | accepted | |
+| [0003](0003-mock-first.md) | Mock data first, the live model last | accepted | |
+| [0004](0004-single-dark-theme.md) | One theme — Nocturne dark, no toggle | accepted | |
+| [0005](0005-no-localization.md) | No localisation; the interface is Russian | accepted | |
+| [0006](0006-responsive-layout.md) | Responsive from 320px, mobile-first | accepted | |
+| [0007](0007-custom-focus-ring.md) | Our own focus ring instead of the browser's — the pushback | accepted | |
+| [0008](0008-session-storage-history.md) | Conversation history in sessionStorage | accepted | refined by [0011](0011-background-generation.md) |
+| [0009](0009-normalized-sse.md) | Our own SSE shape instead of piping the upstream | accepted | |
+| [0010](0010-deployment.md) | Deployment — an optional last step | accepted | |
+| [0011](0011-background-generation.md) | Several chats; generation continues in the background | accepted | refines [0008](0008-session-storage-history.md), extended by [0012](0012-chat-sidebar-scope.md) |
+| [0012](0012-chat-sidebar-scope.md) | The sidebar is beyond the assignment — built last | accepted | extends [0011](0011-background-generation.md) |
 
-Отменённых и заменённых решений пока нет: 0011 и 0012 ничего не отменяют, они наслаиваются.
+Nothing has been superseded or withdrawn so far: 0011 and 0012 cancel nothing, they layer.

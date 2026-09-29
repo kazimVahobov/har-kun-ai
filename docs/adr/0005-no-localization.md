@@ -1,36 +1,42 @@
-# 0005 — Без локализации, интерфейс на русском
+# 0005 — No localisation; the interface is in Russian
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Задание пришло на русском, проверять будут на русском. Языков интерфейса нужен один.
+The assignment arrived in Russian and will be reviewed in Russian. Exactly one interface language
+is needed.
 
-Инфраструктура локализации — библиотека, словари, ключи вместо строк, переключатель,
-подстановка чисел и склонений — это заметное количество работы и заметное усложнение каждого
-компонента. Ради одного языка она даёт ровно ноль.
+Localisation infrastructure — a library, dictionaries, keys instead of strings, a switcher,
+number and plural handling — is a noticeable amount of work and a noticeable complication in every
+component. For a single language it returns exactly nothing.
 
-Отдельно: «заложить i18n на будущее» без второго языка — самый надёжный способ получить
-словарь, который никто не проверял, и ключи вида `chat.error.title`, читаемые хуже, чем
-сам текст.
+Separately: "laying the groundwork for i18n" without a second language is the most reliable way to
+end up with a dictionary nobody has checked and keys like `chat.error.title` that read worse than
+the text they replace.
 
-## Решение
+## Decision
 
-Интерфейс на русском, строки пишутся прямо в компонентах. Библиотеки локализации нет,
-словарей нет, ключей нет.
+The interface is in Russian, with strings written directly in components. No localisation library,
+no dictionaries, no keys.
 
-Ограничения, которые соблюдаем, чтобы позже это не стало ловушкой:
+This decision governs the whole project's language rule: **everything a person sees in the running
+app is Russian; everything a developer sees — code, comments, tests, logs, documentation — is
+English.** The rule is written out in `CLAUDE.md`.
+
+Constraints we keep so this does not become a trap later:
 
 - `<html lang="ru">`;
-- никакой конкатенации предложений из кусков — фраза целиком в одном месте;
-- ничего не завязано на длину или направление текста, вёрстка переживает более длинные строки.
+- no sentences assembled from fragments — a phrase lives whole, in one place;
+- nothing depends on text length or direction; the layout survives longer strings.
 
-Модель отвечает на том языке, на котором её спросили, — это её дело, а не дело интерфейса.
+The model answers in whatever language it was asked in — that is its business, not the
+interface's.
 
-## Последствия
+## Consequences
 
-- Меньше кода, меньше зависимостей, строки читаются на месте использования.
-- Второй язык потребует прохода по всем компонентам. Это честная цена решения, и она заранее
-  известна; попытка удешевить её сейчас стоила бы дороже.
-- В README уходит в «что дальше».
+- Less code, fewer dependencies, strings readable at the point of use.
+- A second language would require a pass over every component. That is the honest price of the
+  decision, it is known in advance, and trying to discount it now would cost more.
+- Goes into the README under "what's next".

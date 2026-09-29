@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    // Браузер ходит только на свой origin — ключ живёт на сервере (ADR 0002).
+    // The browser only ever talks to its own origin — the key lives on the server (ADR 0002).
     proxy: {
       '/api': {
         target: `http://localhost:${SERVER_PORT}`,

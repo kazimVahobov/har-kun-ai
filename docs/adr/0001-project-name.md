@@ -1,29 +1,31 @@
-# 0001 — Название проекта: har kun ai
+# 0001 — Project name: har kun ai
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Заданию название безразлично — оно про чат с моделью. Но проект живёт в публичном репозитории,
-и имя видно раньше кода: в URL, в шапке интерфейса, в заголовке вкладки. Безымянный `llm-chat`
-или `test-task-chat` сообщает, что это одноразовая поделка.
+The assignment does not care about a name — it is about a chat with a model. But the project lives
+in a public repository, and the name is visible before any code is: in the URL, in the interface
+header, in the browser tab. An anonymous `llm-chat` or `test-task-chat` announces that this is a
+throwaway.
 
-У автора есть домен **har-kun.uz**. «Har kun» по-узбекски — «каждый день».
+The author owns the domain **har-kun.uz**. "Har kun" is Uzbek for "every day".
 
-## Решение
+## Decision
 
-Проект называется **har kun ai**, репозиторий — `har-kun-ai`.
+The project is called **har kun ai**; the repository is `har-kun-ai`.
 
-В интерфейсе пишется строчными — `har kun ai`, в `.nav-brand`. Строчные согласуются с характером
-Nocturne: тихая система, иерархия через размер и воздух, а не через нажим.
+In the interface it is written lowercase — `har kun ai`, in `.nav-brand`. Lowercase fits
+Nocturne's character: a quiet system where hierarchy comes from size and space rather than
+emphasis.
 
-## Последствия
+## Consequences
 
-- Имя не одноразовое: есть домен, на который это можно выкатить (см. [0010](0010-deployment.md)),
-  и проект перестаёт выглядеть как папка с тестовым заданием.
-- Название непрозрачно для того, кто не знает узбекского: «har kun» ничего не говорит о чате
-  с моделью. Компенсируется подзаголовком в пустом состоянии, который прямо объясняет,
-  что это такое.
-- Домен привязывает проект к личной инфраструктуре автора. Для тестового задания это плюс,
-  для чужого проекта было бы связанностью.
+- The name is not disposable: there is a domain to deploy it to
+  (see [0010](0010-deployment.md)), and the project stops looking like a folder holding a
+  take-home task.
+- The name is opaque to anyone who does not speak Uzbek: "har kun" says nothing about a chat with
+  a model. The empty state's subtitle compensates by explaining what this is outright.
+- The domain ties the project to the author's personal infrastructure. For a take-home that is a
+  plus; on someone else's project it would be coupling.
