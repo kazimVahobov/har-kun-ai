@@ -40,3 +40,4 @@ assembled from here.
 | [0007-sse-parser.md](0007-sse-parser.md) | SSE parser and tests on split frames |
 | [0008-chat-reducer.md](0008-chat-reducer.md) | Chat reducer and tests on keeping partial answers |
 | [0009-english-codebase.md](0009-english-codebase.md) | Moving docs, comments, logs and test names to English |
+| [0010-chat-streaming.md](0010-chat-streaming.md) | Storage, stream runner, useChat hook and a bare page |
