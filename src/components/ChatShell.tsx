@@ -9,10 +9,13 @@ import styles from './ChatShell.module.css'
 export function ChatShell({
   log,
   footer,
+  floating,
   logRef,
 }: {
   log: ReactNode
   footer: ReactNode
+  /** Sits above the composer without taking part in its layout. */
+  floating?: ReactNode
   logRef?: Ref<HTMLDivElement>
 }) {
   return (
@@ -33,6 +36,7 @@ export function ChatShell({
         </div>
 
         <div className={styles.footer}>
+          {floating !== undefined && <div className={styles.floating}>{floating}</div>}
           <div className={styles.container}>{footer}</div>
         </div>
       </main>

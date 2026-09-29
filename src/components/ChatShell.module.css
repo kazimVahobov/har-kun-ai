@@ -43,9 +43,44 @@
 }
 
 .footer {
+  position: relative;
   padding-block-start: var(--space-2);
   /* The home indicator on a phone sits where the composer would otherwise be. */
   padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+}
+
+/**
+ * Floats above the footer instead of flowing inside it: appearing and
+ * disappearing must not shift the composer under the user's cursor.
+ */
+.floating {
+  position: absolute;
+  bottom: 100%;
+  left: var(--space-6);
+  z-index: 1;
+  padding-bottom: var(--space-2);
+}
+
+/**
+ * Whatever floats here sits over the conversation, so it needs a ground of its
+ * own — the system's buttons are transparent by design, and the text underneath
+ * would otherwise read straight through it.
+ */
+.floating > * {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 640px) {
+  .floating {
+    left: var(--space-8);
+  }
+}
+
+@media (min-width: 1024px) {
+  .floating {
+    left: calc(var(--space-8) * 2);
+  }
 }
 
 /**
