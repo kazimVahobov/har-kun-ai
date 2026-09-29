@@ -1,42 +1,42 @@
+import type { CSSProperties } from 'react'
+import type { DayContext } from '../lib/daytime.js'
+import { DayRule } from './DayRule.js'
 import styles from './EmptyState.module.css'
 
-/**
- * Examples are deliberately about this app rather than generic prompts: they
- * double as an explanation of what the thing in front of you does.
- */
-const EXAMPLES = [
-  'Объясни, как работает потоковая передача ответа',
-  'Чем Server-Sent Events отличаются от WebSocket',
-  'Напиши пример отмены fetch через AbortController',
-]
+/** Staggering as data, so the order is legible where the markup is. */
+const delay = (ms: number): CSSProperties => ({ '--delay': `${ms}ms` }) as CSSProperties
 
-export function EmptyState({ onPick }: { onPick(text: string): void }) {
+export function EmptyState({ day, onPick }: { day: DayContext; onPick(text: string): void }) {
   return (
     <section className={styles.root} aria-labelledby="empty-title">
-      {/* Not a repeat of the logo sitting right above it: the heading says what
-          this is, the lede explains the name. */}
-      <h3 id="empty-title" className={styles.title}>
-        Чат с языковой моделью
-      </h3>
+      <h2 id="empty-title" className={`${styles.greeting} ${styles.reveal}`} style={delay(0)}>
+        {day.greeting}
+      </h2>
 
-      <p className={styles.lede}>
-        «har kun» по-узбекски — «каждый день». Ответ появляется по мере генерации, и его можно
-        оборвать на середине, не потеряв уже полученное.
+      <p className={`${styles.date} ${styles.reveal}`} style={delay(70)}>
+        {day.date}
       </p>
 
-      <p className={styles.examplesLabel} id="examples-label">
-        Примеры
+      <div className={`${styles.rule} ${styles.reveal}`} style={delay(140)}>
+        <DayRule progress={day.progress} />
+      </div>
+
+      <p className={`${styles.lede} ${styles.reveal}`} style={delay(210)}>
+        Помощник на каждый день — «har kun» по-узбекски и значит «каждый день». Ответ появляется по
+        мере генерации, и его можно оборвать на середине, не потеряв уже полученное.
       </p>
 
-      <ul className={styles.examples} aria-labelledby="examples-label">
-        {EXAMPLES.map((example) => (
-          <li key={example}>
+      <ul className={`${styles.prompts} ${styles.reveal}`} style={delay(280)} aria-label="С чего начать">
+        {day.prompts.map((prompt) => (
+          <li key={prompt}>
+            {/* Fills the field and moves focus there, but never sends: the user
+                has to be able to change their mind or add to it. */}
             <button
               type="button"
-              className={`btn btn-secondary ${styles.example}`}
-              onClick={() => onPick(example)}
+              className={`btn btn-secondary ${styles.prompt}`}
+              onClick={() => onPick(prompt)}
             >
-              {example}
+              {prompt}
             </button>
           </li>
         ))}

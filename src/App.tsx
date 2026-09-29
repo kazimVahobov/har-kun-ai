@@ -6,6 +6,7 @@ import { ArrowDownIcon } from './components/icons/index.js'
 import { MessageList } from './components/Message.js'
 import { StatusLine } from './components/StatusLine.js'
 import { useAutoScroll } from './hooks/useAutoScroll.js'
+import { useDayContext } from './hooks/useDayContext.js'
 import { useChat } from './hooks/useChat.js'
 import type { Message } from './lib/types.js'
 
@@ -13,6 +14,7 @@ export function App() {
   const { chat, models, model, isStreaming, send, stop, retry, setModel } = useChat()
   const [draft, setDraft] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const day = useDayContext()
 
   // The message array is a new object on every delta, so this follows the
   // answer as it grows.
@@ -45,6 +47,7 @@ export function App() {
 
   return (
     <ChatShell
+      day={day}
       logRef={logRef}
       log={
         hasMessages ? (
@@ -55,6 +58,7 @@ export function App() {
           // An example fills the field and moves focus there, but never sends:
           // the user has to be able to change their mind or add to it.
           <EmptyState
+            day={day}
             onPick={(text) => {
               setDraft(text)
               inputRef.current?.focus()

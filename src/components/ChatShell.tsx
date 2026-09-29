@@ -1,5 +1,7 @@
 import type { ReactNode, Ref } from 'react'
+import type { DayContext } from '../lib/daytime.js'
 import styles from './ChatShell.module.css'
+import { DayRule } from './DayRule.js'
 
 /**
  * The layout, kept apart from what fills it. The semantics are the spec's:
@@ -7,11 +9,13 @@ import styles from './ChatShell.module.css'
  * and the composer.
  */
 export function ChatShell({
+  day,
   log,
   footer,
   floating,
   logRef,
 }: {
+  day: DayContext
   log: ReactNode
   footer: ReactNode
   /** Sits above the composer without taking part in its layout. */
@@ -25,12 +29,26 @@ export function ChatShell({
       </a>
 
       <header className="nav">
-        {/* The logo and nothing else: no settings, and the model picker lives
-            in the composer. No bottom border — this system has no dividers. */}
-        <span className="nav-brand">har kun ai</span>
+        {/* The mark and the date. A daily assistant should know what day it is
+            and say so without being asked. No bottom border — this system
+            separates areas with air. */}
+        <span className="nav-brand">har kun</span>
+        <span className={styles.navDate}>{day.date}</span>
       </header>
 
       <main className={styles.main}>
+        {/* The day lives in exactly one place at a time. Here, in the margin,
+            when there is margin to spare; in the empty state's column when
+            there is not. Atmosphere rather than information — the greeting and
+            the date carry the same thing in text, so this is hidden from
+            assistive technology. */}
+        <aside className={styles.dayPanel} aria-hidden="true">
+          <p className={styles.dayPanelDate}>{day.greeting}</p>
+          <div className={styles.dayPanelRule}>
+            <DayRule progress={day.progress} orientation="vertical" />
+          </div>
+        </aside>
+
         {/* A scrollable region needs to be reachable from the keyboard, or its
             content can only be read with a mouse. Browsers are inconsistent
             about doing this on their own, so it is stated. Not role="log":

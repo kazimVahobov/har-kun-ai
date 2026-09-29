@@ -1,0 +1,129 @@
+/**
+ * The day, drawn as one line.
+ *
+ * The rule fades to transparent at both ends — Nocturne's own signature, used
+ * here for what it actually means: a day has no hard edges, it runs on. The
+ * solid accent mark is now, placed by the real local clock, because in this
+ * system freestanding rules fade while short accent marks stay solid.
+ *
+ * Come back an hour later and the mark has moved. That is "every day" said by
+ * the interface instead of written on it.
+ */
+
+.root {
+  position: relative;
+}
+
+.horizontal {
+  width: 100%;
+  height: 22px;
+}
+
+.vertical {
+  height: 100%;
+  width: 22px;
+}
+
+.line {
+  position: absolute;
+  background: linear-gradient(
+    var(--fade-direction),
+    transparent,
+    var(--color-divider) 12%,
+    var(--color-divider) 88%,
+    transparent
+  );
+  /* Drawn from the centre outwards on first paint. */
+  animation: draw 900ms var(--ease) forwards;
+}
+
+.horizontal .line {
+  inset-block-start: 50%;
+  inset-inline: 0;
+  height: 1px;
+  --fade-direction: to right;
+  transform: scaleX(0);
+}
+
+.vertical .line {
+  inset-inline-start: 50%;
+  inset-block: 0;
+  width: 1px;
+  --fade-direction: to bottom;
+  transform: scaleY(0);
+}
+
+.mark {
+  position: absolute;
+  background: var(--color-accent);
+  /* The glow is the accent's other sanctioned role: a line and a light, never
+     a flood. */
+  box-shadow: 0 0 12px 1px color-mix(in srgb, var(--color-accent) 60%, transparent);
+  opacity: 0;
+  animation: appear 600ms var(--ease) 500ms forwards;
+}
+
+.horizontal .mark {
+  inset-block: 3px;
+  width: 2px;
+  /* A minute's drift is a pixel; easing it keeps the mark from snapping. */
+  transition: left 1s linear;
+}
+
+.vertical .mark {
+  inset-inline: 3px;
+  height: 2px;
+  transition: top 1s linear;
+}
+
+.tick {
+  position: absolute;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-text) 28%, transparent);
+  opacity: 0;
+  animation: appear 600ms var(--ease) 700ms forwards;
+}
+
+.horizontal .tickStart {
+  inset-block-start: calc(50% + 8px);
+  inset-inline-start: 0;
+}
+
+.horizontal .tickEnd {
+  inset-block-start: calc(50% + 8px);
+  inset-inline-end: 0;
+}
+
+.vertical .tickStart {
+  inset-block-start: 0;
+  inset-inline-start: calc(50% + 10px);
+}
+
+.vertical .tickEnd {
+  inset-block-end: 0;
+  inset-inline-start: calc(50% + 10px);
+}
+
+@keyframes draw {
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes appear {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .mark,
+  .tick {
+    animation: none;
+    opacity: 1;
+    transform: scale(1);
+    transition: none;
+  }
+}
