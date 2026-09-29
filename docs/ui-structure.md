@@ -129,7 +129,8 @@ belongs on the edge.
 
 **Autoscroll** sticks to the bottom until the user scrolls up themselves. After that it switches
 off — otherwise you cannot reread the start of an answer while it is being generated — and a
-"jump to bottom" button appears to resume following.
+"jump to bottom" button appears opposite the status chip, above the composer, to resume following.
+It sits outside the live region: a control is not something to announce.
 
 ## Empty state
 

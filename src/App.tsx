@@ -94,21 +94,24 @@ export function App() {
           />
         ) : undefined
       }
-      floating={
-        hasMessages && !isPinned ? (
-          <button
-            type="button"
-            className="btn btn-secondary btn-icon"
-            onClick={scrollToBottom}
-            aria-label="К последнему сообщению"
-          >
-            <ArrowDownIcon />
-          </button>
-        ) : undefined
-      }
       footer={
         <>
-          <StatusLine isStreaming={isStreaming} text={statusText(isStreaming, lastMessage)} />
+          <StatusLine
+            isStreaming={isStreaming}
+            text={statusText(isStreaming, lastMessage)}
+            action={
+              hasMessages && !isPinned ? (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-icon"
+                  onClick={scrollToBottom}
+                  aria-label="К последнему сообщению"
+                >
+                  <ArrowDownIcon />
+                </button>
+              ) : undefined
+            }
+          />
 
           <Composer
             value={draft}

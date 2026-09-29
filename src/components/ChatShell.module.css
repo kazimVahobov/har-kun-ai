@@ -97,29 +97,6 @@
   );
 }
 
-/**
- * Floats above the footer instead of flowing inside it: appearing and
- * disappearing must not shift the composer under the user's cursor.
- */
-.floating {
-  position: absolute;
-  bottom: 100%;
-  /* Pinned to the left edge of the centred column, not to the window. */
-  left: max(var(--space-6), calc(50% - 380px + var(--space-6)));
-  z-index: 1;
-  padding-bottom: var(--space-2);
-}
-
-/**
- * Whatever floats here sits over the conversation, so it needs a ground of its
- * own — the system's buttons are transparent by design, and the text underneath
- * would otherwise read straight through it.
- */
-.floating > * {
-  background: var(--color-surface);
-  box-shadow: var(--shadow-md);
-}
-
 /* The dateline beside the mark: context, not a title, so it sits back. */
 .navDate {
   font-size: 12px;
@@ -172,9 +149,6 @@
     padding-inline: var(--space-8);
   }
 
-  .floating {
-    left: max(var(--space-8), calc(50% - 380px + var(--space-8)));
-  }
 }
 
 @media (min-width: 1024px) {

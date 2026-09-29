@@ -12,7 +12,6 @@ export function ChatShell({
   day,
   log,
   footer,
-  floating,
   contents,
   logRef,
 }: {
@@ -21,8 +20,6 @@ export function ChatShell({
   footer: ReactNode
   /** The conversation's contents, in the right margin (ADR 0015). */
   contents?: ReactNode
-  /** Sits above the composer without taking part in its layout. */
-  floating?: ReactNode
   logRef?: Ref<HTMLDivElement>
 }) {
   return (
@@ -68,7 +65,6 @@ export function ChatShell({
         </div>
 
         <div className={styles.footer}>
-          {floating !== undefined && <div className={styles.floating}>{floating}</div>}
           <div className={styles.container}>{footer}</div>
         </div>
       </main>
