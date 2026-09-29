@@ -25,17 +25,21 @@ export function EmptyState({ day, onPick }: { day: DayContext; onPick(text: stri
         каждый из них.
       </p>
 
-      <ul className={`${styles.prompts} ${styles.reveal}`} style={delay(210)} aria-label="С чего начать">
+      <ul
+        className={`${styles.prompts} ${styles.reveal}`}
+        style={delay(210)}
+        aria-label="С чего начать"
+      >
         {day.prompts.map((prompt) => (
-          <li key={prompt}>
-            {/* Fills the field and moves focus there, but never sends: the user
-                has to be able to change their mind or add to it. */}
-            <button
-              type="button"
-              className={`btn btn-secondary ${styles.prompt}`}
-              onClick={() => onPick(prompt)}
-            >
-              {prompt}
+          <li key={prompt.text}>
+            {/* A card rather than a pill: room for what kind of work it is and
+                what comes back, so the choice is legible before the click.
+                Fills the field and moves focus there, but never sends — the
+                user has to be able to change their mind or add to it. */}
+            <button type="button" className={styles.card} onClick={() => onPick(prompt.text)}>
+              <span className={`card-kicker ${styles.kicker}`}>{prompt.kicker}</span>
+              <span className={styles.cardTitle}>{prompt.text}</span>
+              <span className={styles.cardHint}>{prompt.hint}</span>
             </button>
           </li>
         ))}

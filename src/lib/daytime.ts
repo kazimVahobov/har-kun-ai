@@ -19,7 +19,16 @@ export interface DayContext {
   /** "вторник, 29 сентября" */
   date: string
   /** Rotating starters, chosen to suit the hour. */
-  prompts: string[]
+  prompts: Prompt[]
+}
+
+export interface Prompt {
+  /** One word for the kind of work, so the three read as a set of choices. */
+  kicker: string
+  /** What goes into the composer, verbatim. */
+  text: string
+  /** What comes back, so the card says more than the request does. */
+  hint: string
 }
 
 const GREETINGS: Record<DayPart, string> = {
@@ -34,26 +43,50 @@ const GREETINGS: Record<DayPart, string> = {
  * stops being a slogan and becomes behaviour: what the screen offers at 8am is
  * not what it offers at 11pm.
  */
-const PROMPTS: Record<DayPart, string[]> = {
+const PROMPTS: Record<DayPart, Prompt[]> = {
   morning: [
-    'Составь план на день из этих задач',
-    'Помоги собраться с мыслями перед встречей',
-    'Коротко перескажи, о чём эта статья',
+    { kicker: 'план', text: 'Составь план на день', hint: 'по списку задач — что за чем' },
+    {
+      kicker: 'встреча',
+      text: 'Помоги подготовиться к встрече',
+      hint: 'тезисы и вопросы, которые стоит задать',
+    },
+    { kicker: 'текст', text: 'Перескажи статью коротко', hint: 'вставьте ссылку или сам текст' },
   ],
   afternoon: [
-    'Разбери эту задачу по шагам',
-    'Сформулируй письмо повежливее',
-    'Найди слабое место в этом рассуждении',
+    {
+      kicker: 'разбор',
+      text: 'Разбери задачу по шагам',
+      hint: 'от условия до решения, без пропусков',
+    },
+    { kicker: 'письмо', text: 'Сформулируй письмо повежливее', hint: 'тот же смысл, другой тон' },
+    {
+      kicker: 'проверка',
+      text: 'Найди слабое место в рассуждении',
+      hint: 'что здесь не сходится',
+    },
   ],
   evening: [
-    'Подведи итоги дня по этим заметкам',
-    'Помоги выбрать из двух вариантов',
-    'Перепиши это понятнее',
+    {
+      kicker: 'итоги',
+      text: 'Подведи итоги дня',
+      hint: 'из заметок — что сделано и что осталось',
+    },
+    {
+      kicker: 'выбор',
+      text: 'Помоги выбрать из двух вариантов',
+      hint: 'аргументы за и против каждого',
+    },
+    { kicker: 'текст', text: 'Перепиши это понятнее', hint: 'короче и без канцелярита' },
   ],
   night: [
-    'Объясни простыми словами',
-    'Запиши мысль, пока не забылась',
-    'Что почитать по этой теме',
+    { kicker: 'объяснение', text: 'Объясни простыми словами', hint: 'без терминов, как новичку' },
+    {
+      kicker: 'заметка',
+      text: 'Запиши мысль, пока не забылась',
+      hint: 'сформулирую её внятно',
+    },
+    { kicker: 'чтение', text: 'Что почитать по теме', hint: 'подборка с коротким описанием' },
   ],
 }
 

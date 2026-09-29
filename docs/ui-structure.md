@@ -132,8 +132,10 @@ rather than describing the app — reasoning in [ADR 0014](adr/0014-opens-on-the
   instead, and the column version steps aside so there is never two of it;
 - a muted line explaining the name and what the thing does;
 - three starters that belong to that hour — what is offered at 8am is not what is offered at 11pm.
-  Clicking one puts the text in the composer and moves focus there, but does **not** send: the user
-  has to be able to change their mind or add to it.
+  Each is a card on `--color-surface`, carrying a one-word kicker for the kind of work, the request
+  itself, and a line saying what comes back — so the choice is legible before the click. Three
+  across above 640px, stacked below. Clicking one puts the text in the composer and moves focus
+  there, but does **not** send: the user has to be able to change their mind or add to it.
 
 Everything arrives in sequence on load: 8px and 420ms, 70ms apart. Small, because this system is
 quiet and a loud entrance would be somebody else's design.
