@@ -107,9 +107,16 @@ An `<ol>`, each message an `<li>`. `--space-6` between messages, no rules.
 **User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide (full width on
 a narrow screen).
 
-**Model message** — no fill, straight on the ground, full width, with a solid 2px accent mark on
-the left. Flooding an answer with the accent is not allowed: in Nocturne the accent is a line and
-a mark, not a fill. The difference between roles rests on weight and position, not colour.
+**Model message** — no fill, full width, with a solid 2px accent spine on the left. Flooding an
+answer with the accent is not allowed: in Nocturne the accent is a line and a mark, not a fill. The
+difference between roles is fill against outline, the same distinction the system's own buttons
+make.
+
+**A thin border closes the block when the answer is finished.** While it is being written the block
+stays open and the spine reads like a pen — dim over what is written, bright where words arrive. A
+border drawn at both times would say where the answer ends and nothing about whether it has, which
+was the actual ambiguity. The border is transparent while streaming rather than absent, so closing
+the block costs no layout shift.
 
 Inside an answer, markdown renders with a reduced heading scale (h1→20px, h2→17px, h3→16px, then
 15px): the system's 42px is absurd in a chat reply. Code blocks scroll inside themselves.

@@ -184,9 +184,10 @@ Translated into a live interface, not copied from the prototype. The full screen
   margin, so the two margins are not mirrors of each other and the composition still has a
   direction.
 - **User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide.
-- **Model message** — **no fill**, straight on the ground, with a solid 2px accent mark on the
-  left. This is the system's own idiom: rules fade at their ends, while short accent marks stay
-  solid. Flooding an answer with the accent is not allowed — the accent is not a fill.
+- **Model message** — **no fill**, with a solid 2px accent spine on the left. This is the system's
+  own idiom: rules fade at their ends, while short accent marks stay solid. Flooding an answer with
+  the accent is not allowed — the accent is not a fill. A thin border appears when the answer
+  finishes: the one box this system tolerates, because it is a state rather than decoration.
 - **Composer** — one `.input` frame holding a `textarea` that grows to ~6 rows, with a row beneath
   it carrying the native model `select` on the left and the primary button on the right. During
   generation "Отправить" is replaced by "Стоп" (`.btn-secondary` + icon).
