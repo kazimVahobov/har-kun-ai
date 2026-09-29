@@ -1,0 +1,21 @@
+# Зависимости
+node_modules/
+
+# Сборка
+dist/
+.vite/
+coverage/
+
+# Секреты. В репозитории живёт только .env.example
+.env
+.env.*
+!.env.example
+
+# Редакторы и ОС
+.idea/
+.vscode/
+.DS_Store
+
+# Логи
+*.log
+npm-debug.log*
