@@ -109,12 +109,28 @@
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  /* At least the distance the hints keep from each other, or the button reads
+     as attached to the last word instead of standing apart from it. */
+  gap: var(--space-4);
 }
 
 .hint {
+  display: flex;
+  align-items: center;
+  /* Air rather than a separator: both hints contain a dash, and without real
+     distance between them they read as one sentence. */
+  gap: var(--space-4);
   font-size: 11px;
   color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  /* The first thing dropped when the row runs short. How to send is what you
+     need to be told; a line break is what you find out by trying. */
+  .hintExtra {
+    display: none;
+  }
 }
 
 @media (max-width: 480px) {

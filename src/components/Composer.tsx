@@ -101,7 +101,16 @@ export function Composer({
 
           <div className={styles.actions}>
             <span className={styles.hint}>
-              {isStreaming ? 'Esc — остановить' : 'Enter — отправить'}
+              {isStreaming ? (
+                // While an answer is arriving, Enter does nothing and a line
+                // break is beside the point. Stopping is the only key that acts.
+                'Esc — остановить'
+              ) : (
+                <>
+                  Enter — отправить
+                  <span className={styles.hintExtra}>Shift + Enter — перенос строки</span>
+                </>
+              )}
             </span>
 
             {isStreaming ? (
