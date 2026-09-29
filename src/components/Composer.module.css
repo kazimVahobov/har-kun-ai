@@ -7,7 +7,10 @@
 .frame {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  /* The field and the picker are two separate controls, and at --space-2 they
+     read as one crowded stack — the placeholder sat directly on top of the
+     model name. */
+  gap: var(--space-4);
   padding: var(--space-3);
   background: var(--color-surface);
   border: 1px solid var(--color-divider);
@@ -40,6 +43,11 @@
      texts start on the same vertical without dragging the picker's box out
      past the frame's padding. */
   padding: 0 0 0 calc(var(--space-2) + 1px);
+  /* Two lines at rest. The height is set inline as the content grows, and
+     min-height clamps that from below — an empty composer was a single line
+     pinned to the top of the frame, which made the whole control look like a
+     search box rather than somewhere to write. */
+  min-height: 2lh;
   max-height: 9lh;
   overflow-y: auto;
 }
@@ -55,7 +63,7 @@
 .row {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
 /* Ghost styling on a native select: the element keeps its keyboard handling,
@@ -97,24 +105,78 @@
   color: var(--color-text);
 }
 
-.actions {
+.send {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 
-.hint {
+/**
+ * Two lines under the frame: what the keyboard does, and what the answers are
+ * worth. Both are about the control rather than part of it, which is why they
+ * sit outside its border.
+ */
+.footnote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  /* The smallest step on the scale: both lines are read once and then ignored,
+     and neither may compete with the field above them. */
   font-size: 11px;
+  line-height: 1.5;
   color: var(--color-text-muted);
 }
 
-@media (max-width: 480px) {
-  /* Too tight to keep the hint next to the controls. */
-  .hint {
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  /* Holds the centring once the row wraps: without it the last line would sit
+     flush left under a centred one. */
+  justify-content: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  /* The marker is drawn below instead: a real list marker cannot be laid out
+     horizontally without fighting the flex box. */
+  list-style: none;
+}
+
+.keys li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+/* An empty box rather than a "•" character: generated text gets announced, and
+   the <ul> already tells a screen reader that these are list items. */
+.keys li::before {
+  content: '';
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.caveat {
+  margin: 0;
+}
+
+/**
+ * Shift+Enter is a desktop gesture — a touch keyboard has no Shift to hold, so
+ * on the screens where the line runs short this item names a key that is not
+ * there. The other two stay at every width.
+ */
+@media (max-width: 860px) {
+  .keyExtra {
     display: none;
   }
+}
 
+@media (max-width: 480px) {
   .model {
     max-width: 50%;
   }

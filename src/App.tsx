@@ -131,14 +131,26 @@ export function App() {
 }
 
 function statusText(isStreaming: boolean, last: Message | undefined): string {
-  if (isStreaming) return 'Модель печатает'
+  if (isStreaming) {
+    // Between sending and the first token there is nothing on screen but a
+    // promise, and on a free model that gap is routinely seconds long — the
+    // request sits in a shared queue. Saying "печатает" through it is simply
+    // untrue, and it is the stretch where a person most needs to know that
+    // something is happening at all.
+    return last?.role === 'assistant' && last.content === '' ? 'Ждём ответ' : 'Модель печатает'
+  }
+
   if (last === undefined || last.role !== 'assistant') return ''
 
   switch (last.status) {
     case 'done':
       return 'Ответ получен'
     case 'stopped':
-      return 'Генерация остановлена'
+      // Nothing. Stopping is something the person just did on purpose, and
+      // reporting it back is the interface repeating them. The answer itself
+      // carries the state: its border closes, and one that was cut off before
+      // its first character says so in the block.
+      return ''
     case 'error':
       return 'Ошибка при генерации'
     default:

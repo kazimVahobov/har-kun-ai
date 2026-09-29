@@ -99,32 +99,41 @@ export function Composer({
             ))}
           </select>
 
-          <div className={styles.actions}>
-            <span className={styles.hint}>
-              {isStreaming ? 'Esc — остановить' : 'Enter — отправить'}
-            </span>
-
-            {isStreaming ? (
-              <button
-                type="button"
-                className="btn btn-secondary btn-icon"
-                onClick={onStop}
-                aria-label="Остановить генерацию"
-              >
-                <StopIcon />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="btn btn-primary btn-icon"
-                disabled={value.trim() === ''}
-                aria-label="Отправить сообщение"
-              >
-                <ArrowUpIcon />
-              </button>
-            )}
-          </div>
+          {isStreaming ? (
+            <button
+              type="button"
+              className={`btn btn-secondary btn-icon ${styles.send}`}
+              onClick={onStop}
+              aria-label="Остановить генерацию"
+            >
+              <StopIcon />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className={`btn btn-primary btn-icon ${styles.send}`}
+              disabled={value.trim() === ''}
+              aria-label="Отправить сообщение"
+            >
+              <ArrowUpIcon />
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Under the frame rather than inside it: a key map and a caveat are about
+          the control, not part of it, and the row inside was the first place to
+          run out of room. */}
+      <div className={styles.footnote}>
+        <ul className={styles.keys}>
+          <li>Esc — остановить</li>
+          <li>Enter — отправить</li>
+          {/* A touch keyboard has no Shift to hold, so on the screens where the
+              line runs short this one names a key that is not there. */}
+          <li className={styles.keyExtra}>Shift + Enter — перенос строки</li>
+        </ul>
+
+        <p className={styles.caveat}>ИИ может ошибаться — перепроверяйте важные ответы.</p>
       </div>
     </form>
   )

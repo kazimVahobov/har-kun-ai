@@ -51,6 +51,12 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
           exactly as written rather than being reinterpreted as syntax. */}
       {isUser ? (
         <div className={styles.content}>{message.content}</div>
+      ) : isBlank(message) ? (
+        // An answer stopped before its first character. Left to itself the block
+        // renders as an empty frame — with a Retry button if it is the last one,
+        // and with nothing at all further up the conversation, where it reads as
+        // a rendering bug rather than as something that happened.
+        <p className={styles.blank}>{blankReason(message)}</p>
       ) : (
         <Markdown text={message.content} />
       )}
@@ -76,6 +82,24 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
       )}
     </article>
   )
+}
+
+/**
+ * A finished answer that carries no text and no error card of its own. While it
+ * is still streaming an empty block is correct — the answer has not arrived
+ * yet — and when there is an error the card below says what happened.
+ */
+function isBlank(message: Message): boolean {
+  return (
+    message.role === 'assistant' &&
+    message.status !== 'streaming' &&
+    message.content === '' &&
+    message.error === undefined
+  )
+}
+
+function blankReason(message: Message): string {
+  return message.status === 'stopped' ? 'Генерация прервана' : 'Модель не прислала ответ'
 }
 
 function CopyButton({ text }: { text: string }) {
