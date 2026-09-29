@@ -81,10 +81,13 @@ Not style preferences — each of these breaks the assignment when violated.
    text received so far.
 6. **Markup is semantic.** `<main>`, `<ol>`/`<li>`, `<form>`, `<label>`, `<button>`.
    Not a `div` with an `onClick`.
-7. **No values outside the tokens.** No hex, no font name, no pixel value the Nocturne scale
-   already carries — only `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`,
-   `var(--font-*)`. A missing token is a reason to add a documented extension in
-   `docs/design-system.md`, not a reason to inline a number.
+7. **No values outside the system.** Colour, spacing, radius, elevation and font family come only
+   from `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`, `var(--font-*)` —
+   no hex, no font name, no spacing number. **Font sizes are the exception, and a documented one:**
+   Nocturne carries no size tokens and expresses sizes as literals, so they come from the two
+   tables in `docs/design-system.md`. A size on neither table is drift — extend the document, don't
+   pick a number. Anything else the system lacks is a documented extension in
+   `docs/design-system.md`, not an inlined value.
 8. **Never commit `nocturne/`.** It is a local design-system bundle excluded through
    `.git/info/exclude`. **Do not add it to `.gitignore` either** — `.gitignore` is committed.
    The source of truth for tokens in code is `docs/design-system.md`, which stands on its own

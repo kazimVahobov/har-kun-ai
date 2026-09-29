@@ -95,6 +95,15 @@
 
   /* Muted text, used often enough to deserve a name. */
   --color-text-muted: color-mix(in srgb, var(--color-text) 55%, transparent);
+
+  /**
+   * The opaque end of a mask gradient. A mask reads alpha and ignores hue, so
+   * this is not a colour and no colour token would be honest in its place —
+   * but it is still a value, and values in this project have names.
+   * `currentColor` cannot do the job: inside muted text its alpha is 0.55, and
+   * the masked element would come out half transparent.
+   */
+  --mask-opaque: #000;
 }
 
 @media (prefers-reduced-motion: reduce) {
