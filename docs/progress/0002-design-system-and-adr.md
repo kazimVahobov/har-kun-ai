@@ -1,85 +1,85 @@
-# 0002 — Дизайн-система Nocturne и ADR
+# 0002 — Nocturne design system and ADRs
 
-- **Дата:** 2026-09-29
-- **Ветка:** `chore/docs`
-- **Статус:** готово
-- **Инструменты:** Claude Opus 5 в Claude Code
+- **Date:** 2026-09-29
+- **Branch:** `chore/docs`
+- **Status:** done
+- **Tools:** Claude Opus 5 in Claude Code
 
-## Задача
+## Task
 
-Завести `.gitignore`, изучить дизайн-систему Nocturne и выписать её в документ, по которому
-агент будет поднимать UI, затем оформить принятые решения как ADR.
+Add a `.gitignore`, study the Nocturne design system and write it out into a document the agent
+will build the UI from, then record the decisions taken as ADRs.
 
-Отдельное условие: сам бандл `nocturne/` не должен попасть ни в git, ни в `.gitignore`.
+A separate condition: the `nocturne/` bundle itself must reach neither git nor `.gitignore`.
 
-## Что сделано
+## What was done
 
-- `.gitignore` — зависимости, сборка, секреты, файлы редакторов.
-- `nocturne/` исключён локально через `.git/info/exclude`. Этот файл лежит внутри `.git/`
-  и в репозиторий не попадает — ровно то, что требовалось: бандла нет ни в истории,
-  ни в списке игнорируемого.
-- `docs/design-system.md` — Nocturne, выписанная целиком: все рампы, шкала типографики,
-  отступы, радиусы, тени, состояния, классы компонентов и их перенос на интерфейс чата.
-- `docs/adr/` — десять решений и реестр.
-- План и `CLAUDE.md` приведены в согласие с системой: тёмная тема из «вне объёма» стала
-  единственной темой, добавлены правила про токены и про `nocturne/`.
+- `.gitignore` — dependencies, build output, secrets, editor files.
+- `nocturne/` excluded locally through `.git/info/exclude`. That file lives inside `.git/` and is
+  never committed — exactly what was asked for: the bundle appears neither in history nor in the
+  list of ignored paths.
+- `docs/design-system.md` — Nocturne written out in full: every ramp, the type scale, spacing,
+  radii, shadows, states, component classes and how they map onto the chat interface.
+- `docs/adr/` — ten decisions and a register.
+- The plan and `CLAUDE.md` reconciled with the system: the dark theme moved from "out of scope"
+  to being the only theme; rules added about tokens and about `nocturne/`.
 
-## Принятые решения
+## Decisions taken
 
-- **Док по дизайн-системе самодостаточен** — все значения токенов выписаны буквально,
-  а не ссылкой на файл бандла. Бандла у проверяющего не будет, а документ, который без него
-  не читается, бесполезен.
-- **Расширения системы описаны явно** — Nocturne собиралась под страницы-прототипы, и чату в ней
-  не хватает четырёх вещей: токена моношрифта (а ответы модели — markdown с кодом), масштаба
-  заголовков внутри сообщения (системный h1 — 42px, в реплике чата это абсурд), брейкпоинтов
-  (у прототипов фиксированные вьюпорты) и токенов движения. Всё это внесено в документ отдельным
-  разделом, чтобы позже не выглядело как расползание.
-- **Цвет ошибки оставлен открытым вопросом.** Система моно и прямо просит держать цветность
-  низкой вне акцента, отдельной роли под ошибку в ней нет. По умолчанию ошибка несётся иконкой,
-  текстом и карточкой, а не цветом; альтернатива — один `--color-danger` на той же светлоте
-  OKLCH, что акцент. Второй путь — отступление от характера системы, и его стоит подтвердить
-  отдельно, а не протащить молча.
-- **ADR отдельными файлами, а не одним списком** — в разделе «Последствия» каждого решения
-  записана его цена. В сводной таблице это место просто исчезает, а именно оно и объясняет,
-  почему решение такое.
+- **The design-system document stands on its own** — every token value written out literally
+  rather than referenced from a bundle file. The reviewer will not have the bundle, and a document
+  that cannot be read without it is useless.
+- **Extensions to the system are stated explicitly** — Nocturne was built for prototype pages and
+  a chat needs four things it lacks: a monospace token (model answers are markdown with code), a
+  heading scale inside a message (the system's h1 is 42px, absurd in a chat reply), breakpoints
+  (the prototypes have fixed viewports) and motion tokens. All of it goes into its own section of
+  the document so it does not later read as drift.
+- **The error colour was left an open question.** The system is mono and explicitly asks to keep
+  chroma low outside the accent; it has no role for errors. By default an error is carried by an
+  icon, text and a card rather than colour; the alternative is a single `--color-danger` at the
+  accent's OKLCH lightness. The second path departs from the system's character and deserved
+  confirmation rather than being slipped in.
+- **ADRs as separate files rather than one list** — each decision's "Consequences" section records
+  its price. In a summary table that section simply disappears, and it is exactly what explains
+  why the decision is what it is.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-- **Что предложила:** на этапе выбора стека — изобрести палитру с нуля, вплоть до конкретных
-  значений (тёплый оранжевый акцент `#c4633a` на светлом фоне) и кольца фокуса через
+- **What it proposed:** at the stack-selection stage — inventing a palette from scratch, down to
+  specific values (a warm orange accent `#c4633a` on a light ground) and a focus ring through
   `box-shadow`.
-  **Как заметили:** пользователь выложил в проект готовый бандл Nocturne — тёмную систему
-  с собственным акцентом-blurple и фокусом через настоящий `outline`.
-  **Как поправили:** всё придуманное выброшено, документ пишется от системы. Урок конкретный:
-  спрашивать про существующие дизайн-наработки **до** того, как предлагать токены, а не после.
+  **How it was noticed:** the owner dropped the finished Nocturne bundle into the project — a dark
+  system with its own blurple accent and focus through a real `outline`.
+  **How it was fixed:** everything invented was discarded and the document written from the
+  system. A concrete lesson: ask about existing design assets **before** proposing tokens, not
+  after.
 
-- **Что предложила:** первая редакция плана относила тёмную тему к «вне объёма» — как
-  необязательный бонус из задания.
-  **Как заметили:** при переносе Nocturne — она тёмная по своей природе, светлого варианта
-  у неё не существует.
-  **Как поправили:** тема стала единственной, `docs/plan.md` и `CLAUDE.md` исправлены в том же
-  коммите. Отдельно заведён [ADR 0004](../adr/0004-single-dark-theme.md), чтобы решение
-  не выглядело как случайность.
+- **What it proposed:** the first draft of the plan put the dark theme in "out of scope", as an
+  optional bonus from the assignment.
+  **How it was noticed:** while porting Nocturne — it is dark by nature and has no light variant.
+  **How it was fixed:** the theme became the only one, with `docs/plan.md` and `CLAUDE.md` fixed
+  in the same commit. [ADR 0004](../adr/0004-single-dark-theme.md) was written so the decision does
+  not read as an accident.
 
-- **Чуть не сделала:** рефлекторное движение при исключении каталога — дописать `nocturne/`
-  в `.gitignore`. Это ровно то, что запретил пользователь, и запрет осмысленный: `.gitignore`
-  сам коммитится, то есть упоминание бандла всё равно оказалось бы в репозитории.
-  **Как поправили:** `.git/info/exclude`. Исключение работает локально и никуда не публикуется.
+- **What it nearly did:** the reflex when excluding a directory is to add `nocturne/` to
+  `.gitignore`. That is exactly what the owner forbade, and the prohibition is sound: `.gitignore`
+  is itself committed, so the bundle's name would have ended up in the repository anyway.
+  **How it was fixed:** `.git/info/exclude`. The exclusion works locally and is never published.
 
-## Что осталось
+## What's left
 
-- Подтвердить, как показывать ошибки: строго по системе (без цвета) или с добавлением
-  `--color-danger`. До ответа UI фазы 2 строится по первому варианту.
-- Решение по шрифту зафиксировано в документе (`<link>` с `preconnect` вместо `@import`),
-  но отдельного ADR не получило — мелко для ADR, хотя и внешний запрос.
+- Confirm how errors are shown: strictly by the system (no colour) or with a `--color-danger`
+  added. Until answered, phase 2's UI follows the first option.
+- The font decision is recorded in the document (a `<link>` with `preconnect` instead of
+  `@import`) but did not get its own ADR — too small for one, although it is an external request.
 
-## Как проверить
+## How to check
 
 ```bash
-git status --short          # nocturne/ не появляется
-git check-ignore -v nocturne/   # источник исключения — .git/info/exclude, не .gitignore
-grep -r nocturne .gitignore     # пусто
+git status --short              # nocturne/ does not appear
+git check-ignore -v nocturne/   # the source is .git/info/exclude, not .gitignore
+grep -r nocturne .gitignore     # empty
 ```
 
-Плюс чтением: значения токенов в `docs/design-system.md` совпадают с `nocturne/project/styles.css`,
-ссылки между ADR не битые.
+Plus by reading: the token values in `docs/design-system.md` match `nocturne/project/styles.css`,
+and the links between ADRs are not broken.

@@ -1,57 +1,58 @@
-# 0004 — Сверка сайдбара с заданием
+# 0004 — Checking the sidebar against the assignment
 
-- **Дата:** 2026-09-29
-- **Ветка:** `chore/docs`
-- **Статус:** готово
-- **Инструменты:** Claude Opus 5 в Claude Code
+- **Date:** 2026-09-29
+- **Branch:** `chore/docs`
+- **Status:** done
+- **Tools:** Claude Opus 5 in Claude Code
 
-## Задача
+## Task
 
-Проверить, упоминается ли поддержка нескольких чатов в `TASK.md`, и решить, что делать
-с сайдбаром, если нет.
+Check whether support for several chats is mentioned in `TASK.md`, and decide what to do with the
+sidebar if it is not.
 
-## Что сделано
+## What was done
 
-- `TASK.md` перечитан целиком. Нескольких чатов в нём нет: везде единственное число —
-  «одностраничный веб-чат», «диалог с моделью», «история диалога… она», «до первого сообщения».
-  Запрета тоже нет — «структура проекта на ваш вкус».
-- `docs/adr/0012-chat-sidebar-scope.md` — сайдбар остаётся, но делается последним пунктом
-  фазы 2; форма данных многочатовая с самого начала.
-- Порядок внутри фазы 2 зафиксирован в `docs/plan.md`, врезка добавлена в `docs/ui-structure.md`,
-  ADR 0011 получил ссылку на 0012.
+- `TASK.md` reread in full. There are no multiple chats in it: everything is singular —
+  "одностраничный веб-чат", "диалог с моделью", "история диалога… она", "до первого сообщения".
+  Nor is it forbidden — "структура проекта на ваш вкус".
+- `docs/adr/0012-chat-sidebar-scope.md` — the sidebar stays, but is built as the last item of
+  phase 2; the data shape is multi-chat from the start.
+- The order within phase 2 fixed in `docs/plan.md`, a note added to `docs/ui-structure.md`,
+  ADR 0011 given a link to 0012.
 
-## Принятые решения
+## Decisions taken
 
-- **Не выкидывать, а переставить.** Сайдбар допустим и ложится в критерий «вкус», но не попадает
-  ни в один из первых четырёх. Полтора-два часа из бюджета 2–6 на пятый критерий — плохой обмен,
-  если из-за них пострадает первый.
-- **Форма данных многочатовая сразу.** Стоит почти ничего, а снимает главный риск такой
-  перестановки: переделку архитектуры в конце, под цейтнот.
-- **Расхождение проговаривается в README.** Рядом с пушбеком про `outline`, но с оговоркой,
-  что случаи разные: там отступили от буквы ради смысла требования, здесь добавили то,
-  чего не просили.
+- **Move it rather than drop it.** The sidebar is permissible and lands in the "taste" criterion,
+  but in none of the first four. One and a half to two hours out of a 2–6 hour budget spent on the
+  fifth criterion is a bad trade if the first one suffers for it.
+- **Multi-chat data shape from the start.** It costs almost nothing and removes the main risk of
+  such a reordering: rearchitecting at the end, under time pressure.
+- **The divergence is stated in the README.** Next to the `outline` pushback, but with the caveat
+  that the cases differ: there we departed from the letter to serve the requirement's intent; here
+  we added something that was not asked for.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-- **Что сделала:** приняла «нужен сайдбар для списка чатов» как требование и расписала под него
-  весь экран, не сверившись с `TASK.md`. Спецификация выросла на мапу потоков, выездную панель,
-  ловушку фокуса, приоритет `Esc`, индикаторы непрочитанного, удаление с отменой и вытеснение
-  по квоте — и ни одна из этих вещей заданием не требуется.
-  **Как заметили:** пользователь спросил, упоминается ли поддержка нескольких чатов в задании.
-  **Как поправили:** сверка, ADR 0012, перестановка в конец фазы.
+- **What it did:** took "a sidebar for the chat list is needed" as a requirement and laid out the
+  whole screen around it, without checking `TASK.md`. The specification grew a stream map, a
+  drawer, a focus trap, `Esc` precedence, unread indicators, deletion with undo and quota
+  eviction — none of which the assignment requires.
+  **How it was noticed:** the owner asked whether the assignment mentions support for several
+  chats.
+  **How it was fixed:** the check, ADR 0012, and moving it to the end of the phase.
 
-  Промах ровно тот же, что в [0003](0003-ui-structure.md), но с обратным знаком: там я **сузил**
-  объём без спроса (решил, что сайдбара не будет), здесь — **расширил** без сверки с
-  первоисточником. Общий корень один: объём менялся молча, вместо того чтобы сверяться с
-  `TASK.md`. В `CLAUDE.md` уже написано, что `TASK.md` главнее любых пересказов, — правило есть,
-  применено не было.
+  The same mistake as in [0003](0003-ui-structure.md), with the sign reversed: there I **narrowed**
+  scope without asking (deciding there would be no sidebar), here I **widened** it without
+  checking the source. The shared root is one: scope changed silently instead of being checked
+  against `TASK.md`. `CLAUDE.md` already says `TASK.md` outranks any summary — the rule existed
+  and was not applied.
 
-## Что осталось
+## What's left
 
-- При написании README не забыть абзац о расхождении: несколько чатов добавлены сверх задания,
-  вот зачем и вот почему они делались последними.
+- When writing the README, do not forget the paragraph on the divergence: several chats were added
+  beyond the assignment, here is what for, and here is why they were built last.
 
-## Как проверить
+## How to check
 
-Чтением: `docs/plan.md`, `docs/ui-structure.md` и ADR 0011/0012 согласованы в том, что сайдбар
-идёт последним, а форма данных многочатовая с начала.
+By reading: `docs/plan.md`, `docs/ui-structure.md` and ADRs 0011/0012 agree that the sidebar comes
+last and that the data shape is multi-chat from the start.

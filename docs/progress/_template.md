@@ -1,43 +1,43 @@
-# NNNN — Название задачи
+# NNNN — Task title
 
-- **Дата:** YYYY-MM-DD
-- **Ветка:** `feat/...`
-- **Статус:** готово | частично | заблокировано
-- **Инструменты:** какая модель / какой агент делал работу
+- **Date:** YYYY-MM-DD
+- **Branch:** `feat/...`
+- **Status:** done | partial | blocked
+- **Tools:** which model / which agent did the work
 
-## Задача
+## Task
 
-Что требовалось, в двух-трёх предложениях. Ссылка на пункт `TASK.md` или раздел `docs/plan.md`,
-если задача оттуда.
+What was required, in two or three sentences. Link the `TASK.md` requirement or the
+`docs/plan.md` section if the task came from there.
 
-## Что сделано
+## What was done
 
-Список по сути, не по файлам. `git diff` покажет файлы; здесь — что теперь работает.
+A list by substance, not by file. `git diff` shows the files; this shows what now works.
 
-## Принятые решения
+## Decisions taken
 
-Развилки, на которых выбирали. По строке на решение:
+The forks where something had to be chosen. One line each:
 
-- **Решение** — почему именно так, и чем пожертвовали.
+- **Decision** — why this way, and what was given up.
 
-Если развилок не было — так и написать, а не выдумывать.
+If there were no forks, say so rather than inventing them.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-Обязательное поле. Что модель предложила неверно, как это заметили, чем заменили.
+A required section. What the model proposed incorrectly, how it was noticed, what replaced it.
 
-- **Что предложила:**
-- **Как заметили:** (упал тест, не собралось, заметили при ревью, вылезло на запуске)
-- **Как поправили:**
+- **What it proposed:**
+- **How it was noticed:** (a failing test, a broken build, review, it surfaced on a run)
+- **How it was fixed:**
 
-Если за задачу ошибок не было — написать «не было». Пустой раздел читается как невнимательность,
-а не как безупречная работа.
+If there were no mistakes during the task, write "none". An empty section reads as carelessness,
+not as flawless work.
 
-## Что осталось
+## What's left
 
-Не доделано, отложено, требует решения пользователя. Пусто — значит пусто.
+Unfinished, deferred, or waiting on a decision from the owner. Empty means empty.
 
-## Как проверить
+## How to check
 
-Команды и шаги, которыми результат проверяется руками. Не «протестировано», а что именно
-запустить и что должно произойти.
+The commands and steps to verify the result by hand. Not "tested", but what to run and what should
+happen.

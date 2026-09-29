@@ -1,61 +1,61 @@
-# 0007 — Свой фокус вместо браузерного: пушбек по заданию
+# 0007 — Our own focus ring instead of the browser's: the assignment pushback
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Задание содержит два требования, которые противоречат друг другу.
+The assignment contains two requirements that contradict each other.
 
-> Доступность: интерфейсом можно полноценно пользоваться с клавиатуры — Tab по элементам,
-> Enter отправляет, Esc останавливает генерацию.
+> Accessibility: the interface can be used entirely from the keyboard — Tab through elements,
+> Enter sends, Esc stops generation.
 
-> Уберите стандартную браузерную обводку фокуса (`outline`) у кнопок и поля ввода — в разных
-> браузерах она выглядит разнобойно и портит аккуратный вид.
+> Remove the browser's default focus outline (`outline`) from buttons and the input field — it
+> looks inconsistent across browsers and spoils a tidy look.
 
-Буквально выполненное второе требование убивает первое. Обводка фокуса — единственное, что
-показывает, где ты находишься при навигации с клавиатуры. Без неё Tab идёт вслепую: нажатие
-Enter отправляет неизвестно что.
+Taking the second one literally kills the first. The focus ring is the only thing showing where
+you are during keyboard navigation. Without it, Tab moves blind: pressing Enter submits you don't
+know what.
 
-Задание само предлагает такое замечать:
+The assignment invites exactly this kind of objection:
 
-> Если какое-то требование кажется вам ошибочным, вредным или противоречащим другим —
-> не выполняйте его молча. Напишите в README, что вы сделали иначе и почему.
+> If a requirement seems wrong, harmful, or contradictory to you — don't follow it silently.
+> Write in the README what you did differently and why.
 
-Обоснование во втором требовании названо честно: разнобой между браузерами портит вид.
-Это настоящая проблема — дефолтное кольцо действительно выглядит по-разному везде.
-Проблема в предложенном лекарстве, не в диагнозе.
+The reasoning behind the second requirement is stated honestly: inconsistency across browsers
+spoils the look. That is a real problem — the default ring genuinely differs everywhere. The
+problem is with the proposed cure, not with the diagnosis.
 
-## Решение
+## Decision
 
-Выполняем по смыслу, а не буквально: браузерный `outline` снимаем, но каждый интерактивный
-элемент получает собственное, единообразное во всех браузерах кольцо от дизайн-системы.
+We satisfy the intent rather than the letter: the browser `outline` goes, but every interactive
+element gets its own ring, identical across browsers, supplied by the design system.
 
 ```css
 :focus         { outline: none; }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
 ```
 
-`:focus-visible` — ровно та развилка, которой не хватало формулировке задания: кольцо не
-появляется при клике мышью и появляется при переходе с клавиатуры. Аккуратный вид у мышиного
-сценария сохраняется, клавиатурный не ломается.
+`:focus-visible` is precisely the distinction the requirement's wording lacked: the ring does not
+appear on a mouse click and does appear on keyboard navigation. The tidy look is preserved for the
+mouse path; the keyboard path is not broken.
 
-Это не обходной путь, а то, как Nocturne устроена изначально: система прямо требует не оставлять
-браузерное синее кольцо и задаёт своё. Так что здесь мы ничего не изобретаем.
+This is not a workaround — it is how Nocturne is built in the first place: the system explicitly
+requires not leaving the browser's blue ring and defines its own. So nothing here is invented.
 
-Отдельные случаи: у поля ввода вместо кольца подсвечивается граница
-(`.input:focus-visible { border-color: var(--color-accent); outline-offset: 0 }`) —
-поле и так в рамке, второе кольцо снаружи было бы шумом.
+Special cases: the input highlights its border instead of taking a ring
+(`.input:focus-visible { border-color: var(--color-accent); outline-offset: 0 }`) — the field is
+already framed, and a second ring outside it would be noise.
 
-В README это уходит отдельным абзацем: что сделано иначе и почему.
+This goes into the README as its own paragraph: what was done differently, and why.
 
-## Последствия
+## Consequences
 
-- Оба требования выполнены, ни одно не нарушено. Разнобой между браузерами убран — именно
-  того и хотели.
-- `:focus-visible` — не полифилленный CSS; в очень старых браузерах кольцо не появится
-  при Tab. Проект и так требует `color-mix()`, `:has()` и `100dvh`, так что нижняя граница
-  поддержки задана не этим решением.
-- Есть риск, что проверяющий поймёт требование буквально и сочтёт его невыполненным.
-  Снимается тем, что расхождение объяснено в README, а не оставлено на догадку — что задание
-  и просит сделать.
+- Both requirements are met, neither is broken. Cross-browser inconsistency is gone — which is
+  what was wanted.
+- `:focus-visible` is not polyfilled CSS; in very old browsers no ring appears on Tab. The project
+  already requires `color-mix()`, `:has()` and `100dvh`, so this decision is not what sets the
+  support floor.
+- There is a risk a reviewer reads the requirement literally and marks it unmet. Mitigated by
+  explaining the divergence in the README rather than leaving it to be guessed — which is what the
+  assignment asks for.

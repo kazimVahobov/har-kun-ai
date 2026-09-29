@@ -3,44 +3,71 @@
 Streaming LLM chat — React + TypeScript, Node proxy keeps the key off the client, cancellable
 generation, keyboard-first.
 
-> Проект в работе. Сейчас поднят каркас: страница и `/api/health`.
-> План и решения — в [`docs/`](docs/).
+> Work in progress. The mock server and the streaming core are in; the UI is next.
+> Plan and decisions live in [`docs/`](docs/).
+>
+> The app's own interface is in Russian — the assignment arrived in Russian and will be reviewed
+> in Russian ([ADR 0005](docs/adr/0005-no-localization.md)). Everything else here is English.
 
-## Запуск
+## Running it
 
-Нужен Node ≥ 20.19 (проверено на 22).
+Node ≥ 20.19 (tested on 22).
 
 ```bash
 npm install
 npm run dev
 ```
 
-Открыть http://localhost:5173 — страница должна показать, что `/api/health` отвечает.
+Open http://localhost:5173.
 
-Ключ OpenRouter **не нужен**: он понадобится только в фазе 3, когда подключится живая модель.
-До этого проект поднимается и работает без секретов ([ADR 0003](docs/adr/0003-mock-first.md)).
+**No OpenRouter key is needed.** It is only required in phase 3, when the live model is wired up.
+Until then the project runs on a mock and needs no secrets at all
+([ADR 0003](docs/adr/0003-mock-first.md)).
 
-## Команды
+## Commands
 
-| Команда | Что делает |
+| Command | What it does |
 |---|---|
-| `npm run dev` | Vite на :5173 и бэкенд на :8787, `/api` проксируется |
-| `npm run build` | проверка типов и сборка в `dist/` |
-| `npm start` | прод-режим: тот же сервер отдаёт и `dist/`, и `/api` |
-| `npm run typecheck` | только проверка типов, клиент и сервер |
+| `npm run dev` | Vite on :5173 and the backend on :8787, `/api` proxied |
+| `npm test` | Vitest |
+| `npm run build` | typecheck and build into `dist/` |
+| `npm start` | production: one server serves both `dist/` and `/api` |
+| `npm run typecheck` | types only, client and server |
 
-Переменные окружения — в [`.env.example`](.env.example).
+Environment variables are in [`.env.example`](.env.example).
 
-## Документация
+## Trying the edge cases
 
-| Файл | О чём |
+The mock reproduces on demand what a free model only produces by luck. Outside production,
+`POST /api/chat` accepts `?simulate=`:
+
+| Value | What happens |
 |---|---|
-| [`docs/plan.md`](docs/plan.md) | план по фазам и контракт `/api/chat` |
-| [`docs/ui-structure.md`](docs/ui-structure.md) | раскладка экрана, состояния, клавиатура |
-| [`docs/design-system.md`](docs/design-system.md) | дизайн-система Nocturne: токены и перенос |
-| [`docs/adr/`](docs/adr/) | принятые решения с контекстом и ценой |
-| [`docs/progress/`](docs/progress/) | отчёты по задачам, включая ИИ-лог |
+| `429` | rate-limited before the stream starts, with `Retry-After` |
+| `timeout` | the connection stays open and no first token arrives |
+| `drop` | the connection dies mid-stream, with no `done` |
+| `mid-error` | part of the answer, then an `error` event |
+| `slow` | 300–800 ms between chunks |
 
-## Лицензия
+```bash
+curl -sN -X POST 'localhost:8787/api/chat?simulate=mid-error' \
+  -H 'content-type: application/json' \
+  -d '{"messages":[{"role":"user","content":"hi"}]}'
+```
+
+The timeout guard defaults to 30 s; shorten it to see it fire:
+`TIMEOUT_FIRST_TOKEN_MS=2000 npm run dev:server`.
+
+## Documentation
+
+| File | About |
+|---|---|
+| [`docs/plan.md`](docs/plan.md) | phased plan and the `/api/chat` contract |
+| [`docs/ui-structure.md`](docs/ui-structure.md) | screen layout, states, keyboard |
+| [`docs/design-system.md`](docs/design-system.md) | the Nocturne design system: tokens and how they map on |
+| [`docs/adr/`](docs/adr/) | decisions, with context and cost |
+| [`docs/progress/`](docs/progress/) | per-task reports, including the AI log |
+
+## License
 
 [MIT](LICENSE)

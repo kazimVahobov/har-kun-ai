@@ -1,37 +1,40 @@
-# Структура интерфейса
+# Screen structure
 
-Спецификация экрана для фазы 2. Стили и токены — `docs/design-system.md`, контракт потока —
-`docs/plan.md`.
+The phase 2 specification. Styling and tokens are in `docs/design-system.md`, the stream contract
+in `docs/plan.md`.
 
-> **Порядок работ.** Сайдбар со списком чатов идёт **сверх задания** — в `TASK.md` диалог
-> везде один. Поэтому он делается **последним пунктом фазы 2**, после стриминга, отмены,
-> обработки краёв и доступности. Форма данных многочатовая с самого начала, чтобы не
-> переделывать архитектуру под цейтнот. Обоснование —
+> **Order of work.** The chat sidebar goes **beyond the assignment** — in `TASK.md` the
+> conversation is singular throughout. It is therefore built **last in phase 2**, after streaming,
+> cancellation, edge handling and accessibility. The data shape is multi-chat from the start so
+> nothing needs rearchitecting under time pressure. Reasoning in
 > [ADR 0012](adr/0012-chat-sidebar-scope.md).
 >
-> До сайдбара экран работает как одночатовый: тот же стор, один чат в списке, вместо
-> `<aside>` — ничего.
+> Until the sidebar exists, the screen behaves as single-chat: same store, one chat in the list,
+> no `<aside>` at all.
 
-## Одна страница
+Interface copy below is quoted in Russian on purpose — everything a person sees in the running app
+stays Russian, per the language rule in `CLAUDE.md`.
 
-Роутера нет. Всё, что происходит, — состояния одного экрана. Переключение чатов меняет,
-какой диалог отрисован, и не меняет адрес: URL-состояние потянуло бы за собой историю навигации
-и кнопку «назад», которая в чате означает неочевидное.
+## One page
 
-## Каркас
+There is no router. Everything that happens is a state of one screen. Switching chats changes
+which conversation is rendered and does not change the URL: URL state would drag in navigation
+history and a back button, which in a chat means something unobvious.
 
-Полная высота — `100dvh`. Скроллится только лента; навбар, сайдбар и композер закреплены.
+## Frame
+
+Full height, `100dvh`. Only the conversation scrolls; header, sidebar and composer are fixed.
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│ har kun ai                                           │  навбар: лого, без границ
+│ har kun ai                                           │  navbar: logo, no borders
 ├─────────────┬────────────────────────────────────────┤
 │ + Новый чат │                                        │
-│             │   ▍Ответ модели без заливки,           │
-│ Про SSE     │    акцентная метка слева               │
+│             │   ▍A model answer, no fill,            │
+│ Про SSE     │    accent mark on the left             │
 │ Рецепт    ● │                                        │
 │ Отмена fetch│               ┌──────────────────┐     │
-│             │               │ Вопрос — .card   │     │
+│             │               │ A question, card │     │
 │             │               └──────────────────┘     │
 │             │                                        │
 │             │   ● ● ●  Модель печатает               │
@@ -42,180 +45,184 @@
 └─────────────┴────────────────────────────────────────┘
 ```
 
-Границ между областями нет — ни под навбаром, ни между сайдбаром и лентой. В Nocturne
-разделителей нет вовсе: области разводятся воздухом из шкалы отступов. Сайдбар и лента
-стоят на одном `--color-bg`, различает их только положение и заливка активного элемента.
+There are no rules between areas — not under the navbar, not between the sidebar and the
+conversation. Nocturne has no dividers at all: areas are separated by air from the spacing scale.
+The sidebar and the conversation sit on the same `--color-bg`; only position and the active item's
+fill tell them apart.
 
-Семантика: `<header>` → `<div>` с `<aside>` и `<main>` → внутри `<main>` лента `<ol>`/`<li>`
-и `<form>` композера. Первым элементом в DOM — skip-link «к полю ввода»: в длинном диалоге
-у каждого ответа есть кнопка «копировать», без него до композера пришлось бы протабливаться
-через всю переписку.
+Semantics: `<header>` → a wrapper holding `<aside>` and `<main>` → inside `<main>` the `<ol>`
+conversation and the composer `<form>`. First in the DOM is a skip link to the input: in a long
+conversation every answer carries a copy button, and without it reaching the composer would mean
+tabbing through the whole history.
 
-## Навбар
+## Navbar
 
-Только лого `har kun ai` (`.nav-brand`, строчными) слева. Ни границы снизу, ни тени, ни фона,
-отличного от страницы — `.nav` в системе уже идёт с `border-bottom: none`.
+Only the `har kun ai` logo (`.nav-brand`, lowercase) on the left. No bottom border, no shadow, no
+background differing from the page — `.nav` already ships with `border-bottom: none`.
 
-Больше в навбаре ничего нет: настроек нет, выбор модели переехал в композер, управление чатами —
-в сайдбаре. На узком экране слева от лого добавляется кнопка-гамбургер, открывающая сайдбар.
+Nothing else lives there: there are no settings, the model picker moved into the composer, chat
+management is in the sidebar. On a narrow screen a hamburger appears to the left of the logo and
+opens the sidebar.
 
-## Сайдбар
+## Sidebar
 
-> Делается последним пунктом фазы 2 — см. врезку в начале документа и
+> Built last in phase 2 — see the note at the top and
 > [ADR 0012](adr/0012-chat-sidebar-scope.md).
 
-`<aside>` с заголовком-невидимкой (`aria-label="Чаты"`), ширина 240px.
+An `<aside>` with an invisible label (`aria-label="Чаты"`), 240px wide.
 
-- Сверху — `.btn-secondary` «+ Новый чат» во всю ширину.
-- Ниже — `<ul>` чатов, новые сверху, сортировка по времени последнего изменения.
-- Пункт чата — `<button>` с названием в одну строку и обрезкой по `text-overflow: ellipsis`.
-  Название берётся из первого сообщения пользователя (первые ~40 символов); до него — «Новый чат».
-- **Активный** — заливка `--color-surface` и сплошная акцентная метка 2px слева, тем же приёмом,
-  что и сообщение модели.
-- **Идёт генерация** — пульсирующая акцентная точка справа от названия. Под
-  `prefers-reduced-motion` точка статична.
-- **Есть непрочитанный ответ** (генерация завершилась, пока пользователь был в другом чате) —
-  та же точка, не пульсирующая. Снимается при открытии чата.
-- Удаление — иконочная кнопка, проявляется по hover и по фокусу. Без модального подтверждения:
-  вместо него после удаления пять секунд висит «Чат удалён · Вернуть» в статус-строке.
-  Модалка на каждое удаление в чате такого размера — лишний шаг, а отменить дешевле, чем
-  переспрашивать.
+- At the top, a full-width `.btn-secondary` "+ Новый чат".
+- Below it a `<ul>` of chats, newest first, sorted by last activity.
+- A chat item is a `<button>` with a single-line title, truncated with `text-overflow: ellipsis`.
+  The title comes from the first user message (about 40 characters); before that, "Новый чат".
+- **Active** — a `--color-surface` fill and a solid 2px accent mark on the left, the same device
+  the model's message uses.
+- **Generating** — a pulsing accent dot to the right of the title. Static under
+  `prefers-reduced-motion`.
+- **Has an unread answer** (generation finished while the user was in another chat) — the same
+  dot, not pulsing. Cleared when the chat is opened.
+- Deleting is an icon button that appears on hover and on focus. No confirmation dialog: instead,
+  "Чат удалён · Вернуть" sits in the status line for five seconds. A modal on every delete is an
+  extra step in a chat this size, and undoing is cheaper than asking.
 
-«+ Новый чат» при уже открытом пустом чате не создаёт второй, а просто фокусирует композер:
-иначе сайдбар зарастает пустыми «Новый чат».
+"+ Новый чат" while an empty chat is already open does not create a second one; it just focuses
+the composer. Otherwise the sidebar fills up with empty "Новый чат" entries.
 
-## Лента и сообщение
+## Conversation and messages
 
-`<ol>`, каждое сообщение — `<li>`. Между сообщениями `--space-6`, линий между ними нет.
+An `<ol>`, each message an `<li>`. `--space-6` between messages, no rules.
 
-**Сообщение пользователя** — `.card` на `--color-surface`, прижата вправо, не шире 75%
-(на узком экране — во всю ширину).
+**User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide (full width on
+a narrow screen).
 
-**Сообщение модели** — без заливки, прямо на фоне, во всю ширину, слева сплошная акцентная
-метка 2px. Заливать ответ акцентом нельзя: в Nocturne акцент — линия и метка, не заливка.
-Разница между ролями держится на весе и положении, а не на цвете.
+**Model message** — no fill, straight on the ground, full width, with a solid 2px accent mark on
+the left. Flooding an answer with the accent is not allowed: in Nocturne the accent is a line and
+a mark, not a fill. The difference between roles rests on weight and position, not colour.
 
-Внутри ответа — markdown с урезанной шкалой заголовков (h1→20px, h2→17px, h3→16px, дальше 15px):
-системные 42px в реплике чата абсурдны. Блоки кода прокручиваются внутри себя.
+Inside an answer, markdown renders with a reduced heading scale (h1→20px, h2→17px, h3→16px, then
+15px): the system's 42px is absurd in a chat reply. Code blocks scroll inside themselves.
 
-Под завершённым ответом — ряд действий, проявляется по hover и по фокусу: «копировать»,
-у последнего в диалоге ещё «повторить».
+Under a finished answer sits a row of actions, appearing on hover and on focus: copy, and for the
+last message in the conversation, retry.
 
-**Автоскролл** держится у низа, пока пользователь сам не прокрутил вверх. После этого
-автоскролл выключается — иначе невозможно перечитать начало ответа, пока он генерируется, —
-и появляется кнопка «вниз», возвращающая слежение.
+**Autoscroll** sticks to the bottom until the user scrolls up themselves. After that it switches
+off — otherwise you cannot reread the start of an answer while it is being generated — and a
+"jump to bottom" button appears to resume following.
 
-## Пустое состояние
+## Empty state
 
-Не отдельный экран, а содержимое ленты, пока она пуста. По левому краю, по направлению системы:
+Not a separate screen, but what the conversation holds while it is empty. Left-aligned, per the
+system's direction:
 
-- h3 «har kun ai»;
-- приглушённая строка: «har kun» — «каждый день» по-узбекски; заодно объясняет название
-  тому, кто языка не знает;
-- три примера запросов как `.btn-secondary`. Клик подставляет текст в композер и ставит туда
-  фокус, но **не отправляет**: пользователь должен успеть передумать или дописать.
+- an h3, "har kun ai";
+- a muted line: "har kun" is Uzbek for "every day" — which also explains the name to anyone who
+  does not speak it;
+- three example prompts as `.btn-secondary`. Clicking one puts the text in the composer and moves
+  focus there, but does **not** send: the user has to be able to change their mind or add to it.
 
-## Статус-строка
+## Status line
 
-Между лентой и композером, `role="status" aria-live="polite"`. Здесь индикатор печати
-(три акцентные точки), «Генерация остановлена», «Ответ получен», «Чат удалён · Вернуть».
+Between the conversation and the composer, `role="status" aria-live="polite"`. It carries the
+typing indicator (three accent dots), "Генерация остановлена", "Ответ получен",
+"Чат удалён · Вернуть".
 
-Живой регион именно здесь, а **не** на тексте ответа: регион, обновляемый на каждый токен,
-превращает скринридер в пулемёт. Статус меняется дискретно.
+The live region is here and **not** on the answer text: a region updated on every token turns a
+screen reader into a machine gun. The status changes discretely.
 
-Строка отражает только **активный** чат. Фоновая генерация в другом чате ничего не объявляет —
-её место в сайдбаре, точкой.
+The line reflects the **active** chat only. Background generation in another chat announces
+nothing — its place is the sidebar, as a dot.
 
-## Композер
+## Composer
 
-`<form>`, закреплён внизу. Визуально — одна рамка `.input`, внутри два ряда:
+A `<form>`, fixed at the bottom. Visually one `.input` frame holding two rows:
 
 ```
 ┌──────────────────────────────────────┐
-│ Спросите что-нибудь                  │   textarea, rows=1, авторост до 6 строк
+│ Спросите что-нибудь                  │   textarea, rows=1, grows to 6
 │                                      │
-│ [ модель ▾ ]                   [ ↑ ] │   select + первичная кнопка
+│ [ модель ▾ ]                   [ ↑ ] │   select + primary button
 └──────────────────────────────────────┘
 ```
 
-- `textarea.input` без собственной рамки — рамку несёт обёртка, фокус подсвечивает её границу
-  акцентом. Авторост до ~6 строк, дальше внутренний скролл.
-- **Селектор модели — нативный `<select>`** в призрачном оформлении: список `:free`-моделей
-  из `GET /api/models`. Нативный элемент даёт бесплатно клавиатуру, поиск по первой букве
-  и системный список на мобильном. Модель запоминается у чата, а не глобально.
-- Первичная кнопка — `.btn-primary.btn-icon` со стрелкой. Неактивна, пока поле пустое.
-- **Во время генерации** кнопка подменяется на «Стоп» (`.btn-secondary` с иконкой квадрата).
-  Поле остаётся активным: печатать следующий вопрос можно, отправка заблокирована до завершения.
+- The `textarea.input` has no border of its own — the wrapper carries it, and focus highlights the
+  wrapper's edge in the accent. It grows to about 6 rows, then scrolls internally.
+- **The model picker is a native `<select>`** styled as ghost: the `:free` list from
+  `GET /api/models`. A native element gives keyboard handling, first-letter search and the system
+  picker on mobile for free. The model is remembered per chat, not globally.
+- The primary button is `.btn-primary.btn-icon` with an arrow. Disabled while the field is empty.
+- **During generation** the button becomes "Стоп" (`.btn-secondary` with a square icon). The field
+  stays enabled: typing the next question is allowed, sending is blocked until generation ends.
 
-## Ошибки
+## Errors
 
-Ошибка принадлежит сообщению, на котором сломалась, и рисуется **прямо под ним**, не тостом
-и не баннером сверху: плавающее уведомление в углу отвязало бы ошибку от её причины.
+An error belongs to the message it broke and renders **directly beneath it**, not as a toast and
+not as a banner at the top: a floating notification in a corner would detach the error from its
+cause.
 
-`.card` с человеческим объяснением, `.tag-outline` с кодом из контракта и `.btn-primary`
-«Повторить». Уже полученный текст остаётся выше нетронутым.
+A `.card` with a plain-language explanation, a `.tag-outline` carrying the contract's code, and a
+`.btn-primary` retry. The text received so far stays above, untouched.
 
-**Цветом ошибка не кодируется.** Отдельной роли под ошибку в Nocturne нет, система моно
-и просит держать цветность низкой вне акцента. Смысл несут иконка предупреждения, заголовок
-и текст — то есть ровно то, что работает и при дальтонизме, и в скринридере, где цвета нет вовсе.
-Решение зафиксировано: `--color-danger` не заводим.
+**Errors are not encoded in colour.** Nocturne has no role for errors; the system is mono and asks
+to keep chroma low outside the accent. Meaning is carried by a warning icon, a heading and text —
+which is what works both for colour blindness and in a screen reader, where there is no colour at
+all. The decision is settled: no `--color-danger`.
 
-## Переключение чатов во время генерации
+## Switching chats during generation
 
-Здесь стоит развести две вещи, которые легко слипаются: **где живёт поток** и **зачем нужно
-хранилище**.
+Two things blur together here and are worth separating: **where the stream lives** and **what
+storage is for**.
 
-Поток живёт в памяти приложения — в сторе вне дерева компонентов, ключ `chatId`:
-`AbortController`, читатель `body.getReader()` и накопленный текст. Переключение чата меняет
-единственное — `activeChatId`, то есть какой диалог отрисован. Компоненты перемонтируются,
-стор и запрос — нет.
+The stream lives in the application's memory — in a store outside the component tree, keyed by
+`chatId`: the `AbortController`, the `body.getReader()` reader, and the accumulated text.
+Switching chats changes exactly one thing, `activeChatId`, meaning which conversation is rendered.
+Components remount; the store and the request do not.
 
-**Решение: генерацию не прерываем.** Она продолжается фоново, чат в сайдбаре помечается точкой,
-по возвращении виден дописанный ответ.
+**The decision: generation is not interrupted.** It continues in the background, the chat is
+marked with a dot in the sidebar, and the finished answer is there on return.
 
-Прерывать было бы хуже по существу: пользователь уже заплатил за этот ответ ожиданием и квотой
-бесплатной модели, и отменять его за то, что человек отвлёкся на другой чат, — наказание
-за нормальное поведение. «Стоп» существует ровно для случая, когда генерация действительно
-не нужна, и нажимается явно.
+Interrupting would be worse on the merits: the user has already paid for that answer in waiting
+and in free-tier quota, and cancelling it because they glanced at another chat punishes normal
+behaviour. "Stop" exists for the case where the answer genuinely is not wanted, and it is pressed
+explicitly.
 
-### Почему это не требует записи каждого символа
+### Why this needs no per-character writes
 
-Посимвольная запись понадобилась бы, только если бы отрисовка читала из хранилища. Она читает
-из памяти. Хранилище нужно ровно для одного — пережить перезагрузку страницы.
+Per-character persistence would be needed only if rendering read from storage. It reads from
+memory. Storage exists for exactly one purpose: surviving a page reload.
 
-А перезагрузка убивает поток в любом случае: `fetch` умирает вместе со страницей, соединение
-рвётся, дописывать нечего. То есть посимвольная запись спасала бы хвост ответа, который после
-перезагрузки всё равно оборван и помечен как остановленный. Выигрыш — последние несколько сотен
-миллисекунд текста мёртвого потока; цена — сериализация всего стора на каждый токен.
+And a reload kills the stream regardless — `fetch` dies with the page, the connection breaks, there
+is nothing left to append. So per-character writes would preserve the tail of an answer that is
+already severed and marked stopped after a reload. The gain is the last few hundred milliseconds
+of a dead stream; the cost is serialising the whole store on every token.
 
-Поэтому запись остаётся такой, как в [ADR 0008](adr/0008-session-storage-history.md):
+Writes therefore stay as they are in [ADR 0008](adr/0008-session-storage-history.md):
 
-- дебаунс ~300 мс во время стрима — не на токен, но и не только в конце;
-- немедленный сброс на терминальном событии: `done`, `stopped`, `error`;
-- сброс по `pagehide` и по `visibilitychange` в `hidden` — закрывает и те 300 мс.
+- debounced at ~300 ms during streaming — not per token, but not only at the end either;
+- flushed immediately on a terminal event: `done`, `stopped`, `error`;
+- flushed on `pagehide` and on `visibilitychange` to `hidden`, which closes even that 300 ms.
 
-Окно потери — от нуля до одного дебаунса текста, который и так принадлежит оборванному потоку.
+The loss window is between zero and one debounce of text that already belongs to a severed stream.
 
-### Правила параллельной генерации
+### Rules for parallel generation
 
-- Генерация **своя у каждого чата**, `AbortController` лежит в мапе по `chatId`.
-  Несколько чатов могут генерировать одновременно.
-- `Esc` и «Стоп» останавливают **только активный** чат. Остановить фоновый можно, открыв его.
-- Удаление чата с идущей генерацией сначала абортит поток, потом удаляет — иначе останется
-  висеть запрос, писать которому некуда.
-- Жёсткого потолка одновременных потоков нет. Риск честный: бесплатные модели легко отвечают
-  429 на параллельные запросы, — но 429 уже полноценно обработан и прикреплён к своему
-  сообщению. Очередь запросов уходит в «что дальше».
+- Generation is **per chat**; the `AbortController` lives in a map keyed by `chatId`.
+  Several chats may stream at once.
+- `Esc` and "Стоп" stop **only the active** chat. Stopping a background one means opening it.
+- Deleting a chat aborts its stream first, then deletes — otherwise a request is left running with
+  nowhere to write.
+- There is no hard cap on concurrent streams. The risk is real: free models readily answer 429 to
+  parallel requests — but 429 is already fully handled and attached to its own message. A request
+  queue goes into "what's next".
 
-### После перезагрузки
+### After a reload
 
-Сообщение, восстановленное со статусом `streaming`, переводится в `stopped` с пометкой
-«Генерация прервана перезагрузкой». Иначе интерфейс покажет вечный индикатор печати для потока,
-которого больше нет.
+A message restored with status `streaming` is moved to `stopped` with a note, "Генерация прервана
+перезагрузкой". Otherwise the interface shows a permanent typing indicator for a stream that no
+longer exists.
 
-## Хранилище
+## Storage
 
-`sessionStorage`, один ключ `har-kun-ai:v1` на весь стор.
+`sessionStorage`, one key `har-kun-ai:v1` for the whole store.
 
 ```ts
 type Stored = {
@@ -223,64 +230,64 @@ type Stored = {
   activeChatId: string
   chats: Array<{
     id: string
-    title: string           // из первого сообщения пользователя, ~40 символов
+    title: string           // from the first user message, ~40 chars
     createdAt: number
     updatedAt: number
-    model: string           // модель запоминается у чата
+    model: string           // the model is remembered per chat
     messages: Array<{
       id: string
       role: 'user' | 'assistant'
       content: string
-      status: 'done' | 'stopped' | 'error'   // streaming в хранилище не попадает
+      status: 'done' | 'stopped' | 'error'   // streaming never reaches storage
       error?: { code: string; message: string }
     }>
   }>
 }
 ```
 
-- Чтение и запись — в `try/catch`: в приватном режиме обращение бросает исключение, и падать
-  из-за истории приложение не должно.
-- Битые или чужой версии данные не ломают запуск — стор начинается с чистого листа.
-- Потолок: 20 чатов, лишние вытесняются по `updatedAt`. При `QuotaExceededError` — сбросить
-  самый старый чат и повторить запись один раз.
+- Reads and writes are wrapped in `try/catch`: in private mode the call throws, and the app must
+  not die because of its history.
+- Corrupt data, or data from another version, does not break startup — the store begins empty.
+- Cap: 20 chats, oldest evicted by `updatedAt`. On `QuotaExceededError`, drop the oldest chat and
+  retry the write once.
 
-## Клавиатура и фокус
+## Keyboard and focus
 
-| Клавиша | Действие |
+| Key | Action |
 |---|---|
-| `Enter` | отправить |
-| `Shift+Enter` | перенос строки |
-| `Esc` | остановить генерацию в активном чате |
-| `Esc` при открытом мобильном сайдбаре | **закрыть сайдбар** — приоритет выше остановки |
+| `Enter` | send |
+| `Shift+Enter` | newline |
+| `Esc` | stop generation in the active chat |
+| `Esc` with the mobile sidebar open | **close the sidebar** — this takes precedence |
 
-Порядок: skip-link → гамбургер (мобильный) → лого → «+ Новый чат» → список чатов → лента →
-композер → селектор модели → отправить.
+Order: skip link → hamburger (mobile) → logo → "+ Новый чат" → chat list → conversation →
+composer → model picker → send.
 
-- При переключении чата фокус уходит в композер: иначе он остаётся на кнопке в сайдбаре,
-  и первое же нажатие `Enter` переключит чат ещё раз.
-- Мобильный сайдбар — с ловушкой фокуса и возвратом на гамбургер при закрытии.
-- Пример в пустом состоянии подставляет текст и фокусирует композер.
+- Switching chats moves focus to the composer; otherwise it stays on a sidebar button and the next
+  `Enter` switches chats again.
+- The mobile sidebar traps focus and returns it to the hamburger on close.
+- An example in the empty state fills the composer and focuses it.
 
-## Адаптив
+## Responsiveness
 
-Mobile-first, брейкпоинты 640px и 1024px, нижняя граница 320px.
+Mobile-first, breakpoints at 640px and 1024px, lower bound 320px.
 
-- **< 640px** — сайдбар превращается в выезжающую панель поверх контента, открывается
-  гамбургером, закрывается по `Esc`, по клику вне и по выбору чата. Сообщение пользователя
-  занимает полную ширину. Композер прижат к низу, отступ через `env(safe-area-inset-bottom)`.
-- **640–1024px** — сайдбар остаётся панелью; лента получает свою ширину.
-- **≥ 1024px** — сайдбар закреплён постоянно, лента `min(760px, 100%)`.
+- **< 640px** — the sidebar becomes a drawer over the content, opened by the hamburger, closed by
+  `Esc`, by a click outside, and by choosing a chat. User messages take full width. The composer
+  is pinned to the bottom with `env(safe-area-inset-bottom)`.
+- **640–1024px** — the sidebar is still a drawer; the conversation gets its own width.
+- **≥ 1024px** — the sidebar is permanently docked, the conversation is `min(760px, 100%)`.
 
-Высота — `100dvh` с фолбэком `100vh`. `font-size` поля ввода не меньше 16px, иначе iOS Safari
-зумит страницу при фокусе.
+Height is `100dvh` with a `100vh` fallback. The input's `font-size` is at least 16px, or iOS
+Safari zooms the page on focus.
 
-## Состояния экрана
+## Screen states
 
-`empty` → `idle` → `streaming` → `done` | `stopped` | `error`, и из последних трёх обратно
-в `idle`. Состояние принадлежит **чату**, не приложению: один может стримить, другой в это
-время простаивать.
+`empty` → `idle` → `streaming` → `done` | `stopped` | `error`, and back to `idle` from the last
+three. State belongs to a **chat**, not to the application: one may be streaming while another
+sits idle.
 
-## Чего нет
+## What there isn't
 
-Роутинга, страницы настроек, модальных окон, тостов, поиска по чатам, переименования чата
-вручную, экспорта. Настройка одна — модель, и она в композере.
+No routing, no settings page, no modals, no toasts, no chat search, no manual renaming, no export.
+There is one setting — the model — and it lives in the composer.

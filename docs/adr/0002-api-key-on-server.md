@@ -1,44 +1,45 @@
-# 0002 — Ключ OpenRouter только на сервере, через переменные окружения
+# 0002 — The OpenRouter key lives only on the server, through environment variables
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Задание требует прямо: ключ не должен попадать в браузер — ни в бандл, ни в запросы со страницы,
-и проверять это будут вкладкой Network.
+The assignment states it outright: the key must not reach the browser — not in the bundle, not in
+requests from the page — and this will be checked with the Network tab.
 
-Требование не формальное. Ключ во фронтенде — это ключ у любого, кто открыл DevTools; на платном
-аккаунте это чужие расходы, на бесплатном — выжженная квота.
+The requirement is not ceremonial. A key in the frontend is a key for anyone who opens DevTools;
+on a paid account that is someone else's spending, on a free one it is a burned quota.
 
-Соблазн, который стоит назвать: во Vite есть `import.meta.env`, и переменная с префиксом `VITE_`
-подставляется в код одним движением. Она **встраивается в бандл** — то есть попадает ровно туда,
-куда попадать не должна.
+One temptation is worth naming: Vite has `import.meta.env`, and a variable prefixed with `VITE_`
+is substituted into the code with a single move. It is **inlined into the bundle** — that is,
+it lands in exactly the place it must not.
 
-## Решение
+## Decision
 
-Ключ живёт в `OPENROUTER_API_KEY`, читается из `process.env` в `server/env.ts` и не покидает
-каталог `server/`. Браузер ходит только на свой origin: `POST /api/chat`, `GET /api/models`.
+The key lives in `OPENROUTER_API_KEY`, is read from `process.env` in `server/env.ts`, and never
+leaves the `server/` directory. The browser only talks to its own origin: `POST /api/chat`,
+`GET /api/models`.
 
-- Префикс `VITE_` для секретов не используется никогда.
-- `.env` в `.gitignore`; в репозитории только `.env.example` с плейсхолдером.
-- Ключ не попадает в ответы API, в тела ошибок и в логи. Наружу идёт человекочитаемое
-  сообщение без деталей апстрима.
-- `server/env.ts` проверяет наличие ключа на старте: в живом режиме без ключа сервер
-  не поднимается с внятным сообщением, а не падает на первом запросе пользователя.
+- The `VITE_` prefix is never used for secrets.
+- `.env` is in `.gitignore`; the repository holds only `.env.example` with a placeholder.
+- The key does not appear in API responses, error bodies, or logs. What goes out is a
+  human-readable message with no upstream detail.
+- `server/env.ts` checks the key at boot: in live mode, without a key the server does not start,
+  with a legible message, rather than failing on a user's first request.
 
-## Последствия
+## Consequences
 
-- Без работающего сервера фронтенд бесполезен — чисто статический деплой невозможен.
-  Приемлемо: это и есть суть требования.
-- Каждый запрос идёт лишний сетевой хоп через свой сервер. На стриминге это заметно только
-  задержкой установки соединения.
-- Сервер обязан корректно проксировать поток и аборт — эта логика не бесплатна
-  (см. [0009](0009-normalized-sse.md)).
-- Плюс, которого не просили: сервер — естественное место для ограничения частоты запросов
-  и подмены модели, если понадобится.
+- Without a running server the frontend is useless — a purely static deployment is impossible.
+  Acceptable: that is the point of the requirement.
+- Every request takes an extra network hop through our own server. On a stream that shows up only
+  as connection setup latency.
+- The server is obliged to proxy the stream and the abort correctly, and that logic is not free
+  (see [0009](0009-normalized-sse.md)).
+- An upside nobody asked for: the server is the natural place for rate limiting and for
+  substituting a model, should either become necessary.
 
-## Проверка
+## Verification
 
-Вкладка Network: запросов на `openrouter.ai` со страницы нет, заголовка `Authorization`
-в запросах к своему API нет. `grep` по собранному `dist/` ключ не находит.
+Network tab: no requests to `openrouter.ai` from the page, no `Authorization` header on requests
+to our own API. `grep` over the built `dist/` does not find the key.

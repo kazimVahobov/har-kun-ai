@@ -1,73 +1,74 @@
-# 0006 — Мок-сервер
+# 0006 — Mock server
 
-- **Дата:** 2026-09-29
-- **Ветка:** `feat/mock-server`
-- **Статус:** готово
-- **Инструменты:** Claude Opus 5 в Claude Code
+- **Date:** 2026-09-29
+- **Branch:** `feat/mock-server`
+- **Status:** done
+- **Tools:** Claude Opus 5 in Claude Code
 
-## Задача
+## Task
 
-Фаза 1: мок-сервер, полностью имитирующий модель, по контракту из `docs/plan.md`.
-Клиента в этой задаче нет — проверка `curl`-ом.
+Phase 1: a mock server fully imitating the model, following the contract in `docs/plan.md`.
+No client in this task — verification by `curl`.
 
-## Что сделано
+## What was done
 
-- `shared/contract.ts` — типы контракта, коды ошибок и их HTTP-статусы. Общий модуль для
-  сервера и будущего клиента; включён в оба `tsconfig`.
-- `server/env.ts` — конфиг из окружения: порт, таймауты, keepalive, флаг мока.
-  Режимы отказов разрешены только вне продакшена.
-- `server/sse.ts` — заголовки потока, сборка кадров, запись с учётом обратного давления.
-- `server/mock.ts` — lorem ipsum: случайная длина, markdown, разбивка на чанки по словам.
-  Четыре мок-модели с разными профилями.
-- `server/chat.ts` — `POST /api/chat`: разбор и валидация тела, сторожевые таймеры,
-  keepalive, отмена, режимы отказов, намеренно рваные кадры SSE.
+- `shared/contract.ts` — contract types, error codes and their HTTP statuses. A module shared by
+  the server and the client to come; included in both tsconfigs.
+- `server/env.ts` — configuration from the environment: port, timeouts, keepalive, the mock flag.
+  Failure modes are enabled only outside production.
+- `server/sse.ts` — stream headers, frame assembly, writing with backpressure handling.
+- `server/mock.ts` — lorem ipsum: random length, markdown, chunking by words. Four mock models
+  with different profiles.
+- `server/chat.ts` — `POST /api/chat`: body parsing and validation, stall guards, keepalive,
+  cancellation, failure modes, deliberately split SSE frames.
 - `server/models.ts` — `GET /api/models`.
 
-## Принятые решения
+## Decisions taken
 
-- **Мок-модели названы честно:** `mock/lorem:free`, `mock/lorem-slow:free`,
-  `mock/lorem-markdown:free`, `mock/lorem-long:free`. Подставлять реальные `:free`-идентификаторы
-  значило бы выдумывать каталог, который меняется. Побочная польза: выбор модели в интерфейсе
-  сразу станет проверяемым — он реально меняет поведение потока.
-- **Один сторожевой таймер на два случая.** До первого токена он длиннее (30 с — бесплатная
-  модель может стоять в очереди), после — короче (20 с) и перевзводится на каждом чанке.
-  Два независимых таймера пришлось бы синхронизировать между собой.
-- **Ответ собирается блоками и обрезается только по границе абзаца или слова.** Резать по
-  символу значило бы отдавать оборванный блок кода или список — битый markdown, которого
-  живая модель не производит.
-- **Обрыв соединения при `simulate=drop` делается через `res.destroy()`**, без `done` и без
-  `error`. Это и есть упавшая сеть: клиент должен обнаружить её сам, а не получить вежливое
-  уведомление.
-- **Режим `simulate=timeout` не имеет собственного таймера** — он просто молчит, а срабатывает
-  общий сторожевой. Так проверяется настоящий путь кода, а не отдельная ветка «для теста».
-  Проверять удобно с `TIMEOUT_FIRST_TOKEN_MS=2000`.
-- **Отмена ничего не пишет в лог.** Прерванный клиентом запрос — норма, а не сбой; шуметь
-  о нём значит приучить себя пролистывать логи.
+- **The mock models are named honestly:** `mock/lorem:free`, `mock/lorem-slow:free`,
+  `mock/lorem-markdown:free`, `mock/lorem-long:free`. Using real `:free` identifiers would mean
+  inventing a catalogue that changes. A side benefit: the model picker in the interface becomes
+  testable straight away — it genuinely changes how the stream behaves.
+- **One stall guard covering two cases.** Before the first token it is longer (30 s — a free model
+  can sit in a queue); afterwards it is shorter (20 s) and rearmed on every chunk. Two independent
+  timers would have to be kept in sync with each other.
+- **The response is assembled in blocks and trimmed only on a paragraph or word boundary.**
+  Cutting by character would mean emitting a severed code block or list — broken markdown, which a
+  live model does not produce.
+- **`simulate=drop` kills the connection with `res.destroy()`**, with no `done` and no `error`.
+  That is what a dropped network is: the client has to detect it, not receive a polite notice.
+- **`simulate=timeout` has no timer of its own** — it simply stays silent, and the shared stall
+  guard fires. That exercises the real code path rather than a separate "for testing" branch.
+  Convenient to check with `TIMEOUT_FIRST_TOKEN_MS=2000`.
+- **Cancellation writes nothing to the log.** A request the client aborted is normal, not a
+  failure; making noise about it trains you to skim your logs.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-- **Что сделала:** в обработчике общего таймаута написала `settle({ ...errorFrame({…}) })` —
-  спред строки в объект. Типы бы это поймали, но выражение осталось от промежуточной правки,
-  когда `errorFrame` ещё возвращал объект.
-  **Как заметили:** при вычитке файла сразу после записи, до запуска `typecheck`.
-  **Как поправили:** убрала спред. Та же мораль, что в [0005](0005-scaffold.md): перечитывать
-  написанное, а не полагаться на то, что «компилятор поймает» — он бы поймал, но ценой лишнего
-  круга.
+- **What it did:** in the total-timeout handler it wrote `settle({ ...errorFrame({…}) })` —
+  spreading a string into an object. Types would have caught it, but the expression was left over
+  from an intermediate edit when `errorFrame` still returned an object.
+  **How it was noticed:** proofreading the file right after writing it, before running
+  `typecheck`.
+  **How it was fixed:** the spread was removed. The same moral as in [0005](0005-scaffold.md):
+  reread what you wrote instead of relying on "the compiler will catch it" — it would have, at the
+  cost of an extra round trip.
 
-- **Что упустила в первой редакции `sse.ts`:** ожидание `drain` разрешалось только по самому
-  `drain`. На разорванном соединении это событие не приходит никогда — промис повис бы,
-  а вместе с ним цикл генерации и таймеры.
-  **Как заметили:** при разборе того, что происходит на отмене посреди записи.
-  **Как поправили:** ожидание разрешается и по `close`, плюс ранний выход, если поток уже
-  закрыт. Проверено: после обрыва `curl` в логе нет ни `EPIPE`, ни записи в закрытый сокет.
+- **What the first draft of `sse.ts` missed:** the wait for `drain` resolved only on `drain`
+  itself. On a broken connection that event never arrives, so the promise would hang, and with it
+  the generation loop and the timers.
+  **How it was noticed:** while working through what happens on a cancellation mid-write.
+  **How it was fixed:** the wait now also resolves on `close`, plus an early return if the stream
+  is already closed. Verified: after aborting `curl` the log holds neither `EPIPE` nor a
+  write-after-close.
 
-## Что осталось
+## What's left
 
-- Клиента нет — следующая задача. Парсер `shared/sse.ts` появится вместе с ним; сейчас поток
-  проверялся разбором сырых чанков вручную.
-- Тестов пока нет: они целятся в парсер и редьюсер, которых ещё не существует.
+- There is no client — that is the next task. The `shared/sse.ts` parser arrives with it; for now
+  the stream was checked by taking raw chunks apart by hand.
+- No tests yet: they target the parser and the reducer, neither of which exists.
 
-## Как проверить
+## How to check
 
 ```bash
 npm run dev:server
@@ -76,28 +77,28 @@ curl -s localhost:8787/api/models
 curl -sN -X POST localhost:8787/api/chat \
   -H 'content-type: application/json' -d '{"messages":[{"role":"user","content":"привет"}]}'
 
-# отказы
+# failure modes
 curl -s  -D- -X POST 'localhost:8787/api/chat?simulate=429'       -H "$H" -d "$B"
 curl -sN     -X POST 'localhost:8787/api/chat?simulate=mid-error' -H "$H" -d "$B"
 curl -sN     -X POST 'localhost:8787/api/chat?simulate=drop'      -H "$H" -d "$B"
 curl -sN     -X POST 'localhost:8787/api/chat?simulate=slow'      -H "$H" -d "$B"
 
-# таймаут — с укороченным порогом, иначе ждать 30 с
+# timeout — with a shortened threshold, or you wait 30 s
 TIMEOUT_FIRST_TOKEN_MS=2000 npm run dev:server
 curl -sN -X POST 'localhost:8787/api/chat?simulate=timeout' -H "$H" -d "$B"
 ```
 
-Проверено фактически:
+Verified in fact:
 
-| Что | Результат |
+| What | Result |
 |---|---|
-| обычный поток | `delta`-события, в конце `done` с `chars` |
-| `simulate=429` | `429`, заголовок `Retry-After: 12`, JSON до начала потока |
-| `simulate=mid-error` | часть текста, затем событие `error`, поток закрыт |
-| `simulate=drop` | обрыв без `done` |
-| `simulate=timeout` | при пороге 2 с — событие `error` ровно через 2.03 с |
-| отмена клиентом | сервер жив, в логе нет ошибок записи в закрытый сокет |
-| пустые `messages` | `400 bad_request` |
-| неизвестная модель | `400 bad_request` |
-| рваные кадры | 12 из 68 сетевых чанков не совпали с границей события |
-| `mock/lorem-markdown:free` | в ответе есть заголовок, список и блок кода |
+| normal stream | `delta` events, `done` with `chars` at the end |
+| `simulate=429` | `429`, `Retry-After: 12` header, JSON before the stream starts |
+| `simulate=mid-error` | part of the text, then an `error` event, stream closed |
+| `simulate=drop` | severed with no `done` |
+| `simulate=timeout` | with a 2 s threshold — an `error` event at exactly 2.03 s |
+| client cancellation | server alive, no write-after-close errors in the log |
+| empty `messages` | `400 bad_request` |
+| unknown model | `400 bad_request` |
+| split frames | 12 of 68 network chunks did not line up with an event boundary |
+| `mock/lorem-markdown:free` | the answer contains a heading, a list and a code block |

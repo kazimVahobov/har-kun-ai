@@ -1,40 +1,43 @@
-# 0003 — Сначала мок-данные, живая модель последней
+# 0003 — Mock data first, the live model last
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Первый критерий оценки в задании — работоспособность и обработка краёв: 429 от бесплатной модели,
-таймаут, обрыв сети. Это состояния, которые на живой бесплатной модели **невоспроизводимы по
-требованию**: 429 приходит, когда придёт, обрыв сети приходится изображать руками.
+The first grading criterion in the assignment is that it works and handles edges: a 429 from a
+free model, a timeout, a dropped connection. Those states are **not reproducible on demand**
+against a live free model: a 429 arrives when it arrives, and a dropped connection has to be
+staged by hand.
 
-Отдельно: разработка UI против живой модели жжёт бесплатную квоту и токены на каждом обновлении
-страницы. За несколько часов работы над композером и стримингом это сотни запросов, ни один
-из которых не нужен по существу — ответ модели при отладке вёрстки не важен, важен факт потока.
+Separately: developing the UI against a live model burns free quota and tokens on every page
+reload. Across a few hours of work on the composer and the streaming, that is hundreds of requests,
+not one of which is needed on the merits — while debugging layout, the model's answer does not
+matter, only the fact of a stream does.
 
-## Решение
+## Decision
 
-Сначала пишется мок-сервер, полностью имитирующий модель, и на нём **целиком** закрывается UI.
-Реальный OpenRouter подключается последним, за тем же контрактом.
+The mock server is built first, fully imitating the model, and the UI is closed **entirely**
+against it. The real OpenRouter is wired up last, behind the same contract.
 
-Мок отдаёт lorem ipsum: случайная длина, случайная скорость, иногда markdown. Отказы —
-по параметру `?simulate=429|timeout|drop|mid-error|slow`, только вне продакшена. Кадры SSE
-намеренно режутся посреди события, чтобы клиентский парсер сразу проверялся в условиях,
-которые в проде создаются границами TCP-чанков.
+The mock serves lorem ipsum: random length, random speed, sometimes markdown. Failures come from
+a `?simulate=429|timeout|drop|mid-error|slow` parameter, active only outside production. SSE frames
+are deliberately split mid-event, so that the client parser is exercised straight away under the
+conditions that TCP chunk boundaries create in production.
 
-Мок остаётся в проекте после подключения живой модели — на нём состояния ошибок остаются
-воспроизводимыми.
+The mock stays in the project after the live model arrives — the error states remain reproducible
+there.
 
-## Последствия
+## Consequences
 
-- Каждое состояние ошибки проверяется одним URL, а не ожиданием удачи.
-- Фазы 1 и 2 запускаются **без ключа вообще**. Проверяющий может поднять проект и посмотреть UI,
-  не заводя аккаунт на OpenRouter.
-- Токены и квота не тратятся на отладку вёрстки.
-- Цена: контракт API приходится описать до обеих реализаций и держать в синхроне. Разъехавшийся
-  контракт обнаружится только на подключении живой модели, то есть поздно. Отсюда правило
-  в `CLAUDE.md`: правка контракта — это правка мока, адаптера и документа одним коммитом.
-- Вторая цена: у мока свои повадки, и что-то специфичное для OpenRouter всплывёт только
-  на фазе 3. Смягчается тем, что мок имитирует именно наблюдаемое поведение апстрима —
-  keepalive-комментарии, рваные кадры, ошибку в середине потока.
+- Every error state is reachable by a single URL instead of by waiting for luck.
+- Phases 1 and 2 run **with no key at all**. A reviewer can start the project and look at the UI
+  without creating an OpenRouter account.
+- No tokens and no quota are spent debugging layout.
+- The cost: the contract has to be written down before both implementations and kept in sync.
+  A contract that has drifted only surfaces when the live model is wired up, which is late.
+  Hence the rule in `CLAUDE.md`: changing the contract means changing the mock, the adapter and
+  the document in one commit.
+- A second cost: the mock has habits of its own, and something specific to OpenRouter will only
+  surface in phase 3. Mitigated by having the mock imitate the upstream's *observable* behaviour —
+  keepalive comments, ragged frames, an error mid-stream.

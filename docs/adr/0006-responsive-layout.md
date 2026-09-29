@@ -1,42 +1,41 @@
-# 0006 — Адаптивная вёрстка от 320px, mobile-first
+# 0006 — Responsive from 320px, mobile-first
 
-- **Статус:** принято
-- **Дата:** 2026-09-29
+- **Status:** accepted
+- **Date:** 2026-09-29
 
-## Контекст
+## Context
 
-Задание: «с телефона пользоваться удобно, ничего не уезжает». Для чата это не косметика —
-переписка с моделью с телефона нормальный сценарий, а не исключение.
+From the assignment: "comfortable to use on a phone, nothing overflows". For a chat this is not
+cosmetic — messaging a model from a phone is a normal scenario, not an exception.
 
-При этом Nocturne адаптива не несёт: прототипы бандла свёрстаны под фиксированные вьюпорты,
-брейкпоинтов в системе нет. Их приходится заводить самому — как задокументированное расширение,
-а не как самодеятельность.
+Nocturne, meanwhile, carries no responsiveness: the bundle's prototypes are laid out for fixed
+viewports and the system has no breakpoints. They have to be introduced here, as a documented
+extension rather than freelancing.
 
-Мобильный чат ломается в предсказуемых местах, и их стоит назвать до вёрстки: экранная клавиатура
-съедает половину высоты, `100vh` в мобильных браузерах врёт, длинные ссылки и блоки кода
-в ответах модели распирают страницу по горизонтали.
+Mobile chats break in predictable places, and those are worth naming before any markup: the
+on-screen keyboard eats half the height, `100vh` lies in mobile browsers, and long links and code
+blocks in model answers push the page sideways.
 
-## Решение
+## Decision
 
-Mobile-first: базовые стили пишутся под узкий экран, брейкпоинты только вверх.
+Mobile-first: base styles target a narrow screen, breakpoints only go up.
 
-- Два брейкпоинта: **640px** и **1024px**. Нижняя граница поддержки — **320px**.
-- Контейнер диалога — `min(760px, 100%)`, прижат влево по направлению системы.
-- Высота — `100dvh`, не `100vh`: динамическая единица учитывает свёрнутую панель браузера,
-  статическая оставляет композер под ней.
-- Композер закреплён снизу, безопасные отступы через `env(safe-area-inset-bottom)`.
-- Ширина сообщения не более 75% на широком экране, на узком — полная.
-- Всё, что может распереть страницу, прокручивается **внутри себя**: блоки кода —
-  `overflow-x: auto`, длинные слова и ссылки — `overflow-wrap: anywhere`.
-  По горизонтали страница не едет никогда.
-- Цели нажатия не меньше 40px, `font-size` поля ввода не меньше 16px — иначе iOS Safari
-  зумит страницу при фокусе.
+- Two breakpoints: **640px** and **1024px**. Lower support bound: **320px**.
+- The conversation container is `min(760px, 100%)`, aligned left per the system's direction.
+- Height uses `100dvh`, not `100vh`: the dynamic unit accounts for a collapsed browser bar, the
+  static one leaves the composer underneath it.
+- The composer is pinned to the bottom, with safe insets through `env(safe-area-inset-bottom)`.
+- A message is at most 75% wide on a wide screen and full width on a narrow one.
+- Anything that could push the page sideways scrolls **inside itself**: code blocks get
+  `overflow-x: auto`, long words and links get `overflow-wrap: anywhere`. The page never scrolls
+  horizontally.
+- Tap targets are at least 40px and the input's `font-size` is at least 16px — otherwise iOS
+  Safari zooms the page on focus.
 
-## Последствия
+## Consequences
 
-- Проверять теперь нужно на трёх ширинах, а не на одной; в список проверки фазы 2 добавлен
-  проход на 320px.
-- Плотность Nocturne (density 0.7×) на телефоне местами оказывается слишком тесной для пальца.
-  Разрешаем ровно одно отступление: увеличенные цели нажатия у кнопок композера, за счёт
-  падинга, не за счёт нового размера шрифта.
-- `100dvh` не поддерживается очень старыми браузерами. Фолбэк `100vh` перед ним — одна строка.
+- Checking now means three widths instead of one; a 320px pass is on the phase 2 checklist.
+- Nocturne's density (0.7×) is in places too tight for a finger on a phone. We allow exactly one
+  deviation: enlarged tap targets on the composer buttons, through padding rather than a new font
+  size.
+- `100dvh` is unsupported in very old browsers. The `100vh` fallback before it is one line.

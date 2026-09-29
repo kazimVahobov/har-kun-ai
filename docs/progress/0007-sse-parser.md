@@ -1,73 +1,77 @@
-# 0007 — Парсер SSE
+# 0007 — SSE parser
 
-- **Дата:** 2026-09-29
-- **Ветка:** `feat/mock-server`
-- **Статус:** готово
-- **Инструменты:** Claude Opus 5 в Claude Code
+- **Date:** 2026-09-29
+- **Branch:** `feat/mock-server`
+- **Status:** done
+- **Tools:** Claude Opus 5 in Claude Code
 
-## Задача
+## Task
 
-Инкрементальный парсер `text/event-stream` — один на клиент и сервер, с тестами на рваных
-кадрах. Плюс отображение кадров на события контракта.
+An incremental `text/event-stream` parser — one for client and server, with tests on split frames.
+Plus mapping frames onto the contract's events.
 
-## Что сделано
+## What was done
 
-- `shared/sse.ts` — `createSseParser()`: строки на вход, завершённые кадры на выход.
-  Плюс `toStreamEvent()` — кадр в типизированное событие контракта.
-- `shared/sse.test.ts` — 26 тестов.
-- Vitest в зависимостях, скрипты `test` и `test:watch`.
-- `docs/plan.md` поправлен: парсер живёт в `shared/`, а не в `src/lib/`.
+- `shared/sse.ts` — `createSseParser()`: strings in, completed frames out. Plus `toStreamEvent()`,
+  turning a frame into a typed contract event.
+- `shared/sse.test.ts` — 26 tests.
+- Vitest added, with `test` and `test:watch` scripts.
+- `docs/plan.md` corrected: the parser lives in `shared/`, not in `src/lib/`.
 
-## Принятые решения
+## Decisions taken
 
-- **Парсер ничего не знает ни про `fetch`, ни про потоки.** На вход строки, на выход кадры.
-  Отсюда две вещи: тестируется без сети, и один и тот же код обслуживает клиент (поток
-  от нашего сервера) и сервер (поток от OpenRouter в фазе 3).
-- **Незнакомые события и битый JSON пропускаются, а не роняют поток.** Апстрим может прислать
-  что угодно сверх контракта — `usage`, свои служебные поля; падать на этом нельзя.
-- **Разбор по спецификации, а не «по нашему формату».** Три вида переводов строки,
-  срез ровно одного пробела после двоеточия, поле без двоеточия, многострочный `data`,
-  кадр без `data` не диспатчится. Свой сервер шлёт узкое подмножество, но парсер на фазе 3
-  встретит чужой поток.
-- **`shared/` вместо `src/lib/`** — каталог включён в оба `tsconfig`, поэтому импорт из
-  сервера не тянет за собой DOM-типы, а импорт из клиента не тянет Node.
+- **The parser knows nothing about `fetch` or streams.** Strings in, frames out. Two consequences:
+  it tests without a network, and the same code serves the client (our server's stream) and the
+  server (OpenRouter's, in phase 3).
+- **Unknown events and broken JSON are skipped rather than failing the stream.** An upstream can
+  send anything beyond the contract — `usage`, its own housekeeping fields; dying on that is not an
+  option.
+- **Parsed to the specification, not "to our format".** Three line-terminator forms, exactly one
+  space stripped after the colon, a field with no colon, multi-line `data`, no dispatch without a
+  `data` field. Our own server sends a narrow subset, but in phase 3 the parser meets somebody
+  else's stream.
+- **`shared/` instead of `src/lib/`** — the directory is in both tsconfigs, so importing from the
+  server does not drag DOM types along, and importing from the client does not drag Node's.
 
-## Где ИИ ошибся
+## Where the AI got it wrong
 
-- **Что сделала:** написала тест `feed(['data: c\r\r'])` и ожидала готовый кадр. Тест упал.
-  **Как заметили:** `vitest` — собственно, ради этого тесты и пишутся.
-  **Как поправили:** ошибка оказалась **в тесте, не в парсере**. Завершающий `\r` — последний
-  байт чанка, и парсер обязан его придержать: следующий чанк может начаться с `\n`, и тогда
-  это один терминатор `\r\n`, а не два. Поспешить здесь — значит диспатчить лишний пустой кадр
-  на каждом `\r\n`, разрезанном между чанками. Ровно это поведение я закладывала в `takeLine`
-  и сама же нарушила в ожидании.
+- **What it did:** wrote a test `feed(['data: c\r\r'])` expecting a completed frame. The test
+  failed.
+  **How it was noticed:** `vitest` — which is what tests are for.
+  **How it was fixed:** the mistake was **in the test, not the parser**. A trailing `\r` is the
+  last byte of the chunk, and the parser must hold it: the next chunk may begin with `\n`, making
+  it a single `\r\n` terminator rather than two. Rushing there means dispatching a spurious empty
+  frame on every `\r\n` split across chunks. That is exactly the behaviour I built into `takeLine`
+  and then contradicted in the expectation.
 
-- **Что сделала следом:** исправляя тот же тест, снова ошиблась — ожидала, что кадр выйдет
-  на третьем чанке, хотя `\r` + `\n` склеиваются в один терминатор и кадр выходит на втором.
-  **Как заметили:** второй прогон тестов.
-  **Как поправили:** прошла случай по шагам буфера вручную, а не «на глаз». Вывод: там, где
-  логика посимвольная, интуиция не работает — нужно проговаривать состояние на каждом шаге.
+- **What it did next:** fixing that same test, it got it wrong again — expecting the frame on the
+  third chunk, when `\r` and `\n` merge into one terminator and the frame emerges on the second.
+  **How it was noticed:** the second test run.
+  **How it was fixed:** by walking the buffer state step by step by hand rather than eyeballing it.
+  The lesson: where the logic is character by character, intuition does not work — the state has to
+  be spelled out at each step.
 
-  Обе ошибки в одном месте и обе в тестах. Полезная сторона: тест, который дважды поймал
-  неверное ожидание про `\r`, теперь документирует это поведение явно — с объяснением,
-  почему придерживать правильно.
+  Both mistakes are in the same place and both in tests. The upside: the test that twice caught a
+  wrong expectation about `\r` now documents that behaviour explicitly, with the reasoning for why
+  holding is correct.
 
-## Что осталось
+## What's left
 
-- Чтения потока из `fetch` пока нет — оно клиентское и появится вместе с `useChat`.
-- Редьюсер чата и его тесты — следующая задача.
+- Reading the stream out of `fetch` does not exist yet — that is client-side and arrives with
+  `useChat`.
+- The chat reducer and its tests are the next task.
 
-## Как проверить
+## How to check
 
 ```bash
-npm test        # 26 тестов
+npm test        # 26 tests
 ```
 
-Что покрыто, помимо очевидного: посимвольная подача даёт тот же результат, что подача целиком;
-разрез в **любой** позиции потока (перебором по всем позициям) даёт тот же результат;
-keepalive-комментарии нашего сервера и `: OPENROUTER PROCESSING` пропускаются; комментарий
-посреди кадра не сбрасывает накопленное.
+Beyond the obvious, what is covered: feeding one character at a time matches feeding the whole
+stream; splitting at **every** position in the stream (by exhaustive loop) matches too; our
+server's keepalive comments and `: OPENROUTER PROCESSING` are skipped; a comment in the middle of
+a frame does not reset what has accumulated.
 
-Сквозная проверка против живого мока — парсер получил 36 сетевых чанков, собрал из них
-28 событий `delta`, длина склеенного текста (595) совпала с `chars` из события `done`,
-markdown не побился. То есть намеренно рваные кадры мока восстанавливаются без потерь.
+End-to-end against the live mock: the parser received 36 network chunks, assembled 28 `delta`
+events from them, the joined text length (595) matched the `chars` field of the `done` event, and
+the markdown was intact. The mock's deliberately split frames reassemble without loss.

@@ -1,47 +1,48 @@
-# Дизайн-система: Nocturne
+# Design system: Nocturne
 
-UI поднимается по дизайн-системе **Nocturne** — тихий компактный тёмный интерфейс.
+The UI is built on **Nocturne** — a quiet, compact dark interface.
 
-> **Этот документ — источник правды для репозитория.** Исходный бандл Nocturne лежит локально
-> в `nocturne/` и **в git не попадает** (исключён через `.git/info/exclude`, не через `.gitignore`).
-> Поэтому все значения токенов выписаны здесь целиком, а не ссылкой на файл, которого у
-> проверяющего не будет. Расходится код с этим документом — правится код, потом документ.
+> **This document is the source of truth for the repository.** The original Nocturne bundle sits
+> locally in `nocturne/` and **never enters git** (excluded through `.git/info/exclude`, not
+> through `.gitignore`). Every token value is therefore written out here in full, rather than
+> referenced from a file the reviewer will not have. If code and this document disagree, the code
+> gets fixed, then the document.
 
-## Характер системы
+## Character of the system
 
-Ключевое, что нельзя потерять при переносе:
+The things that must not be lost in translation:
 
-- **Тёмная основа, ненасыщенная.** Контраст берётся из тональных рамп, не из насыщенности.
-- **Один акцент**, и тот работает **линией и свечением, а не заливкой**. Схема моно:
-  второго акцента нет.
-- **Кнопки обводные.** Первичное действие — акцентная рамка по прозрачному, никогда не заливка.
-- **Разделителей нет.** Секции разделяются воздухом из шкалы отступов, не линиями и не рамками.
-  `.hr` существует, но система просит его избегать.
-- **Плотно.** Density 0.7× — отступы намеренно мельче привычных.
-- **Заголовки не жирнее 500.** Иерархия здесь — размер и воздух, а не вес.
-- **Ни чистого чёрного, ни чистого белого.** Всё из рамп. Исключение — тени: там чёрный
-  это тень, а не цвет.
-- **Вёрстка левая, асимметричная.** Заголовки по левому краю, контент жмётся влево,
-  воздух остаётся справа.
+- **A dark, desaturated ground.** Contrast comes from the tonal ramps, not from saturation.
+- **One accent**, and it works as **a line and a glow, never a flood**. The scheme is mono:
+  there is no second accent.
+- **Buttons are outlined.** The primary action is an accent border on transparent, never a fill.
+- **There are no dividers.** Sections are separated by whitespace from the spacing scale, not by
+  rules or boxes. `.hr` exists, but the system asks you to avoid it.
+- **It is dense.** Density 0.7× — the spacing is deliberately tighter than usual.
+- **Headings are never bolder than 500.** Hierarchy here is size and space, not weight.
+- **No pure black, no pure white.** Everything comes from the ramps. The exception is shadows:
+  there, black is a shadow, not a colour.
+- **Left-aligned, asymmetric layout.** Headings flush left, content hugs the left edge, whitespace
+  stays on the right.
 
-## Токены
+## Tokens
 
-Кладутся в `src/styles/tokens.css`, подключаются один раз в точке входа.
-Ни одного хардкода цвета, шрифта, отступа или радиуса в компонентах — только `var(--…)`.
+They go into `src/styles/tokens.css` and are imported once at the entry point. No hard-coded
+colour, font, spacing or radius in components — only `var(--…)`.
 
-### Цвет
+### Colour
 
 ```css
---color-bg:      #161826;   /* основной фон */
---color-surface: #232532;   /* поднятая поверхность: карточки, поля ввода */
+--color-bg:      #161826;   /* the ground */
+--color-surface: #232532;   /* a raised surface: cards, inputs */
 --color-text:    #e9e9ed;
---color-accent:  #9184d9;   /* единственный акцент, blurple */
---color-accent-2:#a7a1db;   /* моно-схема: читается как акцент, отдельной роли не несёт */
+--color-accent:  #9184d9;   /* the only accent, a blurple */
+--color-accent-2:#a7a1db;   /* mono scheme: reads as the accent, carries no separate role */
 --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
 ```
 
-Тональные рампы — 100 (самый светлый) … 900 (самый тёмный), построены в OKLCH на общей шкале
-светлоты: одинаковый шаг разных рамп имеет одинаковый визуальный вес.
+Tonal ramps run 100 (lightest) to 900 (darkest), generated in OKLCH on one shared lightness scale:
+the same step of any role carries the same visual weight.
 
 ```css
 --color-neutral-100: #f3f5fe;  --color-accent-100: #f5f4ff;  --color-accent-2-100: #f5f4ff;
@@ -55,24 +56,24 @@ UI поднимается по дизайн-системе **Nocturne** — ти
 --color-neutral-900: #292b31;  --color-accent-900: #2b2741;  --color-accent-2-900: #2b293a;
 ```
 
-Как пользоваться на тёмном фоне:
+How to use them on a dark ground:
 
-| Шаги | Для чего |
+| Steps | For |
 |---|---|
-| 700–900 | тонированные заливки, ховеры, неброские границы |
-| 500 | база роли |
-| 100–300 | текст поверх этих заливок, нажатые состояния |
+| 700–900 | tinted fills, hovers, quiet borders |
+| 500 | the role's base |
+| 100–300 | text on those tints, pressed states |
 
-Предпочитать шаги рампы, а не `color-mix()` на глаз.
+Prefer ramp steps over an eyeballed `color-mix()`.
 
-**Важное ограничение:** пара акцент/фон вытянута на 3:1 — этого хватает иконкам, крупному тексту
-и интерфейсной обвязке, но **не абзацному тексту**. Текст размера абзаца акцентом — только
-`--color-accent-300`.
+**An important limit:** the accent-to-ground pair is tuned to 3:1 — enough for icons, large text
+and interface chrome, but **not for paragraph text**. Paragraph-size text in the accent uses
+`--color-accent-300` instead.
 
-Токены `--color-section*` из бандла — для слайдов и лендингов, интерфейсными цветами не являются;
-в этом проекте не используются.
+The bundle's `--color-section*` tokens are for slides and landing pages, not interface colours;
+this project does not use them.
 
-### Типографика
+### Type
 
 ```css
 --font-heading: "Inter", system-ui, sans-serif;
@@ -80,9 +81,10 @@ UI поднимается по дизайн-системе **Nocturne** — ти
 --font-body:    "Inter", system-ui, sans-serif;
 ```
 
-Базовый текст: `15px / 1.55`, вес 400. Заголовки: `line-height: 1.12`, `letter-spacing: -0.015em`.
+Body text: `15px / 1.55`, weight 400. Headings: `line-height: 1.12`,
+`letter-spacing: -0.015em`.
 
-| Тег | Размер | Заметка |
+| Tag | Size | Note |
 |---|---|---|
 | h1 | 42px | |
 | h2 | 32px | |
@@ -91,11 +93,11 @@ UI поднимается по дизайн-системе **Nocturne** — ти
 | h5 | 16px | |
 | h6 | 13px | `uppercase`, `letter-spacing: 0.08em` |
 
-Приглушённый текст — `color-mix(in srgb, var(--color-text) 55%, transparent)`.
+Muted text is `color-mix(in srgb, var(--color-text) 55%, transparent)`.
 
-### Отступы, радиусы, тени
+### Spacing, radii, elevation
 
-Шкала 4px × 0.7. Шагов 5 и 7 в системе нет — не выдумывать.
+A 4px × 0.7 scale. Steps 5 and 7 do not exist in the system — do not invent them.
 
 ```css
 --space-1: 2.8px;  --space-2: 5.6px;  --space-3: 8.4px;
@@ -108,12 +110,12 @@ UI поднимается по дизайн-системе **Nocturne** — ти
 --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0,0,0,0.65);
 ```
 
-На тёмном фоне высота — это **кромка плюс рассеянная темнота**, а не стопка теней.
-Тени не складывать.
+On a dark ground, elevation is **an edge plus ambient darkness**, not a stack of shadows.
+Do not layer them.
 
-### Состояния
+### States
 
-Темизованы все, браузерных дефолтов нет:
+All themed; no browser defaults anywhere:
 
 ```css
 :focus         { outline: none; }
@@ -122,106 +124,109 @@ UI поднимается по дизайн-системе **Nocturne** — ти
 [disabled]     { opacity: 0.45; cursor: not-allowed; }
 ```
 
-Это ровно то, что закрывает пушбек по заданию: браузерная обводка снята, но фокус остаётся
-видимым и приходит от системы, а не от браузера. Подробнее — `docs/adr/0007-custom-focus-ring.md`.
+This is exactly what settles the assignment's pushback: the browser ring is gone, but focus stays
+visible and comes from the system rather than the browser. See
+[ADR 0007](adr/0007-custom-focus-ring.md).
 
-Ховер и нажатие берутся из акцентной рампы: на тёмном фоне шаг за базой — `--color-accent-400`,
-для обводных и призрачных вариантов — тонировка через `color-mix()`.
+Hover and pressed states come from the accent ramp: on a dark ground, one step past the base is
+`--color-accent-400`; outlined and ghost variants tint through `color-mix()`.
 
-## Компоненты системы
+## The system's components
 
-Классы ниже переносятся как есть; собственные параллельные не изобретать.
+These classes port over as they are; do not invent parallel ones.
 
-| Класс | Что | Как применяем в чате |
+| Class | What | How the chat uses it |
 |---|---|---|
-| `.btn` + `.btn-primary` | акцентная обводка, не заливка | «Отправить», «Повторить» |
-| `.btn-secondary` | обводка по `--color-divider` | «Стоп», примеры в пустом состоянии |
-| `.btn-ghost` | акцентный текст без рамки | удаление чата, действия под ответом |
-| `.btn-icon` | 36×36 | иконочные действия, обязателен `aria-label` |
-| `.btn-block` | во всю ширину | «+ Новый чат», кнопки на мобильном |
-| `.input` | поле на нативном элементе | `textarea` композера, `select` модели |
-| `.field` + `label` | подпись над полем, 12px | обёртка композера |
-| `.card` + `.card-*` | карточка на `--color-surface` | сообщение пользователя, баннер ошибки, активный чат в сайдбаре |
-| `.tag` + `.tag-accent`/`-outline`/`-neutral` | мелкие метки | модель, статус, код ошибки |
-| `.nav` + `.nav-brand` | шапка | только лого «har kun ai», без границы снизу |
-| `.elev-sm/md/lg` | утилиты высоты | |
-| `.hr`, `.table`, `.dialog`, `.lighten` | — | не нужны |
+| `.btn` + `.btn-primary` | accent outline, not a fill | "Отправить", "Повторить" |
+| `.btn-secondary` | outlined in `--color-divider` | "Стоп", examples in the empty state |
+| `.btn-ghost` | accent text, no border | deleting a chat, actions under an answer |
+| `.btn-icon` | 36×36 | icon actions; `aria-label` required |
+| `.btn-block` | full width | "+ Новый чат", buttons on mobile |
+| `.input` | a field on the native element | the composer `textarea`, the model `select` |
+| `.field` + `label` | label above the field, 12px | the composer wrapper |
+| `.card` + `.card-*` | a surface-filled card | user message, error banner, active chat in the sidebar |
+| `.tag` + `.tag-accent`/`-outline`/`-neutral` | small labels | model, status, error code |
+| `.nav` + `.nav-brand` | the header | the "har kun ai" logo only, no bottom border |
+| `.elev-sm/md/lg` | elevation utilities | |
+| `.hr`, `.table`, `.dialog`, `.lighten` | — | not needed |
 
-Кнопки, поля, радио и сегментированный контрол построены на нативных элементах без скриптов:
-фокус, стрелки и checked работают сами. Не заменять на `div` — это сломает и доступность,
-и требование задания про семантическую разметку.
+Buttons, fields, radios and the segmented control are built on native elements with no script:
+focus, arrow keys and checked state work on their own. Do not replace them with `div`s — that
+breaks both accessibility and the assignment's requirement for semantic markup.
 
-### Иконки
+### Icons
 
-Phosphor (phosphoricons.com), инлайновым SVG: `viewBox="0 0 256 256"`, `fill="currentColor"`,
-14px в кнопке с текстом, 16px в иконочной. Пакет не ставим — нужных иконок единицы
-(отправить, стоп, копировать, очистить, предупреждение, шеврон), они кладутся в
-`src/components/icons/` как маленькие React-компоненты.
+Phosphor (phosphoricons.com), inline SVG: `viewBox="0 0 256 256"`, `fill="currentColor"`, 14px in
+a button with text, 16px in an icon button. We do not install the package — only a handful of
+icons are needed (send, stop, copy, clear, warning, chevron), and they live in
+`src/components/icons/` as small React components.
 
-## Как это ложится на чат
+## Mapping onto the chat
 
-Перенос в живой интерфейс, а не копирование прототипа. Полная раскладка экрана —
-`docs/ui-structure.md`; здесь только то, что касается системы.
+Translated into a live interface, not copied from the prototype. The full screen layout is in
+`docs/ui-structure.md`; only what concerns the system is here.
 
-- **Шапка** — `.nav`: только `.nav-brand` «har kun ai» строчными. Ни границы снизу, ни тени:
-  `.nav` в системе уже идёт с `border-bottom: none`.
-- **Сайдбар чатов** — на том же `--color-bg`, что и лента, без разделительной линии между ними.
-  Активный чат — заливка `--color-surface` и сплошная акцентная метка 2px слева.
-- **Сообщение пользователя** — `.card` на `--color-surface`, прижата вправо, ширина не более 75%.
-- **Сообщение модели** — **без заливки**, прямо на фоне, слева сплошная акцентная метка 2px.
-  Это собственная идиома системы: правила выцветают к краям, а короткие акцентные метки остаются
-  сплошными. Заливать ответ акцентом нельзя — акцент не заливка.
-- **Композер** — одна рамка `.input`, внутри `textarea` с авторостом до ~6 строк, а под ней ряд
-  с нативным `select` модели слева и первичной кнопкой справа. Во время генерации «Отправить»
-  подменяется на «Стоп» (`.btn-secondary` + иконка).
-- **Пустое состояние** — по левому краю: h3, приглушённая строка под ним, три примера
-  запросов как `.btn-secondary`.
-- **Индикатор печати** — три точки `--color-accent`, пульсация; под `prefers-reduced-motion`
-  заменяется статичным текстом.
-- **Ошибка** — `.card` со строкой-объяснением, `.tag-outline` с кодом и `.btn-primary` «Повторить».
-- **Разделять сообщения воздухом** (`--space-6`), не линиями — система разделителей не держит.
+- **Header** — `.nav`: just `.nav-brand` "har kun ai" in lowercase. No bottom border, no shadow:
+  `.nav` already ships with `border-bottom: none`.
+- **Chat sidebar** — on the same `--color-bg` as the conversation, with no rule between them.
+  The active chat gets a `--color-surface` fill and a solid 2px accent mark on the left.
+- **User message** — a `.card` on `--color-surface`, pushed right, at most 75% wide.
+- **Model message** — **no fill**, straight on the ground, with a solid 2px accent mark on the
+  left. This is the system's own idiom: rules fade at their ends, while short accent marks stay
+  solid. Flooding an answer with the accent is not allowed — the accent is not a fill.
+- **Composer** — one `.input` frame holding a `textarea` that grows to ~6 rows, with a row beneath
+  it carrying the native model `select` on the left and the primary button on the right. During
+  generation "Отправить" is replaced by "Стоп" (`.btn-secondary` + icon).
+- **Empty state** — left-aligned: an h3, a muted line beneath it, three example prompts as
+  `.btn-secondary`.
+- **Typing indicator** — three `--color-accent` dots, pulsing; under `prefers-reduced-motion` it
+  becomes static text.
+- **Error** — a `.card` with a plain-language line, a `.tag-outline` carrying the code, and a
+  `.btn-primary` retry.
+- **Separate messages with air** (`--space-6`), not with rules — the system has no dividers.
 
-## Расширения системы
+## Extensions to the system
 
-Nocturne собиралась под страницы-прототипы, у неё нет нескольких вещей, которые чату нужны.
-Это добавляем **явно и здесь**, чтобы потом не выглядело как самодеятельность и расползание.
+Nocturne was built for prototype pages and lacks a few things a chat needs. We add them
+**explicitly and here**, so they do not later read as freelancing and drift.
 
-1. **`--font-mono`** — токена моношрифта в системе нет, а ответы модели рендерятся как markdown
-   с кодом. Заводим: `ui-monospace, "SF Mono", Menlo, monospace` — ровно то, чем пользуются
-   демо-страницы бандла. Блок кода — `--color-surface` + `--radius-md` + `--shadow-sm`,
-   горизонтальная прокрутка внутри блока, а не на странице.
+1. **`--font-mono`** — the system has no monospace token, and model answers render as markdown
+   with code. We add `ui-monospace, "SF Mono", Menlo, monospace` — exactly what the bundle's demo
+   pages use. A code block is `--color-surface` + `--radius-md` + `--shadow-sm`, scrolling
+   horizontally inside itself rather than on the page.
 
-2. **Масштаб markdown внутри сообщения.** Системный h1 — 42px; в реплике чата это абсурд.
-   Внутри сообщения шкала съезжает вниз: h1→20px, h2→17px, h3→16px, дальше 15px,
-   вес остаётся 500. Токены не трогаем, переопределение локальное.
+2. **Markdown scale inside a message.** The system's h1 is 42px; in a chat reply that is absurd.
+   Inside a message the scale drops: h1→20px, h2→17px, h3→16px, then 15px, weight still 500.
+   The tokens are untouched; the override is local.
 
-3. **Брейкпоинты.** У прототипов фиксированные вьюпорты, адаптива в системе нет.
-   Заводим два: `640px` и `1024px`; контейнер диалога — `min(760px, 100%)`, прижат влево
-   по направлению системы. Нижняя граница поддержки — 320px.
+3. **Breakpoints.** The prototypes have fixed viewports; the system carries no responsiveness.
+   We add two: `640px` and `1024px`. The conversation container is `min(760px, 100%)`, aligned
+   left per the system's direction. The lower support bound is 320px.
 
-4. **Токены движения** — их тоже нет. `--dur-fast: 120ms`, `--dur-base: 200ms`,
-   `--ease: cubic-bezier(0.2, 0, 0, 1)`; глобально гасятся под `prefers-reduced-motion: reduce`.
+4. **Motion tokens** — also absent. `--dur-fast: 120ms`, `--dur-base: 200ms`,
+   `--ease: cubic-bezier(0.2, 0, 0, 1)`; globally disabled under `prefers-reduced-motion: reduce`.
 
-5. **Цвета ошибки не заводим — решено.** Система моно и прямо просит держать цветность низкой
-   вне акцента; отдельной роли под ошибку в ней нет, и `--color-danger` мы не добавляем.
-   Ошибка несётся иконкой предупреждения, заголовком, текстом и `.card` — то есть тем, что
-   работает и при дальтонизме, и в скринридере, где цвета нет вовсе. Цвет и так не должен быть
-   единственным носителем смысла; здесь он просто не носитель вовсе.
+5. **No error colour — decided.** The system is mono and explicitly asks to keep chroma low
+   outside the accent; it carries no role for errors, and we do not add a `--color-danger`.
+   An error is carried by a warning icon, a heading, text and a `.card` — which is what works for
+   colour blindness and in a screen reader, where there is no colour at all. Colour should never
+   be the sole carrier of meaning; here it carries none.
 
-## Шрифт
+## Font
 
-Бандл тянет Inter через `@import` с Google Fonts. Для приложения это внешний блокирующий
-запрос и передача адреса пользователя третьей стороне. В `index.html` ставим `<link>`
-с `preconnect` — быстрее, чем `@import`, и видно в разметке. Самостоятельный хостинг —
-в «что дальше»: это лишняя зависимость ради выигрыша, которого в тестовом задании не измерить.
+The bundle pulls Inter through an `@import` from Google Fonts. For an application that is an
+external render-blocking request and hands the user's address to a third party. We use a `<link>`
+with `preconnect` in `index.html` — faster than `@import`, and visible in the markup. Self-hosting
+goes into "what's next": it is an extra dependency for a gain this assignment cannot measure.
 
-Фолбэк `system-ui` в токене уже прописан: не загрузился Inter — интерфейс не разваливается.
+The `system-ui` fallback is already in the token: if Inter fails to load, the interface does not
+fall apart.
 
-## Чего не делать
+## Do not
 
-- Не заливать акцентом большие площади. Акцент — линия, метка, свечение.
-- Не изобретать значения мимо токенов: ни хекса, ни пикселя, которые шкала уже несёт.
-- Не ставить разделительные линии там, где хватает воздуха.
-- Не утяжелять заголовки выше 500.
-- Не складывать тени.
-- Не брать акцент для абзацного текста — только `--color-accent-300`.
+- Do not flood large areas with the accent. The accent is a line, a mark, a glow.
+- Do not invent values outside the tokens: no hex, no pixel the scale already carries.
+- Do not draw a rule where whitespace will do.
+- Do not push headings past weight 500.
+- Do not stack shadows.
+- Do not use the accent for paragraph text — use `--color-accent-300`.
