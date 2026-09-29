@@ -17,8 +17,21 @@ const TITLES: Record<ErrorCode, string> = {
   internal: 'Что-то пошло не так',
 }
 
-export function ErrorNotice({ error, onRetry }: { error: ApiError; onRetry?: () => void }) {
-  const remaining = useCountdown(error.retryAfter)
+export function ErrorNotice({
+  error,
+  failedAt,
+  onRetry,
+}: {
+  error: ApiError
+  /** When the failure happened, so the wait is a moment rather than a duration. */
+  failedAt?: number
+  onRetry?: () => void
+}) {
+  const until =
+    error.retryAfter !== undefined && failedAt !== undefined
+      ? failedAt + error.retryAfter * 1000
+      : undefined
+  const remaining = useCountdown(until)
   const waiting = remaining > 0
 
   return (
@@ -52,18 +65,35 @@ export function ErrorNotice({ error, onRetry }: { error: ApiError; onRetry?: () 
   )
 }
 
-function useCountdown(seconds: number | undefined): number {
-  const [remaining, setRemaining] = useState(seconds ?? 0)
-
-  // A fresh error resets the clock; without this the component would keep
-  // counting down from whatever the previous one said.
-  useEffect(() => setRemaining(seconds ?? 0), [seconds])
+/**
+ * Seconds left until a moment, recomputed from the clock on every tick rather
+ * than decremented.
+ *
+ * Counting down from a duration meant the wait restarted at its full length
+ * after a reload, however much of it had already passed — and a throttled
+ * background tab made it drift. Reading the clock each time has neither
+ * problem: it simply reports what is left.
+ */
+function useCountdown(until: number | undefined): number {
+  const [remaining, setRemaining] = useState(() => secondsUntil(until))
 
   useEffect(() => {
-    if (remaining <= 0) return
-    const timer = setTimeout(() => setRemaining((value) => value - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [remaining])
+    setRemaining(secondsUntil(until))
+    if (until === undefined || secondsUntil(until) <= 0) return
+
+    const timer = setInterval(() => {
+      const left = secondsUntil(until)
+      setRemaining(left)
+      if (left <= 0) clearInterval(timer)
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [until])
 
   return remaining
+}
+
+function secondsUntil(until: number | undefined): number {
+  if (until === undefined) return 0
+  return Math.max(0, Math.ceil((until - Date.now()) / 1000))
 }

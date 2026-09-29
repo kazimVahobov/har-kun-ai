@@ -57,7 +57,9 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
 
       {/* The received text stays above, untouched: a partial answer is a valid
           result, not something to replace with an error. */}
-      {message.error !== undefined && <ErrorNotice error={message.error} onRetry={onRetry} />}
+      {message.error !== undefined && (
+        <ErrorNotice error={message.error} failedAt={message.failedAt} onRetry={onRetry} />
+      )}
 
       {!isUser && !isStreaming && (
         <div className={styles.actions}>
