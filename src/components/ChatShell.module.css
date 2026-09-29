@@ -138,7 +138,8 @@
  * and where a scale belongs; below 1024px there is no margin to spare and it
  * simply is not there — everything it shows is also in the empty state.
  */
-.dayPanel {
+.dayPanel,
+.contentsPanel {
   display: none;
 }
 
@@ -185,6 +186,17 @@
     inset-inline-start: max(var(--space-6), calc(50% - 380px - 110px));
     width: 84px;
     pointer-events: none;
+    z-index: 0;
+  }
+
+  /* The contents, opposite the day. Wider, because these items carry text. */
+  .contentsPanel {
+    position: absolute;
+    display: flex;
+    inset-block: var(--space-8);
+    inset-inline-start: calc(50% + 380px + var(--space-6));
+    inset-inline-end: var(--space-6);
+    max-width: 200px;
     z-index: 0;
   }
 

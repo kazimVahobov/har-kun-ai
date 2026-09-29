@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChatShell } from './components/ChatShell.js'
 import { Composer } from './components/Composer.js'
+import { ContentsRail } from './components/ContentsRail.js'
 import { EmptyState } from './components/EmptyState.js'
 import { ArrowDownIcon } from './components/icons/index.js'
 import { MessageList } from './components/Message.js'
 import { StatusLine } from './components/StatusLine.js'
 import { useAutoScroll } from './hooks/useAutoScroll.js'
+import { useCurrentQuestion } from './hooks/useCurrentQuestion.js'
 import { useDayContext } from './hooks/useDayContext.js'
 import { useChat } from './hooks/useChat.js'
 import type { Message } from './lib/types.js'
@@ -39,6 +41,23 @@ export function App() {
     setDraft('')
   }
 
+  const questions = useMemo(
+    () => chat.messages.filter((message) => message.role === 'user'),
+    [chat.messages],
+  )
+  const currentQuestionId = useCurrentQuestion(
+    logRef,
+    useMemo(() => questions.map((question) => question.id), [questions]),
+  )
+
+  const goToQuestion = useCallback((messageId: string) => {
+    const element = document.getElementById(`message-${messageId}`)
+    if (element === null) return
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    element.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' })
+  }, [])
+
   const lastMessage = chat.messages[chat.messages.length - 1]
   const canRetry =
     lastMessage?.role === 'assistant' &&
@@ -65,6 +84,15 @@ export function App() {
             }}
           />
         )
+      }
+      contents={
+        questions.length > 0 ? (
+          <ContentsRail
+            questions={questions}
+            currentId={currentQuestionId}
+            onPick={goToQuestion}
+          />
+        ) : undefined
       }
       floating={
         hasMessages && !isPinned ? (

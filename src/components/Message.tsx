@@ -19,6 +19,10 @@ export function MessageList({
       {messages.map((message, index) => (
         <li
           key={message.id}
+          id={`message-${message.id}`}
+          // Only questions are watched and only questions are listed, so only
+          // they need the marker.
+          data-message-id={message.role === 'user' ? message.id : undefined}
           className={`${styles.item} ${message.role === 'user' ? styles.itemUser : ''}`}
         >
           <MessageView

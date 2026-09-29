@@ -19,6 +19,9 @@
 
 .item {
   display: flex;
+  /* Jumping here from the contents rail should not leave the question flush
+     against the top edge. */
+  scroll-margin-top: var(--space-6);
 }
 
 .itemUser {

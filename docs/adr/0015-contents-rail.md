@@ -57,3 +57,26 @@ A rail in the right margin, one item per **user question**, appearing with the f
 - Tracking the item in view needs an `IntersectionObserver` over the user messages, re-established
   whenever the list changes — one more subscription to tear down, and one more thing that is wrong
   if it leaks.
+
+## Amendment, 2026-09-29 — how the current item is found
+
+The decision stands; the mechanism named in the consequences does not.
+
+An `IntersectionObserver` was written first, watching a thin band across the top of the log. It
+reports *changes* in intersection, and that is precisely the gap: a long answer fills the whole
+screen with no question anywhere near the band, so the observer says nothing and the rail keeps
+pointing at whatever was current when it was created. In the first browser check the rail claimed
+the first question while the sixth was on screen.
+
+It is now measured outright — the last question whose top has gone past the band — recomputed from
+the log's scroll events. Asking the question directly has no gap.
+
+Two things were found underneath that, worth keeping:
+
+- **Throttling through `requestAnimationFrame` made the rail depend on the page being visible.**
+  rAF does not run in a background tab, so the highlight froze there. The listener is passive and
+  the work is bounded by the number of questions, so the throttle bought little and cost a real
+  dependency. Removed.
+- **The last question can never cross the band** if the answer under it is shorter than a screen —
+  you would be looking at it while the rail pointed at the one before. Reaching the bottom of the
+  log now selects the last item outright.

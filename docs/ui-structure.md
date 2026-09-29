@@ -140,6 +140,26 @@ rather than describing the app — reasoning in [ADR 0014](adr/0014-opens-on-the
 Everything arrives in sequence on load: 8px and 420ms, 70ms apart. Small, because this system is
 quiet and a loud entrance would be somebody else's design.
 
+## Contents rail
+
+In the right margin, opposite the day scale, appearing with the first message. One item per **user
+question** — answers are long and interchangeable as labels; the question is what someone is looking
+for. Reasoning and its cost in [ADR 0015](adr/0015-contents-rail.md).
+
+- **Fixed rhythm, never proportional.** Every item is the same height with the same gap, so a tap
+  target does not shrink as the conversation grows. Position means order, not scroll offset — which
+  is the one way this rail differs from the day scale it copies.
+- **It scrolls when it overflows**, with the fade on the frame rather than the content: on a
+  scrolling list the ends belong to the viewport, so the mask follows it.
+- **Clicking scrolls the question into view**, smoothly unless motion is reduced. Messages carry
+  `scroll-margin-top` so the question does not land flush against the edge.
+- **The item in view is marked in the accent** — the rail says where you are, not only where you
+  could go. It is derived from the log's scroll position rather than from an `IntersectionObserver`;
+  the reason is in the ADR's amendment.
+- Labels are one line and truncated. The full question is the accessible name and the hover title.
+
+Below 1024px there is no margin for it and it is absent.
+
 ## Status line
 
 Between the conversation and the composer, `role="status" aria-live="polite"`. It carries the

@@ -13,11 +13,14 @@ export function ChatShell({
   log,
   footer,
   floating,
+  contents,
   logRef,
 }: {
   day: DayContext
   log: ReactNode
   footer: ReactNode
+  /** The conversation's contents, in the right margin (ADR 0015). */
+  contents?: ReactNode
   /** Sits above the composer without taking part in its layout. */
   floating?: ReactNode
   logRef?: Ref<HTMLDivElement>
@@ -52,6 +55,8 @@ export function ChatShell({
             about doing this on their own, so it is stated. Not role="log":
             that carries an implicit live region, which would announce every
             token — the status line is the one place that speaks. */}
+        {contents !== undefined && <div className={styles.contentsPanel}>{contents}</div>}
+
         <div
           className={styles.log}
           ref={logRef}
