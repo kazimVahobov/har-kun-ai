@@ -21,9 +21,12 @@ export function EmptyState({ day, onPick }: { day: DayContext; onPick(text: stri
         <DayRule progress={day.progress} time={day.time} />
       </div>
 
-      <p className={`${styles.lede} ${styles.reveal}`} style={delay(210)}>
-        Помощник на каждый день — «har kun» по-узбекски и значит «каждый день». Ответ появляется по
-        мере генерации, и его можно оборвать на середине, не потеряв уже полученное.
+      {/* One line, doing two jobs: it explains a name that means nothing to
+          anyone who does not speak Uzbek, and turns that meaning into the
+          promise. What the app does with a stream is shown, not announced. */}
+      <p className={`${styles.slogan} ${styles.reveal}`} style={delay(210)}>
+        <span className={styles.name}>«har kun»</span> — «каждый день» по-узбекски. Помощник на
+        каждый из них.
       </p>
 
       <ul className={`${styles.prompts} ${styles.reveal}`} style={delay(280)} aria-label="С чего начать">

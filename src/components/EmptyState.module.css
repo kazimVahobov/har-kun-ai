@@ -13,7 +13,10 @@
   align-items: flex-start;
   gap: var(--space-4);
   padding-block: var(--space-8);
-  max-width: 46ch;
+  /* Wide enough to hold the slogan on one line. It was 46ch when this block
+     held a paragraph; a paragraph's measure is the wrong cap for a line that
+     is meant to read as one. */
+  max-width: 64ch;
 }
 
 .greeting {
@@ -46,9 +49,21 @@
   }
 }
 
-.lede {
+.slogan {
   margin: 0;
-  color: var(--color-text-muted);
+  font-size: 16px;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+  /* Wide enough to hold the line at any desktop width; it wraps on a phone,
+     where one line was never going to happen. */
+  max-width: none;
+  text-wrap: balance;
+}
+
+/* Paragraph-size accent text uses the deep ramp step, never the accent itself:
+   the accent-to-ground pair is tuned for chrome, not for reading. */
+.name {
+  color: var(--color-accent-300);
+  white-space: nowrap;
 }
 
 .prompts {
