@@ -105,6 +105,9 @@
 .blank {
   margin: 0;
   font-style: italic;
+  /* Below the 15px an answer is set in: it is a note, and setting it at the
+     same size as the text it stands in for overstates it. */
+  font-size: 13px;
   color: var(--color-text-muted);
 }
 
