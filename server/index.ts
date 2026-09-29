@@ -34,6 +34,6 @@ if (config.isProduction) {
 
 app.listen(config.port, () => {
   const mode = config.isProduction ? 'production' : 'development'
-  const source = config.useMock ? 'мок' : 'живая модель'
-  console.log(`[server] ${mode}, ${source}, слушает http://localhost:${config.port}`)
+  const source = config.useMock ? 'mock' : 'live model'
+  console.log(`[server] ${mode}, ${source}, listening on http://localhost:${config.port}`)
 })
