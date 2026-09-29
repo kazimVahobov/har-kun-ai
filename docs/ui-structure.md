@@ -27,23 +27,27 @@ Full height, `100dvh`. Only the conversation scrolls; header, sidebar and compos
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│ har kun ai                                           │  navbar: logo, no borders
-├─────────────┬────────────────────────────────────────┤
-│ + Новый чат │                                        │
-│             │   ▍A model answer, no fill,            │
-│ Про SSE     │    accent mark on the left             │
-│ Рецепт    ● │                                        │
-│ Отмена fetch│               ┌──────────────────┐     │
-│             │               │ A question, card │     │
-│             │               └──────────────────┘     │
-│             │                                        │
-│             │   ● ● ●  Модель печатает               │
-│             │  ┌──────────────────────────────────┐  │
-│             │  │ Спросите что-нибудь              │  │
-│             │  │ [ модель ▾ ]               [ ↑ ] │  │
-│             │  └──────────────────────────────────┘  │
-└─────────────┴────────────────────────────────────────┘
+│ har kun   вторник, 29 сентября                       │  navbar: mark and date
+├──────┬───────────────────────────────────────────────┤
+│  00 ┤│                                               │
+│     ┤│        ▍A model answer, no fill,              │
+│  06 ┤│         accent mark on the left               │
+│     ┤│                                               │
+│     ┤│                    ┌──────────────────┐       │
+│  12 ┤│                    │ A question, card │       │
+│     ┤│                    └──────────────────┘       │
+│──17:15                                               │
+│  18 ┤│        ● ● ●  Модель печатает                 │
+│     ┤│       ┌──────────────────────────────────┐    │
+│     ┤│       │ Спросите что-нибудь              │    │
+│     ┤│       │ [ модель ▾ ]               [ ↑ ] │    │
+│     ┤│       └──────────────────────────────────┘    │
+└──────┴───────────────────────────────────────────────┘
+   day scale          centred conversation
 ```
+
+The sidebar, when it arrives, takes the left margin and the day scale moves into the empty
+state's column.
 
 There are no rules between areas — not under the navbar, not between the sidebar and the
 conversation. Nocturne has no dividers at all: areas are separated by air from the spacing scale.
@@ -61,12 +65,15 @@ tabbing through the whole history.
 
 ## Navbar
 
-Only the `har kun ai` logo (`.nav-brand`, lowercase) on the left. No bottom border, no shadow, no
-background differing from the page — `.nav` already ships with `border-bottom: none`.
+The `har kun` mark in the display face, and today's date beside it. A daily assistant should know
+what day it is and say so without being asked; below 480px the date drops and the mark stands
+alone.
 
-Nothing else lives there: there are no settings, the model picker moved into the composer, chat
-management is in the sidebar. On a narrow screen a hamburger appears to the left of the logo and
-opens the sidebar.
+No bottom border, no shadow, no background differing from the page — `.nav` already ships with
+`border-bottom: none`.
+
+Nothing else lives there: there are no settings, the model picker is in the composer, chat
+management is in the sidebar. On a narrow screen a hamburger appears to the left of the mark.
 
 ## Sidebar
 
@@ -115,14 +122,21 @@ off — otherwise you cannot reread the start of an answer while it is being gen
 
 ## Empty state
 
-Not a separate screen, but what the conversation holds while it is empty. Left-aligned, per the
-system's direction:
+Not a separate screen, but what the conversation holds while it is empty. It opens on **today**
+rather than describing the app — reasoning in [ADR 0014](adr/0014-opens-on-the-day.md):
 
-- an h3, "har kun ai";
-- a muted line: "har kun" is Uzbek for "every day" — which also explains the name to anyone who
-  does not speak it;
-- three example prompts as `.btn-secondary`. Clicking one puts the text in the composer and moves
-  focus there, but does **not** send: the user has to be able to change their mind or add to it.
+- a greeting that follows the hour, set in the display face — "Доброе утро" / "Добрый день" /
+  "Добрый вечер" / "Доброй ночи";
+- the date written out: "вторник, 29 сентября";
+- the day scale, horizontal here. Above 1024px it is not: the scale lives in the left margin
+  instead, and the column version steps aside so there is never two of it;
+- a muted line explaining the name and what the thing does;
+- three starters that belong to that hour — what is offered at 8am is not what is offered at 11pm.
+  Clicking one puts the text in the composer and moves focus there, but does **not** send: the user
+  has to be able to change their mind or add to it.
+
+Everything arrives in sequence on load: 8px and 420ms, 70ms apart. Small, because this system is
+quiet and a loud entrance would be somebody else's design.
 
 ## Status line
 
