@@ -1,4 +1,5 @@
-import type { ModelInfo } from '../shared/contract.js'
+import type { ModelInfo, SimulateMode } from '../shared/contract.js'
+import { StreamFailure, delay, untilAborted, type Producer, type Pump } from './stream.js'
 
 /**
  * The mock model. The job is not "return some text" but to reproduce a live
@@ -54,6 +55,57 @@ export function profileFor(model: string | undefined): MockProfile {
 
 export function randomBetween([min, max]: [number, number]): number {
   return Math.floor(min + Math.random() * (max - min + 1))
+}
+
+// ── The producer ─────────────────────────────────────────────────────────────
+
+export function mockProducer(model: string, simulate: SimulateMode | undefined): Producer {
+  const profile = withSimulate(profileFor(model), simulate)
+
+  // Nothing to connect to, so the mock is always ready to stream. Its failures
+  // all happen mid-answer, which is the harder half to handle and the reason
+  // the mock exists.
+  const pump: Pump = async ({ emit, signal, sever }) => {
+    await delay(randomBetween(profile.firstToken), signal)
+
+    // The `timeout` mode stays silent on purpose; the stall guard does the rest.
+    if (simulate === 'timeout') {
+      await untilAborted(signal)
+      return null
+    }
+    if (signal.aborted) return null
+
+    const chunks = splitIntoChunks(buildResponse(profile))
+    const breakAt = simulate === 'drop' || simulate === 'mid-error' ? faultIndex(chunks.length) : -1
+
+    for (const [index, chunk] of chunks.entries()) {
+      if (signal.aborted) return null
+
+      if (index === breakAt) {
+        if (simulate === 'drop') {
+          sever()
+          return null
+        }
+        throw new StreamFailure({ code: 'upstream_error', message: 'Модель оборвала генерацию.' })
+      }
+
+      await emit(chunk)
+      await delay(randomBetween(profile.betweenChunks), signal)
+    }
+
+    return 'stop'
+  }
+
+  return () => Promise.resolve(pump)
+}
+
+function withSimulate(profile: MockProfile, simulate: SimulateMode | undefined): MockProfile {
+  if (simulate !== 'slow') return profile
+  return { ...profile, betweenChunks: [300, 800] }
+}
+
+function faultIndex(total: number): number {
+  return Math.max(2, Math.floor(total / randomBetween([2, 4])))
 }
 
 // ── Text ─────────────────────────────────────────────────────────────────────
