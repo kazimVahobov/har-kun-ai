@@ -35,3 +35,4 @@
 | [0003-ui-structure.md](0003-ui-structure.md) | Структура интерфейса, сайдбар, фоновая генерация |
 | [0004-sidebar-scope-check.md](0004-sidebar-scope-check.md) | Сверка сайдбара с заданием, перестановка в конец фазы |
 | [0005-scaffold.md](0005-scaffold.md) | Каркас: Vite + React + TS, Express, `/api/health` |
+| [0006-mock-server.md](0006-mock-server.md) | Мок-сервер: контракт, отказы, таймауты, отмена |
