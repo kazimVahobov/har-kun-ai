@@ -13,7 +13,9 @@
   align-items: flex-end;
   /* Reserved, so the composer does not shift when the chip appears and clears. */
   min-height: 28px;
-  margin-bottom: var(--space-1);
+  /* Two bordered objects need air between them, or their edges read as one
+     crowded shape. */
+  margin-bottom: var(--space-6);
 }
 
 .chip {

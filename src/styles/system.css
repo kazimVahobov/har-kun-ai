@@ -90,6 +90,10 @@ kbd {
  * that.
  */
 .visually-hidden {
+  /* Blockified on purpose: an inline element ignores height, so an inline label
+     carrying this class still took a full line box and pushed its neighbours
+     around. It only ever worked where a flex parent happened to blockify it. */
+  display: block;
   /* Selecting a message and copying it should not pick up an author label the
      sighted reader cannot see — it ends up pasted into the next question. */
   user-select: none;
