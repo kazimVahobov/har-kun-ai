@@ -4,14 +4,43 @@
  * on every token turns a screen reader into a machine gun.
  */
 
+/**
+ * A chip above the composer rather than a line of loose text beside it. Loose
+ * text read as a stray caption; a bounded object reads as a status.
+ */
 .root {
   display: flex;
+  align-items: flex-end;
+  /* Reserved, so the composer does not shift when the chip appears and clears. */
+  min-height: 28px;
+  margin-bottom: var(--space-1);
+}
+
+.chip {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  /* Reserved so the composer does not shift when the line appears and clears. */
-  min-height: 18px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
+  background: var(--color-surface);
   font-size: 12px;
+  line-height: 1.4;
   color: var(--color-text-muted);
+  animation: rise 240ms var(--ease);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    animation: none;
+  }
 }
 
 .dots {

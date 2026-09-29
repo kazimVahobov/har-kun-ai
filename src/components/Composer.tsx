@@ -61,10 +61,18 @@ export function Composer({
 
   return (
     <form onSubmit={submit}>
+      {/* Both labels sit outside the frame. They are associated by `htmlFor`, so
+          position is irrelevant to a screen reader — but inside a flex container
+          they are flex items, and the container's gap applies to them, nudging
+          the field and the picker out of line with each other. */}
+      <label className="visually-hidden" htmlFor="composer">
+        Сообщение модели
+      </label>
+      <label className="visually-hidden" htmlFor="model">
+        Модель
+      </label>
+
       <div className={styles.frame}>
-        <label className="visually-hidden" htmlFor="composer">
-          Сообщение модели
-        </label>
         <textarea
           id="composer"
           ref={ref}
@@ -77,9 +85,6 @@ export function Composer({
         />
 
         <div className={styles.row}>
-          <label className="visually-hidden" htmlFor="model">
-            Модель
-          </label>
           <select
             id="model"
             className={styles.model}

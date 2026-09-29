@@ -176,9 +176,12 @@ Below 1024px there is no margin for it and it is absent.
 
 ## Status line
 
-Between the conversation and the composer, `role="status" aria-live="polite"`. It carries the
-typing indicator (three accent dots), "Генерация остановлена", "Ответ получен",
-"Чат удалён · Вернуть".
+A chip above the composer, `role="status" aria-live="polite"`. It carries the typing indicator
+(three accent dots), "Генерация остановлена", "Ответ получен", "Чат удалён · Вернуть".
+
+A chip rather than a line of loose text beside the field: loose text read as a stray caption, while
+a bounded object reads as a status. Its height is reserved whether or not there is anything to say,
+so the composer never shifts underneath a pointer.
 
 The live region is here and **not** on the answer text: a region updated on every token turns a
 screen reader into a machine gun. The status changes discretely.
