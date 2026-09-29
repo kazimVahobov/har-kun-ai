@@ -76,10 +76,17 @@ this project does not use them.
 ### Type
 
 ```css
---font-heading: "Inter", system-ui, sans-serif;
+--font-display: 'Unbounded', system-ui, sans-serif;     /* the mark, the greeting */
+--font-heading: 'Golos Text', system-ui, sans-serif;
 --font-heading-weight: 500;
---font-body:    "Inter", system-ui, sans-serif;
+--font-body:    'Golos Text', system-ui, sans-serif;
+--font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
 ```
+
+> **Departure from the bundle.** Nocturne specifies Inter. We use a Cyrillic-first set instead —
+> Unbounded for the two places the identity asserts itself, Golos Text for everything else. The
+> reasoning, and what it costs, is in [ADR 0013](adr/0013-typography.md). The palette, scales,
+> density and component vocabulary are unchanged.
 
 Body text: `15px / 1.55`, weight 400. Headings: `line-height: 1.12`,
 `letter-spacing: -0.015em`.
@@ -146,7 +153,7 @@ These classes port over as they are; do not invent parallel ones.
 | `.field` + `label` | label above the field, 12px | the composer wrapper |
 | `.card` + `.card-*` | a surface-filled card | user message, error banner, active chat in the sidebar |
 | `.tag` + `.tag-accent`/`-outline`/`-neutral` | small labels | model, status, error code |
-| `.nav` + `.nav-brand` | the header | the "har kun ai" logo only, no bottom border |
+| `.nav` + `.nav-brand` | the header | the "har kun" mark in the display face, plus the date |
 | `.elev-sm/md/lg` | elevation utilities | |
 | `.hr`, `.table`, `.dialog`, `.lighten` | — | not needed |
 
@@ -212,21 +219,19 @@ Nocturne was built for prototype pages and lacks a few things a chat needs. We a
    colour blindness and in a screen reader, where there is no colour at all. Colour should never
    be the sole carrier of meaning; here it carries none.
 
-## Font
+## Fonts
 
-The bundle pulls Inter through an `@import` from Google Fonts. We self-host it instead, through
-`@fontsource/inter`, importing the two weights the system actually uses — 400 for body and 500 for
-headings, since Nocturne forbids going bolder.
+All three faces are self-hosted through `@fontsource`, importing only the four weights in use:
+Unbounded 400, Golos Text 400 and 500, JetBrains Mono 400. Nocturne forbids going bolder than 500,
+so nothing heavier is fetched.
 
-The reason is specific to this assignment rather than general: it says the Network tab will be
-checked. A `<link>` to a font CDN fills that tab with third-party requests — not a violation, but
-noise in exactly the check being run. Self-hosting leaves only own-origin requests there. It also
-removes a render-blocking external request and stops handing the user's address to Google.
+Self-hosting rather than a CDN link is specific to this assignment: it says the Network tab will be
+checked. A link to a font CDN fills that tab with third-party requests — not a violation, but noise
+in exactly the check being run. Self-hosting leaves only own-origin requests there, removes a
+render-blocking external request, and stops handing the user's address to a third party.
 
-The cost is one dependency, which `CLAUDE.md` asks to justify; the above is the justification.
-
-The `system-ui` fallback is already in the token: if Inter fails to load, the interface does not
-fall apart.
+The `system-ui` fallback is in every token: if a face fails to load, the interface does not fall
+apart.
 
 ## Do not
 

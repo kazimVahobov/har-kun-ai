@@ -63,5 +63,6 @@ the old file is correct in full, on its own.
 | [0010](0010-deployment.md) | Deployment — an optional last step | accepted | |
 | [0011](0011-background-generation.md) | Several chats; generation continues in the background | accepted | refines [0008](0008-session-storage-history.md), extended by [0012](0012-chat-sidebar-scope.md) |
 | [0012](0012-chat-sidebar-scope.md) | The sidebar is beyond the assignment — built last | accepted | extends [0011](0011-background-generation.md) |
+| [0013](0013-typography.md) | A Cyrillic type set instead of Inter | accepted | refines the design-system doc |
 
 Nothing has been superseded or withdrawn so far: 0011 and 0012 cancel nothing, they layer.

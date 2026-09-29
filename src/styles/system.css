@@ -82,11 +82,6 @@ kbd {
 }
 
 /**
- * Present for assistive technology, absent on screen. A placeholder is not a
- * label: it disappears the moment there is text, and a screen reader is left
- * with an unnamed field.
- */
-/**
  * Deliberately not `position: absolute`, which is the usual recipe. Without a
  * positioned ancestor an absolute element is laid out against the page, so one
  * of these inside a scrolled container escapes it and lands wherever its static
@@ -321,8 +316,9 @@ textarea.input {
 }
 
 .nav-brand {
-  font-family: var(--font-heading);
-  font-weight: var(--font-heading-weight);
-  font-size: 18px;
-  margin-right: auto;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 15px;
+  /* Unbounded runs wide; pulled in so the mark reads as a unit. */
+  letter-spacing: -0.03em;
 }

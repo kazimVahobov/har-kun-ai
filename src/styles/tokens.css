@@ -52,9 +52,15 @@
   --color-accent-2-800: #423e5d;
   --color-accent-2-900: #2b293a;
 
-  --font-heading: 'Inter', system-ui, sans-serif;
+  /**
+   * Three roles, not two. Unbounded is wide and loud — an asset in the two or
+   * three places an identity needs to assert itself, and wrong everywhere else,
+   * so it never touches buttons or body copy.
+   */
+  --font-display: 'Unbounded', system-ui, sans-serif;
+  --font-heading: 'Golos Text', system-ui, sans-serif;
   --font-heading-weight: 500;
-  --font-body: 'Inter', system-ui, sans-serif;
+  --font-body: 'Golos Text', system-ui, sans-serif;
 
   /* 4px on a 0.7 density scale. Steps 5 and 7 do not exist in the system. */
   --space-1: 2.8px;
@@ -80,9 +86,8 @@
      Nocturne was built for prototype pages and lacks these. They are declared
      here and explained in docs/design-system.md so they do not read as drift. */
 
-  /* The system has no monospace role, and model answers are markdown with code.
-     This is what the bundle's own demo pages use. */
-  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  /* The system has no monospace role, and model answers are markdown with code. */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   --dur-fast: 120ms;
   --dur-base: 200ms;
