@@ -1,27 +1,27 @@
 import type { ApiError, DeltaEvent, DoneEvent, StreamEvent } from './contract.js'
 
 /**
- * Инкрементальный разбор text/event-stream.
+ * Incremental text/event-stream parsing.
  *
- * Модуль намеренно ничего не знает ни про `fetch`, ни про потоки: на вход
- * строки, на выход кадры. Отсюда две вещи — его можно тестировать без сети
- * и он одинаково работает на клиенте (поток от нашего сервера) и на сервере
- * (поток от OpenRouter).
+ * The module deliberately knows nothing about `fetch` or streams: strings in,
+ * frames out. Two things follow — it can be tested without a network, and it
+ * works the same on the client (our server's stream) and on the server
+ * (OpenRouter's).
  *
- * Главное требование — переживать чанки, которые режут кадр в любом месте.
- * Границы TCP-чанков не совпадают с границами событий, и парсер, который
- * читает чанк как законченный кусок, ломается только под нагрузкой.
+ * The core requirement is surviving chunks that cut a frame anywhere. TCP chunk
+ * boundaries do not line up with event boundaries, and a parser that reads a
+ * chunk as a finished piece only breaks under load.
  */
 
 export interface SseFrame {
-  /** Имя события. По спецификации без `event:` это `message`. */
+  /** The event name. Per the spec, without `event:` it is `message`. */
   event: string
   data: string
   id: string | undefined
 }
 
 export interface SseParser {
-  /** Скормить очередной кусок потока и забрать все кадры, которые он завершил. */
+  /** Feed the next piece of the stream and take every frame it completed. */
   push(chunk: string): SseFrame[]
 }
 
@@ -37,8 +37,8 @@ export function createSseParser(): SseParser {
   }
 
   function dispatch(): SseFrame | null {
-    // Кадр без единой строки `data:` не событие: по спецификации он лишь
-    // сбрасывает накопленное имя.
+    // A frame without a single `data:` line is not an event: per the spec it
+    // merely resets the accumulated event name.
     if (dataLines.length === 0) {
       reset()
       return null
@@ -55,14 +55,14 @@ export function createSseParser(): SseParser {
 
   function handleLine(line: string): SseFrame | null {
     if (line === '') return dispatch()
-    // Строка-комментарий. Наш сервер шлёт такие как keepalive, OpenRouter —
-    // свои `: OPENROUTER PROCESSING`. И то и другое нужно молча пропускать.
+    // A comment line. Our server sends these as keepalive, OpenRouter sends its
+    // own `: OPENROUTER PROCESSING`. Both are skipped silently.
     if (line.startsWith(':')) return null
 
     const colon = line.indexOf(':')
     const field = colon === -1 ? line : line.slice(0, colon)
     let value = colon === -1 ? '' : line.slice(colon + 1)
-    // Срезается ровно один пробел после двоеточия, остальные — часть данных.
+    // Exactly one space after the colon is stripped; the rest is data.
     if (value.startsWith(' ')) value = value.slice(1)
 
     switch (field) {
@@ -76,7 +76,7 @@ export function createSseParser(): SseParser {
         if (!value.includes('\0')) lastId = value
         break
       default:
-        // `retry` и незнакомые поля игнорируются.
+        // `retry` and unknown fields are ignored.
         break
     }
 
@@ -103,8 +103,8 @@ export function createSseParser(): SseParser {
 }
 
 /**
- * Отрезает одну завершённую строку. Незавершённый хвост остаётся в буфере —
- * именно он и есть разрезанный кадр.
+ * Cuts off one completed line. The unfinished tail stays in the buffer — that
+ * tail is precisely the split frame.
  */
 function takeLine(buffer: string): { line: string; rest: string } | null {
   for (let index = 0; index < buffer.length; index += 1) {
@@ -115,9 +115,9 @@ function takeLine(buffer: string): { line: string; rest: string } | null {
     }
 
     if (char === '\r') {
-      // `\r` последним символом буфера — возможно, начало `\r\n`, разрезанного
-      // между чанками. Ждём продолжения, иначе получим лишнюю пустую строку
-      // и диспатчнем кадр раньше времени.
+      // A `\r` as the buffer's last character may be the start of a `\r\n` split
+      // across chunks. Wait for more, or we get a spurious empty line and
+      // dispatch the frame too early.
       if (index === buffer.length - 1) return null
 
       const skip = buffer[index + 1] === '\n' ? 2 : 1
@@ -129,8 +129,8 @@ function takeLine(buffer: string): { line: string; rest: string } | null {
 }
 
 /**
- * Кадр → событие контракта. Незнакомые имена и битый JSON пропускаются:
- * поток не должен падать из-за события, которого клиент не знает.
+ * Frame to contract event. Unknown names and broken JSON are skipped: the stream
+ * must not fail because of an event the client does not know.
  */
 export function toStreamEvent(frame: SseFrame): StreamEvent | null {
   if (frame.event !== 'delta' && frame.event !== 'done' && frame.event !== 'error') return null

@@ -29,7 +29,7 @@ export async function handleChat(req: Request, res: Response): Promise<void> {
 
   const simulate = readSimulate(req)
 
-  // 429 приходит до начала потока — значит, обычным статусом, а не событием.
+  // A 429 arrives before the stream starts, so it goes out as a status, not an event.
   if (simulate === '429') {
     sendError(res, {
       code: 'rate_limited',
@@ -50,7 +50,7 @@ export async function handleChat(req: Request, res: Response): Promise<void> {
   await streamMock(res, parsed.value, simulate)
 }
 
-// ── Разбор запроса ───────────────────────────────────────────────────────────
+// ── Request parsing ──────────────────────────────────────────────────────────
 
 type Parsed = { value: ChatRequest } | { error: ApiError }
 
@@ -98,7 +98,7 @@ function sendError(res: Response, error: ApiError): void {
   res.status(ERROR_STATUS[error.code]).json(body)
 }
 
-// ── Поток ────────────────────────────────────────────────────────────────────
+// ── Streaming ────────────────────────────────────────────────────────────────
 
 async function streamMock(
   res: Response,
@@ -139,9 +139,9 @@ async function streamMock(
   }
 
   /**
-   * Один сторожевой таймер на два случая: до первого токена он длиннее
-   * (бесплатная модель может стоять в очереди), после — короче, и
-   * перевзводится на каждом чанке.
+   * One stall guard covering two cases: before the first token it is longer
+   * (a free model can sit in a queue), afterwards it is shorter and gets
+   * rearmed on every chunk.
    */
   const armStall = (): void => {
     clearTimeout(stallTimer)
@@ -162,7 +162,7 @@ async function streamMock(
     void settle(errorFrame({ code: 'timeout', message: 'Запрос шёл слишком долго.' }))
   }, config.timeouts.totalMs)
 
-  // Отмена клиентом — не ошибка: ничего не дописываем и не шумим в лог.
+  // A client cancellation is not an error: write nothing more, log nothing.
   res.on('close', () => {
     if (!settled) cleanup()
   })
@@ -172,7 +172,7 @@ async function streamMock(
   try {
     await delay(randomBetween(profile.firstToken), signal)
 
-    // Режим `timeout`: молчим намеренно, сторожевой таймер сделает остальное.
+    // The `timeout` mode stays silent on purpose; the stall guard does the rest.
     if (simulate === 'timeout') return
     if (signal.aborted || settled) return
 
@@ -184,7 +184,7 @@ async function streamMock(
 
       if (index === breakAt) {
         if (simulate === 'drop') {
-          // Обрыв соединения без `done` — так выглядит упавшая сеть.
+          // A severed connection with no `done` — what a dropped network looks like.
           cleanup()
           res.destroy()
         } else {
@@ -219,9 +219,9 @@ function faultIndex(total: number): number {
 }
 
 /**
- * Кадр иногда уезжает в сокет двумя записями, с разрезом в случайном месте.
- * Границы TCP-чанков не совпадают с границами событий SSE, и парсер, который
- * этого не переживает, ломается только в проде — здесь он спотыкается сразу.
+ * A frame sometimes leaves for the socket as two writes, cut at a random point.
+ * TCP chunk boundaries do not line up with SSE event boundaries, and a parser
+ * that cannot survive that only breaks in production — here it trips at once.
  */
 async function writeFrame(res: Response, frame: string, signal: AbortSignal): Promise<void> {
   if (frame.length < 8 || Math.random() > 0.3) {

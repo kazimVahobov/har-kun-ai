@@ -4,7 +4,7 @@ function num(name: string, fallback: number): number {
 
   const parsed = Number(raw)
   if (!Number.isFinite(parsed) || parsed <= 0) {
-    throw new Error(`${name} должен быть положительным числом, получено: ${raw}`)
+    throw new Error(`${name} must be a positive number, got: ${raw}`)
   }
   return parsed
 }
@@ -16,26 +16,27 @@ export const config = {
   isProduction,
 
   /**
-   * Мок включён, пока явно не выключен. Живого адаптера ещё нет — он появится
-   * в фазе 3 (ADR 0003); до тех пор MOCK=0 честно отвечает upstream_unavailable.
+   * The mock is on until explicitly turned off. There is no live adapter yet —
+   * it arrives in phase 3 (ADR 0003); until then MOCK=0 honestly answers
+   * upstream_unavailable.
    */
   useMock: process.env.MOCK !== '0',
 
   /**
-   * Режимы отказов `?simulate=` — инструмент разработки, в проде выключены,
-   * иначе любой посетитель мог бы заказать серверу ошибку.
+   * The `?simulate=` failure modes are a development tool, disabled in
+   * production — otherwise any visitor could order an error from the server.
    */
   allowSimulate: !isProduction,
 
   timeouts: {
-    /** Бесплатные модели могут долго стоять в очереди. */
+    /** Free models can sit in a queue for a while. */
     firstTokenMs: num('TIMEOUT_FIRST_TOKEN_MS', 30_000),
-    /** Поток замер — считаем мёртвым. */
+    /** The stream has stalled — treat it as dead. */
     idleMs: num('TIMEOUT_IDLE_MS', 20_000),
-    /** Верхняя граница на запрос целиком. */
+    /** An upper bound on the whole request. */
     totalMs: num('TIMEOUT_TOTAL_MS', 120_000),
   },
 
-  /** Против прокси, режущих простаивающие соединения. */
+  /** Against proxies that cut idle connections. */
   keepaliveMs: num('KEEPALIVE_MS', 15_000),
 } as const

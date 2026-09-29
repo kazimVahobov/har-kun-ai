@@ -19,7 +19,7 @@ function apply(state: ChatState, ...actions: ChatAction[]): ChatState {
   return actions.reduce(chatReducer, state)
 }
 
-/** Отправка сообщения и начало генерации — приставка почти ко всем тестам. */
+/** Sending a message and starting generation — the prelude to nearly every test. */
 function sent(state: ChatState, content = 'привет', chatId = 'c1', now = 2000): ChatState {
   return apply(state, {
     type: 'message/sent',
@@ -97,7 +97,7 @@ describe('накопление потока', () => {
       text: 'a',
     })
 
-    // Иначе чат прыгал бы в сайдбаре на каждом символе.
+    // Otherwise the chat would jump around the sidebar on every character.
     expect(activeChat(after)?.updatedAt).toBe(activeChat(before)?.updatedAt)
   })
 
@@ -136,7 +136,7 @@ describe('частичный ответ не теряется — главный
   })
 
   it('поздняя delta после остановки не оживляет текст', () => {
-    // Между abort и закрытием сокета событие уже могло уйти в сеть.
+    // Between abort and the socket closing, an event may already be on the wire.
     const state = apply(
       sent(start()),
       { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'кусок' },
@@ -178,7 +178,7 @@ describe('частичный ответ не теряется — главный
 
 describe('несколько чатов', () => {
   it('генерация в фоновом чате продолжает копиться', () => {
-    // Переключение чата не должно ронять генерацию (ADR 0011).
+    // Switching chats must not kill generation (ADR 0011).
     let state = sent(start())
     state = apply(state, { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
 
@@ -214,7 +214,7 @@ describe('несколько чатов', () => {
     let state = apply(start(), { type: 'chat/created', chatId: 'c2', model: MODEL, now: 3000 })
     expect(chatsByRecency(state).map((chat) => chat.id)).toEqual(['c2', 'c1'])
 
-    // Написали в старый чат — он поднимается наверх.
+    // A new message in the older chat lifts it to the top.
     state = sent(state, 'привет', 'c1', 4000)
     expect(chatsByRecency(state).map((chat) => chat.id)).toEqual(['c1', 'c2'])
   })
@@ -266,7 +266,7 @@ describe('удаление чата', () => {
 
 describe('восстановление из хранилища', () => {
   it('незавершённое сообщение становится stopped, текст остаётся', () => {
-    // fetch умер вместе со страницей — показывать индикатор печати нельзя.
+    // fetch died with the page — a typing indicator would be a lie.
     const stored = apply(
       sent(start()),
       { type: 'stream/delta', chatId: 'c1', messageId: 'c1-a', text: 'обрывок' },
@@ -300,7 +300,7 @@ describe('неизвестные цели ничего не ломают', () =>
       text: 'x',
     })
 
-    // Та же ссылка: лишний объект состояния — лишний рендер.
+    // The same reference: a pointless state object is a pointless render.
     expect(after).toBe(state)
   })
 

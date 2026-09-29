@@ -2,12 +2,12 @@ import type { ApiError } from '../../shared/contract.js'
 import type { Chat, ChatState, Message } from './types.js'
 
 /**
- * Состояние диалогов — чистая функция.
+ * Conversation state as a pure function.
  *
- * Ни `Date.now()`, ни генерации идентификаторов внутри: и то и другое приходит
- * в действии. Иначе редьюсер нельзя проверить, не подменяя время, а проверять
- * его надо — здесь живёт главный инвариант задания: **уже полученный кусок
- * ответа не теряется никогда**, чем бы генерация ни кончилась.
+ * No `Date.now()` and no id generation inside: both arrive in the action.
+ * Otherwise the reducer cannot be checked without faking time — and it has to
+ * be checked, because the assignment's central invariant lives here: **the
+ * chunk already received is never lost**, however generation ends.
  */
 
 export const TITLE_LIMIT = 40
@@ -57,8 +57,8 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case 'chat/deleted': {
       const rest = state.chats.filter((chat) => chat.id !== action.chatId)
 
-      // Удалили последний — сразу заводим пустой: интерфейс без единого чата
-      // не имеет состояния, в котором его можно показать.
+      // The last one is gone, so start a fresh empty chat: an interface with no
+      // chat at all has no state it can be rendered in.
       if (rest.length === 0) {
         return createInitialState(action.newChatId, action.model, action.now)
       }
@@ -70,7 +70,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     }
 
     case 'chat/model-changed':
-      // Модель запоминается у чата, а не глобально.
+      // The model is remembered per chat, not globally.
       return updateChat(state, action.chatId, (chat) => ({ ...chat, model: action.model }))
 
     case 'message/sent':
@@ -86,8 +86,8 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
       }))
 
     case 'message/retried':
-      // Собирается заново, а не правится: так гарантированно уходит и прежний
-      // текст, и прежняя ошибка.
+      // Rebuilt rather than edited: that guarantees both the previous text and
+      // the previous error are gone.
       return updateMessage(
         state,
         action.chatId,
@@ -98,9 +98,9 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
 
     case 'stream/delta':
       return updateMessage(state, action.chatId, action.messageId, (message) => {
-        // Поздняя `delta` после остановки — не выдумка: между `abort` и
-        // закрытием сокета событие уже могло уйти. Дописывать в завершённое
-        // сообщение нельзя, иначе текст «оживает» после «Стоп».
+        // A late `delta` after a stop is not hypothetical: between `abort` and
+        // the socket closing, an event may already be in flight. Appending to a
+        // finished message would make the text come back to life after Stop.
         if (message.status !== 'streaming') return message
         return { ...message, content: message.content + action.text }
       })
@@ -114,7 +114,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case 'stream/stopped':
       return finish(state, action.chatId, action.messageId, action.now, (message) => ({
         ...message,
-        // content не трогаем — в этом весь смысл требования про «Стоп».
+        // content is untouched — that is the whole point of the Stop requirement.
         status: 'stopped',
       }))
 
@@ -127,7 +127,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
   }
 }
 
-// ── Выборки ──────────────────────────────────────────────────────────────────
+// ── Selectors ────────────────────────────────────────────────────────────────
 
 export function activeChat(state: ChatState): Chat | undefined {
   return state.chats.find((chat) => chat.id === state.activeChatId)
@@ -141,7 +141,7 @@ export function isStreaming(chat: Chat): boolean {
   return chat.messages.some((message) => message.status === 'streaming')
 }
 
-/** Для сайдбара: свежие сверху. */
+/** For the sidebar: freshest first. */
 export function chatsByRecency(state: ChatState): Chat[] {
   return [...state.chats].sort((a, b) => b.updatedAt - a.updatedAt)
 }
@@ -150,7 +150,7 @@ export function streamingMessage(chat: Chat): Message | undefined {
   return chat.messages.find((message) => message.status === 'streaming')
 }
 
-// ── Внутреннее ───────────────────────────────────────────────────────────────
+// ── Internals ────────────────────────────────────────────────────────────────
 
 function titleFrom(content: string): string {
   const flat = content.replace(/\s+/g, ' ').trim()
@@ -160,7 +160,7 @@ function titleFrom(content: string): string {
   return `${flat.slice(0, cut > TITLE_LIMIT / 2 ? cut : TITLE_LIMIT).trimEnd()}…`
 }
 
-/** Восстановленный поток дожить не мог: страница унесла `fetch` с собой. */
+/** A restored stream cannot have survived: the page took `fetch` with it. */
 function normalize(state: ChatState): ChatState {
   return {
     ...state,
@@ -180,7 +180,7 @@ function updateChat(
 ): ChatState {
   const index = state.chats.findIndex((chat) => chat.id === chatId)
   const current = state.chats[index]
-  // Тот же объект состояния, если менять нечего: лишняя ссылка — лишний рендер.
+  // The same state object when there is nothing to change: a new reference is a wasted render.
   if (current === undefined) return state
 
   const updated = update(current)
@@ -213,8 +213,8 @@ function updateMessage(
 }
 
 /**
- * Терминальное событие двигает `updatedAt`, а `delta` — нет: иначе чат
- * прыгал бы в сайдбаре на каждом токене.
+ * A terminal event moves `updatedAt`; a `delta` does not, or the chat would jump
+ * around the sidebar on every token.
  */
 function finish(
   state: ChatState,

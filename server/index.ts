@@ -18,14 +18,14 @@ app.get('/api/health', (_req, res) => {
 app.get('/api/models', handleModels)
 app.post('/api/chat', handleChat)
 
-// Неизвестный маршрут под /api — это ошибка API, а не повод отдать страницу.
+// An unknown route under /api is an API error, not a reason to serve the page.
 app.use('/api', (_req, res) => {
   res.status(404).json({ error: { code: 'not_found', message: 'Маршрут не найден' } })
 })
 
 if (config.isProduction) {
   app.use(express.static(distDir))
-  // SPA-фолбэк. Не app.get('*'): в Express 5 такой путь больше не разбирается.
+  // SPA fallback. Not app.get('*'): Express 5 no longer parses that path.
   app.use((req, res, next) => {
     if (req.method !== 'GET') return next()
     res.sendFile(path.join(distDir, 'index.html'))

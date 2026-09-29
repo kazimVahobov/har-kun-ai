@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createSseParser, toStreamEvent, type SseFrame } from './sse.js'
 
-/** Скормить парсеру куски и собрать все кадры. */
+/** Feed the parser some pieces and collect every frame. */
 function feed(chunks: string[]): SseFrame[] {
   const parser = createSseParser()
   return chunks.flatMap((chunk) => parser.push(chunk))
@@ -86,8 +86,8 @@ describe('рваные кадры — то, ради чего парсер су�
 
   it('переживает разрез посреди \\r\\n', () => {
     const parser = createSseParser()
-    // `\r` последним символом чанка нельзя считать концом строки: следующий
-    // чанк может начинаться с `\n`, и тогда это один терминатор, а не два.
+    // A `\r` as the chunk's last character cannot be treated as a line end: the
+    // next chunk may start with `\n`, making it one terminator rather than two.
     expect(parser.push('data: a\r')).toEqual([])
     expect(parser.push('\n\r\n')).toEqual([{ event: 'message', data: 'a', id: undefined }])
   })
@@ -95,18 +95,18 @@ describe('рваные кадры — то, ради чего парсер су�
   it('понимает все три вида переводов строки', () => {
     expect(feed(['data: a\r\n\r\n'])[0]?.data).toBe('a')
     expect(feed(['data: b\n\n'])[0]?.data).toBe('b')
-    // Одиночный `\r` — тоже терминатор, но здесь он не последний байт чанка.
+    // A lone `\r` is a terminator too, but here it is not the chunk's last byte.
     expect(feed(['data: c\r\rdata: следующий'])[0]?.data).toBe('c')
   })
 
   it('придерживает завершающий `\\r`, пока не ясно, не половина ли это `\\r\\n`', () => {
     const parser = createSseParser()
-    // Кадр не отдаётся: следующий чанк может начаться с `\n`, и тогда это
-    // один терминатор, а не два. Поспешить здесь — значит диспатчнуть
-    // лишний пустой кадр на каждом `\r\n`, разрезанном между чанками.
+    // The frame is withheld: the next chunk may start with `\n`, making this one
+    // terminator rather than two. Rushing here means dispatching a spurious
+    // empty frame on every `\r\n` split across chunks.
     expect(parser.push('data: c\r\r')).toEqual([])
-    // Пришёл `\n` — значит, это был `\r\n`, один терминатор. Пустая строка
-    // закрывает кадр, и он выходит именно сейчас.
+    // A `\n` arrived, so that was a `\r\n` — one terminator. The empty line
+    // closes the frame, and it comes out right now.
     expect(parser.push('\n')).toEqual([{ event: 'message', data: 'c', id: undefined }])
     expect(parser.push('data: d\n\n')).toEqual([{ event: 'message', data: 'd', id: undefined }])
   })

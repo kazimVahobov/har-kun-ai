@@ -1,6 +1,10 @@
 /**
- * Контракт между браузером и сервером. Общий для мок-сервера и будущего
- * адаптера OpenRouter — правится вместе с обеими реализациями и с docs/plan.md.
+ * The contract between the browser and the server. Shared by the mock server and
+ * the OpenRouter adapter to come — changed together with both implementations
+ * and with docs/plan.md.
+ *
+ * Note that `message` fields carry text meant for display, so they are written
+ * in Russian. See the language rule in CLAUDE.md.
  */
 
 export type ChatRole = 'user' | 'assistant'
@@ -12,7 +16,7 @@ export interface ChatMessage {
 
 export interface ChatRequest {
   messages: ChatMessage[]
-  /** Необязательна: без неё берётся модель по умолчанию. */
+  /** Optional: without it the server's default model is used. */
   model?: string
 }
 
@@ -27,11 +31,11 @@ export type ErrorCode =
 export interface ApiError {
   code: ErrorCode
   message: string
-  /** Секунды до повторной попытки, если апстрим их сообщил. */
+  /** Seconds until a retry makes sense, when the upstream said so. */
   retryAfter?: number
 }
 
-/** Статус, с которым ошибка уходит, если поток ещё не начался. */
+/** The status an error carries when the stream has not started yet. */
 export const ERROR_STATUS: Record<ErrorCode, number> = {
   bad_request: 400,
   rate_limited: 429,
@@ -41,14 +45,14 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   internal: 500,
 }
 
-/** Тело ошибки до начала потока. После начала — событие `error`. */
+/** The error body before the stream starts. Afterwards it is an `error` event. */
 export interface ErrorResponse {
   error: ApiError
 }
 
 export type DoneReason = 'stop' | 'length'
 
-/** Приращение текста, не накопленный текст: клиент склеивает сам. */
+/** An increment, not the accumulated text: the client joins it itself. */
 export interface DeltaEvent {
   text: string
 }
@@ -75,7 +79,7 @@ export interface ModelsResponse {
   default: string
 }
 
-/** Режимы отказов мок-сервера. Работают только вне продакшена. */
+/** The mock server's failure modes. Only active outside production. */
 export const SIMULATE_MODES = ['429', 'timeout', 'drop', 'mid-error', 'slow'] as const
 export type SimulateMode = (typeof SIMULATE_MODES)[number]
 
