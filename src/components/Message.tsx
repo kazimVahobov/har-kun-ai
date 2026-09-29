@@ -66,8 +66,8 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
           {/* Retry first, so copy stays closest to the edge the eye returns to. */}
           {message.status === 'stopped' && onRetry !== undefined && (
             <button type="button" className="btn btn-ghost" onClick={onRetry}>
-              <RetryIcon />
               Повторить
+              <RetryIcon />
             </button>
           )}
 

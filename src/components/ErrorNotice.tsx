@@ -46,19 +46,21 @@ export function ErrorNotice({
 
       {onRetry !== undefined && (
         <div className={styles.actions}>
+          {/* The wait reads first and the button sits on the edge: the sentence
+              explains why the control beside it is dim. */}
+          {waiting && <span className={styles.wait}>Можно через {remaining} с</span>}
+
           <button
             type="button"
-            className="btn btn-primary"
+            className="btn btn-ghost"
             onClick={onRetry}
             // The upstream said how long to wait. Letting the button through
             // before then just spends another request on the same refusal.
             disabled={waiting}
           >
-            <RetryIcon />
             Повторить
+            <RetryIcon />
           </button>
-
-          {waiting && <span className={styles.wait}>Можно через {remaining} с</span>}
         </div>
       )}
     </div>
