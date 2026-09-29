@@ -31,3 +31,4 @@
 | Файл | Задача |
 |---|---|
 | [0001-docs-setup.md](0001-docs-setup.md) | Инструкции агентам, план работ, структура отчётов |
+| [0002-design-system-and-adr.md](0002-design-system-and-adr.md) | Дизайн-система Nocturne, `.gitignore`, ADR |
