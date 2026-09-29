@@ -235,8 +235,12 @@ Nocturne was built for prototype pages and lacks a few things a chat needs. We a
    horizontally inside itself rather than on the page.
 
 2. **Markdown scale inside a message.** The system's h1 is 42px; in a chat reply that is absurd.
-   Inside a message the scale drops: h1→20px, h2→17px, h3→16px, then 15px, weight still 500.
-   The tokens are untouched; the override is local.
+   Inside a message the scale drops: an answer's `#` is 20px, `##` 17px, `###` 16px, then 15px,
+   weight still 500. The tokens are untouched; the override is local.
+
+   The markup is shifted with it: an answer's headings render two levels down, so `#` is an `<h3>`
+   and cannot collide with the page's own `<h1>`. The stylesheet therefore selects `h3`–`h6`, and
+   `h6` explicitly undoes the system's uppercase, since everything from `####` down lands there.
 
 3. **Breakpoints.** The prototypes have fixed viewports; the system carries no responsiveness.
    We add two: `640px` and `1024px`. The conversation container is `min(760px, 100%)`, aligned

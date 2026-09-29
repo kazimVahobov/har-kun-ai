@@ -148,7 +148,6 @@
   .container {
     padding-inline: var(--space-8);
   }
-
 }
 
 @media (min-width: 1024px) {
@@ -173,5 +172,4 @@
     max-width: 200px;
     z-index: 0;
   }
-
 }

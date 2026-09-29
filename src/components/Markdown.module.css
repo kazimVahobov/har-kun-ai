@@ -14,8 +14,13 @@
   margin-bottom: 0;
 }
 
-.root h1,
-.root h2,
+/**
+ * Markdown headings are rendered two levels down — `#` becomes an `h3` — so
+ * an answer's outline sits under the heading that names the message. The sizes
+ * below therefore read one line off the markdown level: h3 is the answer's own
+ * top level, not the system's third. h6 has to undo the system's uppercase,
+ * since everything from `####` down lands there.
+ */
 .root h3,
 .root h4,
 .root h5,
@@ -25,17 +30,15 @@
   text-transform: none;
 }
 
-.root h1 {
+.root h3 {
   font-size: 20px;
 }
-.root h2 {
+.root h4 {
   font-size: 17px;
 }
-.root h3 {
+.root h5 {
   font-size: 16px;
 }
-.root h4,
-.root h5,
 .root h6 {
   font-size: 15px;
 }

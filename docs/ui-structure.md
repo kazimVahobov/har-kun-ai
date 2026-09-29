@@ -118,8 +118,10 @@ border drawn at both times would say where the answer ends and nothing about whe
 was the actual ambiguity. The border is transparent while streaming rather than absent, so closing
 the block costs no layout shift.
 
-Inside an answer, markdown renders with a reduced heading scale (h1→20px, h2→17px, h3→16px, then
-15px): the system's 42px is absurd in a chat reply. Code blocks scroll inside themselves.
+Inside an answer, markdown renders with a reduced heading scale (`#`→20px, `##`→17px, `###`→16px,
+then 15px): the system's 42px is absurd in a chat reply. The levels are shifted down by two as
+well, so an answer's `#` is an `<h3>` sitting under the message's own heading rather than a second
+`<h1>` on the page. Code blocks scroll inside themselves.
 
 Under a finished answer sits a row of actions, aligned to its right edge and always visible: copy,
 and for the last message in the conversation, retry. It used to fade in on hover, which meant a
@@ -325,6 +327,20 @@ composer → model picker → send.
   `Enter` switches chats again.
 - The mobile sidebar traps focus and returns it to the hamburger on close.
 - An example in the empty state fills the composer and focuses it.
+
+### Headings
+
+A reader who navigates by heading gets an outline, not a flat list:
+
+| Level | What |
+|---|---|
+| `h1` | the mark, "Har Kun" — the one thing that names the whole page and survives the first message |
+| `h2` | the empty state's greeting; once the conversation starts, the author of each turn ("Вы", "Модель"), visually hidden |
+| `h3` | an error's title inside a message, and an answer's own top markdown level |
+| `h4`–`h6` | deeper markdown inside an answer |
+
+The author headings are hidden rather than absent: on screen the author is carried by fill and
+position, which a screen reader cannot see.
 
 ## Responsiveness
 

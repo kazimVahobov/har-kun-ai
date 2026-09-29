@@ -44,8 +44,10 @@ function MessageView({ message, onRetry }: { message: Message; onRetry?: () => v
   return (
     <article className={isUser ? styles.user : styles.model} aria-busy={isStreaming}>
       {/* The author is carried visually by fill and position, which a screen
-          reader cannot see — so it is named here instead. */}
-      <h3 className="visually-hidden">{isUser ? 'Вы' : 'Модель'}</h3>
+          reader cannot see — so it is named here instead. An h2 under the
+          mark's h1: each turn is a section of the page, and a reader jumping
+          by heading should land on the turns. */}
+      <h2 className="visually-hidden">{isUser ? 'Вы' : 'Модель'}</h2>
 
       {/* Only the model's answer is markdown. What the user typed comes back
           exactly as written rather than being reinterpreted as syntax. */}

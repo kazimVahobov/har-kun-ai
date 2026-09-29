@@ -323,6 +323,9 @@ textarea.input {
 }
 
 .nav-brand {
+  /* The mark carries the page's h1, and a heading's bottom margin would push it
+     off the navbar's centre line, away from the date beside it. */
+  margin: 0;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 18px;
