@@ -27,7 +27,7 @@ Full height, `100dvh`. Only the conversation scrolls; header, sidebar and compos
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│ har kun   вторник, 29 сентября                       │  navbar: mark and date
+│ Har Kun                                              │  navbar: the mark alone
 ├──────┬───────────────────────────────────────────────┤
 │  00 ┤│                                               │
 │     ┤│        ▍A model answer, no fill,              │
@@ -65,9 +65,8 @@ tabbing through the whole history.
 
 ## Navbar
 
-The `har kun` mark in the display face, and today's date beside it. A daily assistant should know
-what day it is and say so without being asked; below 480px the date drops and the mark stands
-alone.
+The `Har Kun` mark in the display face, and nothing else. The date belongs to the empty state,
+where it frames the greeting; carrying it here as well put it on screen twice.
 
 No bottom border, no shadow, no background differing from the page — `.nav` already ships with
 `border-bottom: none`.

@@ -318,7 +318,7 @@ textarea.input {
 .nav-brand {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 15px;
+  font-size: 18px;
   /* Unbounded runs wide; pulled in so the mark reads as a unit. */
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
 }

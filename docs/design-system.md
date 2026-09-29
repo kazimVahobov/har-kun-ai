@@ -153,7 +153,7 @@ These classes port over as they are; do not invent parallel ones.
 | `.field` + `label` | label above the field, 12px | the composer wrapper |
 | `.card` + `.card-*` | a surface-filled card | user message, error banner, active chat in the sidebar |
 | `.tag` + `.tag-accent`/`-outline`/`-neutral` | small labels | model, status, error code |
-| `.nav` + `.nav-brand` | the header | the "har kun" mark in the display face, plus the date |
+| `.nav` + `.nav-brand` | the header | the "Har Kun" mark in the display face, on its own |
 | `.elev-sm/md/lg` | elevation utilities | |
 | `.hr`, `.table`, `.dialog`, `.lighten` | — | not needed |
 
@@ -173,8 +173,8 @@ icons are needed (send, stop, copy, clear, warning, chevron), and they live in
 Translated into a live interface, not copied from the prototype. The full screen layout is in
 `docs/ui-structure.md`; only what concerns the system is here.
 
-- **Header** — `.nav`: just `.nav-brand` "har kun ai" in lowercase. No bottom border, no shadow:
-  `.nav` already ships with `border-bottom: none`.
+- **Header** — `.nav`: just `.nav-brand` "Har Kun" in the display face. No bottom border, no
+  shadow: `.nav` already ships with `border-bottom: none`.
 - **Chat sidebar** — on the same `--color-bg` as the conversation, with no rule between them.
   The active chat gets a `--color-surface` fill and a solid 2px accent mark on the left.
 - **The conversation is centred, not flush left.** This is the one place the system's direction is

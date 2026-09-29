@@ -25,7 +25,7 @@ export function EmptyState({ day, onPick }: { day: DayContext; onPick(text: stri
           anyone who does not speak Uzbek, and turns that meaning into the
           promise. What the app does with a stream is shown, not announced. */}
       <p className={`${styles.slogan} ${styles.reveal}`} style={delay(210)}>
-        <span className={styles.name}>«har kun»</span> — «каждый день» по-узбекски. Помощник на
+        <span className={styles.name}>«Har Kun»</span> — «каждый день» по-узбекски. Помощник на
         каждый из них.
       </p>
 

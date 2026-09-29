@@ -29,11 +29,10 @@ export function ChatShell({
       </a>
 
       <header className="nav">
-        {/* The mark and the date. A daily assistant should know what day it is
-            and say so without being asked. No bottom border — this system
-            separates areas with air. */}
-        <span className="nav-brand">har kun</span>
-        <span className={styles.navDate}>{day.date}</span>
+        {/* The mark alone. The date lives in the empty state, where it frames
+            the greeting; carrying it here as well put it on screen twice. No
+            bottom border — this system separates areas with air. */}
+        <span className="nav-brand">Har Kun</span>
       </header>
 
       <main className={styles.main}>
