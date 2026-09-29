@@ -214,10 +214,16 @@ Nocturne was built for prototype pages and lacks a few things a chat needs. We a
 
 ## Font
 
-The bundle pulls Inter through an `@import` from Google Fonts. For an application that is an
-external render-blocking request and hands the user's address to a third party. We use a `<link>`
-with `preconnect` in `index.html` — faster than `@import`, and visible in the markup. Self-hosting
-goes into "what's next": it is an extra dependency for a gain this assignment cannot measure.
+The bundle pulls Inter through an `@import` from Google Fonts. We self-host it instead, through
+`@fontsource/inter`, importing the two weights the system actually uses — 400 for body and 500 for
+headings, since Nocturne forbids going bolder.
+
+The reason is specific to this assignment rather than general: it says the Network tab will be
+checked. A `<link>` to a font CDN fills that tab with third-party requests — not a violation, but
+noise in exactly the check being run. Self-hosting leaves only own-origin requests there. It also
+removes a render-blocking external request and stops handing the user's address to Google.
+
+The cost is one dependency, which `CLAUDE.md` asks to justify; the above is the justification.
 
 The `system-ui` fallback is already in the token: if Inter fails to load, the interface does not
 fall apart.
