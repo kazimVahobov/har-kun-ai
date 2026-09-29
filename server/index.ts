@@ -2,8 +2,12 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import express from 'express'
 import { handleChat } from './chat.js'
-import { config } from './env.js'
+import { assertConfigured, config } from './env.js'
 import { handleModels } from './models.js'
+
+// Before anything binds a port: a server that is not configured should say so
+// and stop, not look healthy and fail on the first question somebody asks.
+assertConfigured()
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const distDir = path.resolve(here, '..', 'dist')
