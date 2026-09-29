@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ChatShell } from './components/ChatShell.js'
 import { Composer } from './components/Composer.js'
+import { MessageList } from './components/Message.js'
 import { useChat } from './hooks/useChat.js'
 import type { Message } from './lib/types.js'
 
@@ -43,13 +44,7 @@ export function App() {
             </p>
           </section>
         ) : (
-          <ol>
-            {chat.messages.map((message) => (
-              <li key={message.id}>
-                <PlainMessage message={message} />
-              </li>
-            ))}
-          </ol>
+          <MessageList messages={chat.messages} />
         )
       }
       footer={
@@ -77,17 +72,6 @@ export function App() {
         </>
       }
     />
-  )
-}
-
-/** Placeholder rendering — messages get their own component in the next step. */
-function PlainMessage({ message }: { message: Message }) {
-  return (
-    <article aria-busy={message.status === 'streaming'}>
-      <h4>{message.role === 'user' ? 'Вы' : 'Модель'}</h4>
-      <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
-      {message.error !== undefined && <p>{message.error.message}</p>}
-    </article>
   )
 }
 

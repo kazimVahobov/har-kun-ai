@@ -1,0 +1,80 @@
+/**
+ * Two message shapes. The difference rests on weight and position, not colour:
+ * the user gets a filled card pushed right, the model gets no fill at all and a
+ * solid accent mark down its left edge.
+ *
+ * Flooding an answer with the accent is not an option — in this system the
+ * accent is a line and a mark, never a fill.
+ */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Air between messages. This system has no dividers. */
+  gap: var(--space-6);
+}
+
+.item {
+  display: flex;
+}
+
+.itemUser {
+  justify-content: flex-end;
+}
+
+.user {
+  max-width: 75%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.model {
+  width: 100%;
+  border-inline-start: 2px solid var(--color-accent);
+  padding-inline-start: var(--space-4);
+}
+
+.content {
+  white-space: pre-wrap;
+  /* A long link or an unbroken token must not push the page sideways. */
+  overflow-wrap: anywhere;
+}
+
+.content > :last-child {
+  margin-bottom: 0;
+}
+
+/**
+ * Present for keyboard users, out of the way for everyone else: the row is
+ * always in the DOM and in the tab order, and becomes visible on hover or as
+ * soon as anything inside it takes focus.
+ */
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+
+.model:hover .actions,
+.actions:focus-within {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  /* Nothing hovers on a touchscreen. */
+  .actions {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .user {
+    max-width: 100%;
+  }
+}
