@@ -50,9 +50,10 @@ export function useAutoScroll(dependency: unknown): AutoScroll {
     const node = ref.current
     if (node === null) return
 
-    // Smooth here: this one is a deliberate jump, and the browser already
-    // honours prefers-reduced-motion for it.
-    node.scrollTo({ top: node.scrollHeight, behavior: 'smooth' })
+    // Smooth here, because this one is a deliberate jump rather than following
+    // a stream — but only for people who have not asked motion to stop.
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    node.scrollTo({ top: node.scrollHeight, behavior: reducedMotion ? 'auto' : 'smooth' })
   }, [])
 
   return { ref, isPinned, scrollToBottom }

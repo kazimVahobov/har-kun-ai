@@ -31,7 +31,18 @@ export function ChatShell({
       </header>
 
       <main className={styles.main}>
-        <div className={styles.log} ref={logRef}>
+        {/* A scrollable region needs to be reachable from the keyboard, or its
+            content can only be read with a mouse. Browsers are inconsistent
+            about doing this on their own, so it is stated. Not role="log":
+            that carries an implicit live region, which would announce every
+            token — the status line is the one place that speaks. */}
+        <div
+          className={styles.log}
+          ref={logRef}
+          tabIndex={0}
+          role="region"
+          aria-label="История диалога"
+        >
           <div className={`${styles.container} ${styles.logInner}`}>{log}</div>
         </div>
 

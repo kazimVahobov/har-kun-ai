@@ -9,6 +9,10 @@
  */
 
 :root {
+  /* Tells the browser to draw scrollbars, form controls and the canvas dark.
+     Without it they come out light and sit oddly on this ground. */
+  color-scheme: dark;
+
   --color-bg: #161826;
   --color-surface: #232532;
   --color-text: #e9e9ed;

@@ -28,6 +28,12 @@
   overscroll-behavior: contain;
 }
 
+/* Inset, because a ring drawn outside a full-height region would sit off the
+   edges of the window. */
+.log:focus-visible {
+  outline-offset: -2px;
+}
+
 /**
  * Left-aligned, asymmetric: the system's direction is content hugging the left
  * edge with whitespace on the right, and it is the reason to use a system with
