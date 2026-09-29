@@ -146,7 +146,11 @@ function statusText(isStreaming: boolean, last: Message | undefined): string {
     case 'done':
       return 'Ответ получен'
     case 'stopped':
-      return 'Генерация остановлена'
+      // Nothing. Stopping is something the person just did on purpose, and
+      // reporting it back is the interface repeating them. The answer itself
+      // carries the state: its border closes, and one that was cut off before
+      // its first character says so in the block.
+      return ''
     case 'error':
       return 'Ошибка при генерации'
     default:
