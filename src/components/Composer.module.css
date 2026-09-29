@@ -117,6 +117,8 @@
 .footnote {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: var(--space-1);
   margin-top: var(--space-3);
   /* The smallest step on the scale: both lines are read once and then ignored,
@@ -129,6 +131,9 @@
 .keys {
   display: flex;
   flex-wrap: wrap;
+  /* Holds the centring once the row wraps: without it the last line would sit
+     flush left under a centred one. */
+  justify-content: center;
   gap: var(--space-4);
   margin: 0;
   padding: 0;
