@@ -27,7 +27,7 @@ Full height, `100dvh`. Only the conversation scrolls; header, sidebar and compos
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│ Har Kun                                              │  navbar: the mark alone
+│ Har Kun   вторник, 29 сентября                       │  navbar: mark and date
 ├──────┬───────────────────────────────────────────────┤
 │  00 ┤│                                               │
 │     ┤│        ▍A model answer, no fill,              │
@@ -65,8 +65,10 @@ tabbing through the whole history.
 
 ## Navbar
 
-The `Har Kun` mark in the display face, and nothing else. The date belongs to the empty state,
-where it frames the greeting; carrying it here as well put it on screen twice.
+The `Har Kun` mark in the display face, and today's date beside it. A daily assistant should know
+what day it is and say so without being asked — and the navbar is the one place that stays true
+once a conversation has started and the empty state is gone. Below 480px there is no room for both
+and the mark wins.
 
 No bottom border, no shadow, no background differing from the page — `.nav` already ships with
 `border-bottom: none`.
@@ -125,8 +127,7 @@ Not a separate screen, but what the conversation holds while it is empty. It ope
 rather than describing the app — reasoning in [ADR 0014](adr/0014-opens-on-the-day.md):
 
 - a greeting that follows the hour, set in the display face — "Доброе утро" / "Добрый день" /
-  "Добрый вечер" / "Доброй ночи";
-- the date written out: "вторник, 29 сентября";
+  "Добрый вечер" / "Доброй ночи". The date is not repeated here; it lives in the navbar;
 - the day scale, horizontal here. Above 1024px it is not: the scale lives in the left margin
   instead, and the column version steps aside so there is never two of it;
 - a muted line explaining the name and what the thing does;

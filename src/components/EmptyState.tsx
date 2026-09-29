@@ -13,23 +13,19 @@ export function EmptyState({ day, onPick }: { day: DayContext; onPick(text: stri
         {day.greeting}
       </h2>
 
-      <p className={`${styles.date} ${styles.reveal}`} style={delay(70)}>
-        {day.date}
-      </p>
-
-      <div className={`${styles.rule} ${styles.reveal}`} style={delay(140)}>
+      <div className={`${styles.rule} ${styles.reveal}`} style={delay(70)}>
         <DayRule progress={day.progress} time={day.time} />
       </div>
 
       {/* One line, doing two jobs: it explains a name that means nothing to
           anyone who does not speak Uzbek, and turns that meaning into the
           promise. What the app does with a stream is shown, not announced. */}
-      <p className={`${styles.slogan} ${styles.reveal}`} style={delay(210)}>
+      <p className={`${styles.slogan} ${styles.reveal}`} style={delay(140)}>
         <span className={styles.name}>«Har Kun»</span> — «каждый день» по-узбекски. Помощник на
         каждый из них.
       </p>
 
-      <ul className={`${styles.prompts} ${styles.reveal}`} style={delay(280)} aria-label="С чего начать">
+      <ul className={`${styles.prompts} ${styles.reveal}`} style={delay(210)} aria-label="С чего начать">
         {day.prompts.map((prompt) => (
           <li key={prompt}>
             {/* Fills the field and moves focus there, but never sends: the user

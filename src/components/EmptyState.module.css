@@ -29,14 +29,6 @@
   letter-spacing: -0.04em;
 }
 
-.date {
-  margin: 0;
-  font-size: 13px;
-  color: var(--color-text-muted);
-  /* The date is a proper noun for the day; the source gives it lowercase. */
-  text-transform: none;
-}
-
 .rule {
   width: 100%;
   margin-block: var(--space-2);

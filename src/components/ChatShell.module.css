@@ -120,6 +120,19 @@
   box-shadow: var(--shadow-md);
 }
 
+/* The dateline beside the mark: context, not a title, so it sits back. */
+.navDate {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--color-text) 38%, transparent);
+}
+
+@media (max-width: 480px) {
+  /* No room for both; the mark wins. */
+  .navDate {
+    display: none;
+  }
+}
+
 /**
  * The day scale, in the left margin. Left because that is where reading starts
  * and where a scale belongs; below 1024px there is no margin to spare and it
