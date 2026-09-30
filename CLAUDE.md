@@ -59,6 +59,11 @@ The exception is deliberate, not an oversight: the assignment arrived in Russian
 reviewed in Russian, so everything a human sees in the app stays Russian
 ([ADR 0005](docs/adr/0005-no-localization.md)). Everything a developer sees is English.
 
+There is exactly one Russian document, `readme-ru.md`, and it is a **translation of `README.md`**
+for a reviewer who would rather read Russian — not a second source. `README.md` is the original:
+edit it first, then carry the change across, and when the two disagree the English one is right.
+Nothing else in `docs/` gets a translation, and a new document is never written in Russian.
+
 ## Hard rules
 
 Not style preferences — each of these breaks the assignment when violated.
