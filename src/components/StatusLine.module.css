@@ -1,0 +1,98 @@
+/**
+ * The one live region on the page. It changes discretely — "typing", "answer
+ * received" — while the answer text itself is never announced: a region updated
+ * on every token turns a screen reader into a machine gun.
+ */
+
+/**
+ * A chip above the composer rather than a line of loose text beside it. Loose
+ * text read as a stray caption; a bounded object reads as a status.
+ */
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  /* Reserved at the height of the tallest thing it can hold, so the composer
+     does not shift when either side appears or clears. */
+  min-height: 36px;
+  /* Two bordered objects need air between them, or their edges read as one
+     crowded shape. */
+  margin-bottom: var(--space-4);
+}
+
+/* The live region wraps the chip alone: whatever sits opposite is a control,
+   and a control is not something to announce. */
+.live {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  animation: rise 240ms var(--ease);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip {
+    animation: none;
+  }
+}
+
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Still three accent dots, just not moving — the text carries the meaning. */
+  .dot {
+    animation: none;
+    opacity: 0.8;
+  }
+}

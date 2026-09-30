@@ -1,0 +1,190 @@
+/**
+ * One frame holding two rows: the textarea above, the model picker and the
+ * send button below. The wrapper carries the border, so focus highlights the
+ * whole control rather than drawing a second ring inside it.
+ */
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  /* The field and the picker are two separate controls, and at --space-2 they
+     read as one crowded stack — the placeholder sat directly on top of the
+     model name. */
+  gap: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.frame:hover {
+  border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+}
+
+/**
+ * The frame's accent border is the focus indicator for the field inside it —
+ * the replacement that pays for the `outline: none` further down, and what
+ * clause 3 of CLAUDE.md requires. Not `:focus-visible`: a text field should
+ * read as active when it is clicked as well as when it is tabbed into, and the
+ * indicator has to appear whichever of the frame's two controls holds focus.
+ */
+.frame:focus-within {
+  border-color: var(--color-accent);
+}
+
+.input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  caret-color: var(--color-accent);
+  font: inherit;
+  /* 16px minimum, or iOS Safari zooms the page when the field takes focus. */
+  font-size: 16px;
+  line-height: 1.5;
+  resize: none;
+  /* Matches the picker's own inset — its padding plus its border — so the two
+     texts start on the same vertical without dragging the picker's box out
+     past the frame's padding. */
+  padding: 0 0 0 calc(var(--space-2) + 1px);
+  /* Two lines at rest. The height is set inline as the content grows, and
+     min-height clamps that from below — an empty composer was a single line
+     pinned to the top of the frame, which made the whole control look like a
+     search box rather than somewhere to write. */
+  min-height: 2lh;
+  max-height: 9lh;
+  overflow-y: auto;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Paid for by `.frame:focus-within` above: the indicator moves to the frame
+   rather than disappearing. Never remove one without the other. */
+.input:focus {
+  outline: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* Ghost styling on a native select: the element keeps its keyboard handling,
+   first-letter search and the system picker on mobile. */
+.model {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 60%;
+  appearance: none;
+  padding: var(--space-1) calc(var(--space-6) + var(--space-2)) var(--space-1) var(--space-2);
+  font: inherit;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  background-color: transparent;
+  /* The chevron, inline so it takes no extra request. */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256' fill='%239397ab'><path d='M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right var(--space-2) center;
+  background-size: 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-overflow: ellipsis;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+
+.model:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+.model:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* A dark ground needs saying explicitly: the popup is drawn by the OS. */
+.model option {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.send {
+  margin-left: auto;
+}
+
+/**
+ * Two lines under the frame: what the keyboard does, and what the answers are
+ * worth. Both are about the control rather than part of it, which is why they
+ * sit outside its border.
+ */
+.footnote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+  /* The smallest step on the scale: both lines are read once and then ignored,
+     and neither may compete with the field above them. */
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  /* Holds the centring once the row wraps: without it the last line would sit
+     flush left under a centred one. */
+  justify-content: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  /* The marker is drawn below instead: a real list marker cannot be laid out
+     horizontally without fighting the flex box. */
+  list-style: none;
+}
+
+.keys li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  white-space: nowrap;
+}
+
+/* An empty box rather than a "•" character: generated text gets announced, and
+   the <ul> already tells a screen reader that these are list items. */
+.keys li::before {
+  content: '';
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.caveat {
+  margin: 0;
+}
+
+/**
+ * Shift+Enter is a desktop gesture — a touch keyboard has no Shift to hold, so
+ * on the screens where the line runs short this item names a key that is not
+ * there. The other two stay at every width.
+ */
+@media (max-width: 860px) {
+  .keyExtra {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .model {
+    max-width: 50%;
+  }
+}

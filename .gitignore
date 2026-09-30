@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.vite/
+coverage/
+
+# Secrets. The repository holds only .env.example
+.env
+.env.*
+!.env.example
+
+# Editors, tooling and OS
+.idea/
+.vscode/
+.claude/
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

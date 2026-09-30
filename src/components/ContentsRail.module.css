@@ -1,0 +1,146 @@
+/**
+ * The conversation's contents, in the right margin.
+ *
+ * It borrows the day scale's language — a vertical line fading at its ends with
+ * marks along it — and is governed differently. The left rail is a scale, where
+ * position means time. This is a list, where position means order.
+ *
+ * That difference is the whole reason for the fixed rhythm below: a
+ * proportional map bunches its items as the conversation grows and stops being
+ * clickable exactly when it becomes useful (ADR 0015).
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Both zeros are load-bearing. A flex item refuses by default to shrink below
+     its content, and the items inside hold single-line text that does not wrap
+     — so without this the rail grows to the width of the longest question and
+     runs off the screen instead of truncating. */
+  min-width: 0;
+  width: 100%;
+  /* The rail is decoration until pointed at; the items take pointer events back. */
+  pointer-events: none;
+}
+
+.title {
+  margin: 0 0 var(--space-3);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+
+/**
+ * Nocturne's rules fade at their ends. On a list that scrolls, the ends are the
+ * frame's rather than the content's, so the fade lives on the scroller as a
+ * mask and follows the frame.
+ */
+.scroller {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  pointer-events: auto;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    var(--mask-opaque) 18px,
+    var(--mask-opaque) calc(100% - 18px),
+    transparent
+  );
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  min-width: 0;
+  /* Room for the line, which is drawn on the list so it grows with the items
+     rather than with the frame. */
+  padding: 18px 0 18px var(--space-4);
+  display: flex;
+  flex-direction: column;
+  /* Fixed, never proportional: a tap target must not shrink as the
+     conversation grows. */
+  gap: var(--space-3);
+  position: relative;
+}
+
+.list > li {
+  min-width: 0;
+}
+
+.list::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 1px;
+  background: var(--color-divider);
+}
+
+.item {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: var(--space-1) 0 var(--space-1) var(--space-3);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: start;
+  color: color-mix(in srgb, var(--color-text) 40%, transparent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  /* One line, so the rhythm stays fixed whatever the question's length. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+/* The tick, on the line itself. */
+.item::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(-1 * var(--space-4));
+  inset-block-start: 50%;
+  width: 9px;
+  height: 1px;
+  background: color-mix(in srgb, var(--color-text) 34%, transparent);
+  transition:
+    background var(--dur-fast) var(--ease),
+    width var(--dur-fast) var(--ease);
+}
+
+.item:hover {
+  color: var(--color-text);
+}
+
+.item:hover::before {
+  background: color-mix(in srgb, var(--color-accent) 75%, transparent);
+  width: 13px;
+}
+
+.item:focus-visible {
+  outline-offset: -2px;
+  color: var(--color-text);
+}
+
+/* Where you are, not only where you could go. */
+.current {
+  color: var(--color-accent-300);
+}
+
+.current::before {
+  background: var(--color-accent);
+  width: 13px;
+  box-shadow: 0 0 10px 1px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
