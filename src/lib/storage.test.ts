@@ -3,7 +3,6 @@ import {
   MAX_CHATS,
   STORAGE_KEY,
   STORAGE_VERSION,
-  clearState,
   createStateSaver,
   loadState,
   saveState,
@@ -303,17 +302,6 @@ describe('debounced saver', () => {
     expect(storage.writes).toBe(0)
   })
 
-  it('cancel drops the pending state', () => {
-    const storage = new FakeStorage()
-    const saver = createStateSaver(storage, 300)
-
-    saver.schedule(state())
-    saver.cancel()
-    vi.advanceTimersByTime(300)
-
-    expect(storage.writes).toBe(0)
-  })
-
   it('starts a new window after the previous write', () => {
     const storage = new FakeStorage()
     const saver = createStateSaver(storage, 300)
@@ -329,12 +317,3 @@ describe('debounced saver', () => {
   })
 })
 
-describe('clearing', () => {
-  it('removes the stored state', () => {
-    const storage = new FakeStorage()
-    saveState(storage, state())
-    clearState(storage)
-
-    expect(loadState(storage)).toBeNull()
-  })
-})

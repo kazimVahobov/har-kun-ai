@@ -32,8 +32,14 @@ export function ChatShell({
         {/* The mark and the date. A daily assistant should know what day it is
             and say so without being asked — and the navbar is where it stays
             true once a conversation has started and the empty state is gone.
-            No bottom border: this system separates areas with air. */}
-        <span className="nav-brand">Har Kun</span>
+            No bottom border: this system separates areas with air.
+
+            The mark is the page's h1. It is the only thing on the screen that
+            names the whole of it: the greeting below belongs to the empty
+            state and leaves with the first message, so making that the h1
+            would give the document no heading at all for the rest of the
+            session. */}
+        <h1 className="nav-brand">Har Kun</h1>
         <span className={styles.navDate}>{day.date}</span>
       </header>
 
@@ -47,13 +53,13 @@ export function ChatShell({
           <DayRule progress={day.progress} time={day.time} orientation="vertical" />
         </aside>
 
+        {contents !== undefined && <div className={styles.contentsPanel}>{contents}</div>}
+
         {/* A scrollable region needs to be reachable from the keyboard, or its
             content can only be read with a mouse. Browsers are inconsistent
             about doing this on their own, so it is stated. Not role="log":
             that carries an implicit live region, which would announce every
             token — the status line is the one place that speaks. */}
-        {contents !== undefined && <div className={styles.contentsPanel}>{contents}</div>}
-
         <div
           className={styles.log}
           ref={logRef}

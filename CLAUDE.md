@@ -67,9 +67,11 @@ Not style preferences — each of these breaks the assignment when violated.
    not in API responses, not in logs, not in error messages. The assignment is checked with the
    Network tab: the browser only ever talks to its own origin.
 2. **`.env` is never committed.** The repository holds only `.env.example` with placeholders.
-3. **`outline: none` without a matching `:focus-visible` is forbidden.** The assignment asks to
-   remove the browser focus ring and, in the same document, requires full keyboard use. We satisfy
-   the intent: the default ring goes, every interactive element gets its own visible ring.
+3. **`outline: none` is never allowed on its own.** Anything that suppresses the browser ring
+   declares its replacement in the same stylesheet — either the system's `:focus-visible` ring or,
+   for the composer alone, the accent border its frame takes while focus is inside it. Naked
+   `outline: none` is forbidden. The assignment asks to remove the browser focus ring and, in the
+   same document, requires full keyboard use; both are satisfiable at once, and that is what we do.
    See [ADR 0007](docs/adr/0007-custom-focus-ring.md).
 4. **The mock and the real adapter sit behind one contract**, described in `docs/plan.md`.
    Change the contract and you change both implementations and the document, in one commit.
@@ -79,10 +81,13 @@ Not style preferences — each of these breaks the assignment when violated.
    text received so far.
 6. **Markup is semantic.** `<main>`, `<ol>`/`<li>`, `<form>`, `<label>`, `<button>`.
    Not a `div` with an `onClick`.
-7. **No values outside the tokens.** No hex, no font name, no pixel value the Nocturne scale
-   already carries — only `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`,
-   `var(--font-*)`. A missing token is a reason to add a documented extension in
-   `docs/design-system.md`, not a reason to inline a number.
+7. **No values outside the system.** Colour, spacing, radius, elevation and font family come only
+   from `var(--color-*)`, `var(--space-*)`, `var(--radius-*)`, `var(--shadow-*)`, `var(--font-*)` —
+   no hex, no font name, no spacing number. **Font sizes are the exception, and a documented one:**
+   Nocturne carries no size tokens and expresses sizes as literals, so they come from the two
+   tables in `docs/design-system.md`. A size on neither table is drift — extend the document, don't
+   pick a number. Anything else the system lacks is a documented extension in
+   `docs/design-system.md`, not an inlined value.
 8. **Never commit `nocturne/`.** It is a local design-system bundle excluded through
    `.git/info/exclude`. **Do not add it to `.gitignore` either** — `.gitignore` is committed.
    The source of truth for tokens in code is `docs/design-system.md`, which stands on its own

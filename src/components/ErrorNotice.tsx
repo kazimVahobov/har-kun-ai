@@ -38,7 +38,8 @@ export function ErrorNotice({
     <div className={styles.root}>
       <div className={styles.head}>
         <WarningIcon className={styles.icon} />
-        <h4 className={styles.title}>{TITLES[error.code] ?? TITLES.internal}</h4>
+        {/* Inside a message, so one level below its author heading. */}
+        <h3 className={styles.title}>{TITLES[error.code] ?? TITLES.internal}</h3>
         <span className={`tag tag-outline ${styles.code}`}>{error.code}</span>
       </div>
 

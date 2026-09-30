@@ -1,21 +1,22 @@
-# Зависимости
+# Dependencies
 node_modules/
 
-# Сборка
+# Build output
 dist/
 .vite/
 coverage/
 
-# Секреты. В репозитории живёт только .env.example
+# Secrets. The repository holds only .env.example
 .env
 .env.*
 !.env.example
 
-# Редакторы и ОС
+# Editors, tooling and OS
 .idea/
 .vscode/
+.claude/
 .DS_Store
 
-# Логи
+# Logs
 *.log
 npm-debug.log*

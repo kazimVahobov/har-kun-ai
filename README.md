@@ -47,7 +47,7 @@ and says why, rather than one that looks healthy and fails on the first question
 | Command | What it does |
 |---|---|
 | `npm run dev` | Vite on :5173, backend on :8787, `/api` proxied |
-| `npm test` | Vitest — 166 tests |
+| `npm test` | Vitest — 164 tests |
 | `npm run build` | typecheck, then build into `dist/` |
 | `npm start` | production: one server serves `dist/` and `/api` |
 | `npm run typecheck` | types only, client and server |
@@ -148,6 +148,32 @@ Full reasoning in [ADR 0007](docs/adr/0007-custom-focus-ring.md). It is stated h
 left to be discovered, because a reviewer reading the requirement literally would otherwise mark
 it unmet.
 
+## The time budget, missed
+
+The assignment asks for two to six hours of clean time. This took **eight to nine** — thinking the
+idea through, the documents and the code together. That is over, by enough that rounding it down
+would be a dodge, so here it is at the top rather than buried in a report.
+
+Where it went is visible in the repository: sixteen decision records, seventeen progress reports, a
+written design system, a screen specification. Part of that the assignment asked for — it grades
+process, and it wants an AI log naming where the model was wrong and how that was caught. None of
+that can be reconstructed at the end; it is written while it happens or it is lost, and
+[one report written late](docs/progress/0017-readme.md) shows what the reconstruction is worth.
+
+But that accounts for a part, not the whole. The rest is scope I chose: the contents rail
+([ADR 0015](docs/adr/0015-contents-rail.md)), the day scale and the identity pass around it
+([ADR 0013](docs/adr/0013-typography.md), [ADR 0014](docs/adr/0014-opens-on-the-day.md)), the model
+picker. Each is argued in its own record and not one of them is in `TASK.md`. The sidebar was the
+one piece of self-assigned scope that got stopped before it was built
+([ADR 0012](docs/adr/0012-chat-sidebar-scope.md)) — the judgement that caught it should have caught
+the other three.
+
+Held to six hours, those three would go first, in that order, and the writing would shrink to the
+plan, the contract and the reports — no design system set down in prose, no record for a decision
+nobody would question. What has to survive a cut is the functional requirements and the edges:
+streaming, stop, the failure states, the key on the server. That is also what the assignment says
+it grades first, and it is the part I would not have traded for any of the above.
+
 ## Trying the edge cases
 
 The mock reproduces on demand what a free model only produces by luck. Outside production,
@@ -177,13 +203,14 @@ two were gated to particular apps, one was unavailable and one returned headers 
 ## The AI log
 
 Written by Claude Opus 5 in Claude Code, driven by a human review loop, over roughly a day of
-elapsed time across 73 commits. The browser checks were done with Claude's Chrome automation;
-there is no other tooling here.
+elapsed time across 88 commits on nine working branches. The browser checks were done with Claude's
+Chrome automation; there is no other tooling here.
 
-The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — fifteen reports,
-one per task, each with a mandatory section on what the AI got wrong. They were written as the
-work happened, because none of it can be reconstructed afterwards. What follows is the summary;
-the files have the detail.
+The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — seventeen reports,
+one per task, each with a mandatory section on what the AI got wrong. Sixteen were written as the
+work happened, because none of it can be reconstructed afterwards; the
+[seventeenth](docs/progress/0017-readme.md) was written late, for a phase that shipped without one,
+and opens by saying what that cost it. What follows is the summary; the files have the detail.
 
 ### Where it went wrong, and how that surfaced
 
@@ -238,6 +265,22 @@ not a sign it needs a stronger rule ([0015](docs/progress/0015-ui-fixes.md)).
 implementation time. Reading it returned 460 models and 16 free ones — and none of the ids I would
 have written from memory was among them ([0014](docs/progress/0014-openrouter.md)).
 
+**Rules that the code could not obey, written by the same model that then broke them.** A final
+audit against `TASK.md` read the agent instructions next to the stylesheets and found two clauses
+that nothing in the project satisfied: one demanded a `:focus-visible` beside every `outline: none`
+— the composer's field is indicated by the border of the frame around it instead, which is the
+better design — and one demanded a token for every pixel value, in a design system that has no
+size tokens at all and whose component layer was ported with its literals intact. A rule broken by
+every file is not a rule. Both were rewritten to say what the project actually does, and the one
+genuine violation hiding among the false ones — a `#000` in a mask — got a name
+([0016](docs/progress/0016-assignment-audit.md)).
+
+The same pass found a dependency nothing imported, left behind when a decision replaced it; a
+storage key an ADR still named by its old spelling; agent tooling committed inside an unrelated UI
+commit; and a dev-server proxy that silently ignored `PORT` while `.env.example` promised it did
+not. None of these breaks a demo. All of them are the kind of thing that only a reader comparing
+two files notices, and the model wrote every one of them.
+
 **And the one that was not a code bug at all.** The picker kept showing mock models while the boot
 log said `OpenRouter`. A single process cannot do both — and that contradiction was the whole
 diagnosis: two `npm run dev` stacks were running, and the older one, started before `.env` reading
@@ -274,11 +317,24 @@ In the order I would actually do them:
    for ([ADR 0012](docs/adr/0012-chat-sidebar-scope.md)).
 5. **Deploy it** ([ADR 0010](docs/adr/0010-deployment.md)). There is a domain waiting; the server
    is already a single process serving `dist/` and `/api`.
+6. **Accounts, and a key of your own.** Sign-in through Google first — one provider, and no
+   passwords of anyone's to store — and then the thing it exists for: an account can attach its own
+   OpenRouter key, and its requests spend that one. Sixth rather than first because deployment is
+   what turns this from a nice idea into a necessary one: on a public URL every visitor spends the
+   operator's free quota, and the first 429 is everybody's.
+
+   It is also much the largest item here, and it moves two decisions that are currently settled.
+   A key held on someone else's behalf has to be encrypted at rest and must never travel back to
+   the browser — [ADR 0002](docs/adr/0002-api-key-on-server.md) again, but with as many keys as
+   there are accounts, which is a different problem from keeping one. And once there are accounts,
+   history belongs on the server, so [ADR 0008](docs/adr/0008-session-storage-history.md) would be
+   revisited rather than kept: `sessionStorage` was chosen for a single-user app with nowhere else
+   to put a conversation. [`docs/plan.md`](docs/plan.md) already lists authentication as out of
+   scope for the assignment, to be written up here — this is that entry.
 
 Smaller, listed for honesty: `Esc — остановить` is shown in the key map even when nothing is
-streaming; retry is offered only on the last message, so an identical error card earlier in the
-conversation has no button; and [ADR 0008](docs/adr/0008-session-storage-history.md) names a
-storage key the code has since changed.
+streaming, and retry is offered only on the last message, so an identical error card earlier in the
+conversation has no button.
 
 ## Documentation
 
@@ -288,7 +344,7 @@ storage key the code has since changed.
 | [`docs/ui-structure.md`](docs/ui-structure.md) | screen layout, states, keyboard map |
 | [`docs/design-system.md`](docs/design-system.md) | the Nocturne design system: tokens and how they map on |
 | [`docs/adr/`](docs/adr/) | 16 decisions, with context and cost |
-| [`docs/progress/`](docs/progress/) | 15 per-task reports — the source of the AI log above |
+| [`docs/progress/`](docs/progress/) | 17 per-task reports — the source of the AI log above |
 | [`CLAUDE.md`](CLAUDE.md) | the instructions the AI agents worked under |
 
 ## Licence

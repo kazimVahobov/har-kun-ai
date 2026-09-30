@@ -102,6 +102,31 @@ Body text: `15px / 1.55`, weight 400. Headings: `line-height: 1.12`,
 
 Muted text is `color-mix(in srgb, var(--color-text) 55%, transparent)`.
 
+**Sizes below body.** The heading table above is the only scale the bundle writes down, but its
+component layer uses a second one underneath body text, and that is the scale most of this
+interface is set in. It is listed here so a `12px` in a stylesheet reads as the system rather than
+as a number somebody liked:
+
+| Size | Where it comes from | Used for |
+|---|---|---|
+| 18px | `.nav-brand` | the mark |
+| 17px | `.card-title` | a card's title |
+| 14px | `.btn`, `.input` | controls, and notes set below an answer |
+| 13px | `.card-body` | secondary text, the model picker |
+| 12px | `.field > label` | field labels, the dateline |
+| 11px | `.card-meta` | metadata, the key map, rail items |
+| 10px | `.card-kicker` | uppercase micro-labels |
+
+There are no `--font-size-*` custom properties, in the bundle or here: the system expresses sizes
+as literals and `system.css` is ported as-is. A size that is not in either table is drift — extend
+this document rather than inlining one.
+
+Three things are deliberately outside both tables, each with its reason at the point of use: the
+composer's field is `16px`, because anything smaller makes iOS Safari zoom the page on focus; the
+empty state's greeting is fluid, `clamp(26px, 4vw, 34px)`, since it is the one line on the screen
+that should scale with the window; and the markdown scale inside an answer is its own extension
+(below).
+
 ### Spacing, radii, elevation
 
 A 4px × 0.7 scale. Steps 5 and 7 do not exist in the system — do not invent them.
@@ -210,8 +235,12 @@ Nocturne was built for prototype pages and lacks a few things a chat needs. We a
    horizontally inside itself rather than on the page.
 
 2. **Markdown scale inside a message.** The system's h1 is 42px; in a chat reply that is absurd.
-   Inside a message the scale drops: h1→20px, h2→17px, h3→16px, then 15px, weight still 500.
-   The tokens are untouched; the override is local.
+   Inside a message the scale drops: an answer's `#` is 20px, `##` 17px, `###` 16px, then 15px,
+   weight still 500. The tokens are untouched; the override is local.
+
+   The markup is shifted with it: an answer's headings render two levels down, so `#` is an `<h3>`
+   and cannot collide with the page's own `<h1>`. The stylesheet therefore selects `h3`–`h6`, and
+   `h6` explicitly undoes the system's uppercase, since everything from `####` down lands there.
 
 3. **Breakpoints.** The prototypes have fixed viewports; the system carries no responsiveness.
    We add two: `640px` and `1024px`. The conversation container is `min(760px, 100%)`, aligned
@@ -220,7 +249,13 @@ Nocturne was built for prototype pages and lacks a few things a chat needs. We a
 4. **Motion tokens** — also absent. `--dur-fast: 120ms`, `--dur-base: 200ms`,
    `--ease: cubic-bezier(0.2, 0, 0, 1)`; globally disabled under `prefers-reduced-motion: reduce`.
 
-5. **No error colour — decided.** The system is mono and explicitly asks to keep chroma low
+5. **`--mask-opaque`** — the contents rail fades at both ends through a `mask-image` gradient,
+   which needs a fully opaque stop. A mask reads alpha and ignores hue, so this is not a colour
+   and no colour token belongs in its place; `currentColor` is wrong for a different reason —
+   inside muted text its alpha is 0.55 and the masked element comes out half transparent. It is
+   still a value, and values here have names.
+
+6. **No error colour — decided.** The system is mono and explicitly asks to keep chroma low
    outside the accent; it carries no role for errors, and we do not add a `--color-danger`.
    An error is carried by a warning icon, a heading, text and a `.card` — which is what works for
    colour blindness and in a screen reader, where there is no colour at all. Colour should never
