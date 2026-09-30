@@ -8,7 +8,7 @@ as it is written and can be cut off mid-sentence without losing what already arr
 > Russian ([ADR 0005](docs/adr/0005-no-localization.md)). Everything a developer sees — code,
 > comments, commits, docs, this file — is English.
 >
-> This file has one translation, [`readme-ru.md`](readme-ru.md), for a reviewer who would rather
+> This file has one translation, [`README.ru.md`](README.ru.md), for a reviewer who would rather
 > read Russian. It is a translation and not a second source: where the two differ, this one is
 > right.
 
@@ -207,7 +207,7 @@ two were gated to particular apps, one was unavailable and one returned headers 
 ## The AI log
 
 Written by Claude Opus 5 in Claude Code, driven by a human review loop, over roughly a day of
-elapsed time across 90 commits on ten working branches. The browser checks were done with Claude's
+elapsed time, in small commits across ten working branches — ninety of them as this is written. The browser checks were done with Claude's
 Chrome automation; there is no other tooling here.
 
 The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — seventeen reports,
