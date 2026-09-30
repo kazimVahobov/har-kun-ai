@@ -203,7 +203,7 @@ two were gated to particular apps, one was unavailable and one returned headers 
 ## The AI log
 
 Written by Claude Opus 5 in Claude Code, driven by a human review loop, over roughly a day of
-elapsed time across 87 commits on nine working branches. The browser checks were done with Claude's
+elapsed time across 88 commits on nine working branches. The browser checks were done with Claude's
 Chrome automation; there is no other tooling here.
 
 The honest version of "how it went" is in [`docs/progress/`](docs/progress/) — seventeen reports,
@@ -317,6 +317,20 @@ In the order I would actually do them:
    for ([ADR 0012](docs/adr/0012-chat-sidebar-scope.md)).
 5. **Deploy it** ([ADR 0010](docs/adr/0010-deployment.md)). There is a domain waiting; the server
    is already a single process serving `dist/` and `/api`.
+6. **Accounts, and a key of your own.** Sign-in through Google first — one provider, and no
+   passwords of anyone's to store — and then the thing it exists for: an account can attach its own
+   OpenRouter key, and its requests spend that one. Sixth rather than first because deployment is
+   what turns this from a nice idea into a necessary one: on a public URL every visitor spends the
+   operator's free quota, and the first 429 is everybody's.
+
+   It is also much the largest item here, and it moves two decisions that are currently settled.
+   A key held on someone else's behalf has to be encrypted at rest and must never travel back to
+   the browser — [ADR 0002](docs/adr/0002-api-key-on-server.md) again, but with as many keys as
+   there are accounts, which is a different problem from keeping one. And once there are accounts,
+   history belongs on the server, so [ADR 0008](docs/adr/0008-session-storage-history.md) would be
+   revisited rather than kept: `sessionStorage` was chosen for a single-user app with nowhere else
+   to put a conversation. [`docs/plan.md`](docs/plan.md) already lists authentication as out of
+   scope for the assignment, to be written up here — this is that entry.
 
 Smaller, listed for honesty: `Esc — остановить` is shown in the key map even when nothing is
 streaming, and retry is offered only on the last message, so an identical error card earlier in the
